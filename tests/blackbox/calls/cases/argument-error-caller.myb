@@ -1,0 +1,5 @@
+fn target(first, second) { print("entered"); }
+fn outer() {
+    target(write("A"), missing);
+}
+outer();

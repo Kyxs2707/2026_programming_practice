@@ -1,0 +1,4 @@
+fn target(value) { print("entered"); }
+fn bad() { return missing; }
+fn outer() { return target(bad()); }
+outer();

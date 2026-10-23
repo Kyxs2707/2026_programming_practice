@@ -1,0 +1,5 @@
+fn target(value) { print("entered"); }
+fn outer() {
+    target(write("X"), write("Y"));
+}
+outer();

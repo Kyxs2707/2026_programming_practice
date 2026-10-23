@@ -1,0 +1,8 @@
+fn choose(flag) {
+    let value;
+    if (flag) { value = 7; } else { value = "other"; }
+    return value;
+}
+print(choose(true));
+print(choose(false));
+print(choose(true));

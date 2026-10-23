@@ -1,0 +1,5 @@
+fn descend(n) {
+    if (n == 0) { return 1 / 0; }
+    return descend(n - 1);
+}
+descend(2);

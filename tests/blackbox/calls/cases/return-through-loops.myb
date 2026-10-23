@@ -1,0 +1,15 @@
+fn find(limit) {
+    let outer = 0;
+    while (outer < limit) {
+        outer = outer + 1;
+        {
+            let local = outer * 10;
+            while (true) {
+                if (outer == 3) { return local; }
+                break;
+            }
+        }
+    }
+}
+print(find(5));
+print(find(2));

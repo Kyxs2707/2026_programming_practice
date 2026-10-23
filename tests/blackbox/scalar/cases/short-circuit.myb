@@ -1,0 +1,6 @@
+print(false && missing);
+print(true || missing);
+print(false && (1 / 0 == 0));
+print(true || (1 / 0 == 0));
+print(true && false || true);
+print(false || true && false);

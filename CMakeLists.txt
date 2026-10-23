@@ -67,11 +67,15 @@ add_library(myb_core STATIC
     src/frontend/driver.cpp
     src/semantic/checker.cpp
     src/bytecode/program.cpp
+    src/bytecode/binding_layout.cpp
     src/bytecode/compiler.cpp
     src/bytecode/verify.cpp
     src/builtins/registry.cpp
     src/builtins/io_builtins.cpp
     src/vm/vm.cpp
+    src/vm/value_store.cpp
+    src/vm/globals.cpp
+    src/vm/call.cpp
     src/cli/options.cpp
     src/cli/session.cpp
     $<TARGET_OBJECTS:myb_generated>
@@ -110,6 +114,11 @@ if(MYB_BUILD_INTERNAL_TESTS)
         tests/internal/fixtures.cpp
         tests/internal/smoke_cases.cpp
         tests/internal/native_handoff_cases.cpp
+        tests/internal/vm_scalar_cases.cpp
+        tests/internal/vm_call_cases.cpp
+        tests/internal/vm_failure_cases.cpp
+        tests/internal/checker_cases.cpp
+        tests/internal/bytecode_cases.cpp
     )
     target_compile_definitions(myb_internal_tests PRIVATE MYB_TEST_HOOKS)
     target_include_directories(myb_internal_tests PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/tests/internal" "${MYB_GENERATED_DIR}")

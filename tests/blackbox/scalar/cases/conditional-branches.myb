@@ -1,0 +1,10 @@
+let result = 0;
+if (false) {
+    print(missing);
+} else if (true) {
+    result = 7;
+} else {
+    print(missing);
+}
+print(result);
+if (true) { print("chosen"); } else if (missing) { print("wrong"); }

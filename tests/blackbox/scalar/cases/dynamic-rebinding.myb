@@ -1,0 +1,9 @@
+let value = 3;
+value = "北邮";
+print(value);
+value = true;
+print(value);
+value = null;
+print(value);
+value = 2.5;
+print(value);

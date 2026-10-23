@@ -1,0 +1,9 @@
+let x = 1;
+fn update() { x = x + 1; }
+fn caller() {
+    let x = 10;
+    update();
+    return x;
+}
+print(caller());
+print(x);

@@ -4,7 +4,7 @@
 %{
 #include "frontend/scanner.hpp"
 #include <string_view>
-// M1 只扫描已实现的表达式子集；其余语言关键字在首错处终止。
+// 所有关键字先于标识符匹配，未支持的连续运算符整体拒绝。
 // 名称和数字词素复制后交付；字符串状态交付完整范围和已解码文本。
 #define YY_DECL myb::Parser::symbol_type raw_lex(yyscan_t yyscanner)
 // 空白、注释和 BOM 也按实际匹配字节推进，避免预读影响源码位置。
@@ -28,7 +28,17 @@ UTF8 [\xC2-\xDF][\x80-\xBF]|[\xE0-\xEF][\x80-\xBF]{2}|[\xF0-\xF4][\x80-\xBF]{3}
 "true" {return Parser::make_TRUE(yyextra->matched);}
 "false" {return Parser::make_FALSE(yyextra->matched);}
 "null" {return Parser::make_NULL_VALUE(yyextra->matched);}
-"let"|"if"|"else"|"while"|"for"|"in"|"return"|"break"|"continue"|"fn"|"struct" {yyextra->lexical_error("syntax is unavailable in the M1 subset");}
+"let" {return Parser::make_LET(yyextra->matched);}
+"if" {return Parser::make_IF(yyextra->matched);}
+"else" {return Parser::make_ELSE(yyextra->matched);}
+"while" {return Parser::make_WHILE(yyextra->matched);}
+"for" {return Parser::make_FOR(yyextra->matched);}
+"in" {return Parser::make_IN(yyextra->matched);}
+"return" {return Parser::make_RETURN(yyextra->matched);}
+"break" {return Parser::make_BREAK(yyextra->matched);}
+"continue" {return Parser::make_CONTINUE(yyextra->matched);}
+"fn" {return Parser::make_FN(yyextra->matched);}
+"struct" {return Parser::make_STRUCT(yyextra->matched);}
 {IDENT} {return Parser::make_IDENTIFIER(std::string(yytext,yyleng),yyextra->matched);}
 {FLOATING} {return Parser::make_FLOAT(myb::FloatLexeme{std::string(yytext,yyleng)},yyextra->matched);}
 {DIGIT}+ {return Parser::make_INT(myb::IntLexeme{std::string(yytext,yyleng)},yyextra->matched);}
@@ -45,6 +55,22 @@ UTF8 [\xC2-\xDF][\x80-\xBF]|[\xE0-\xEF][\x80-\xBF]{2}|[\xF0-\xF4][\x80-\xBF]{3}
 ")" {return Parser::make_RPAREN(yyextra->matched);}
 "," {return Parser::make_COMMA(yyextra->matched);}
 ";" {return Parser::make_SEMICOLON(yyextra->matched);}
+"<" {return Parser::make_LESS(yyextra->matched);}
+"<=" {return Parser::make_LESS_EQUAL(yyextra->matched);}
+">" {return Parser::make_GREATER(yyextra->matched);}
+">=" {return Parser::make_GREATER_EQUAL(yyextra->matched);}
+"==" {return Parser::make_EQUAL(yyextra->matched);}
+"!=" {return Parser::make_NOT_EQUAL(yyextra->matched);}
+"&&" {return Parser::make_AND(yyextra->matched);}
+"||" {return Parser::make_OR(yyextra->matched);}
+"=" {return Parser::make_ASSIGN(yyextra->matched);}
+"." {return Parser::make_DOT(yyextra->matched);}
+":" {return Parser::make_COLON(yyextra->matched);}
+"?" {return Parser::make_QUESTION(yyextra->matched);}
+"{" {return Parser::make_LBRACE(yyextra->matched);}
+"}" {return Parser::make_RBRACE(yyextra->matched);}
+"[" {return Parser::make_LBRACKET(yyextra->matched);}
+"]" {return Parser::make_RBRACKET(yyextra->matched);}
 \" {yyextra->string_begin=yyextra->matched.begin;yyextra->decoded_string.clear();BEGIN(DQUOTE);}
 \' {yyextra->string_begin=yyextra->matched.begin;yyextra->decoded_string.clear();BEGIN(SQUOTE);}
 <DQUOTE>\" {BEGIN(INITIAL);return Parser::make_STRING(std::move(yyextra->decoded_string),{yyextra->source,yyextra->string_begin,yyextra->consumed});}

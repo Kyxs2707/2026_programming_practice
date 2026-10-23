@@ -1,0 +1,14 @@
+let value = 1;
+{
+    let value = 2;
+    {
+        value = 3;
+        print(value);
+    }
+    print(value);
+}
+print(value);
+{
+    value = 4;
+}
+print(value);

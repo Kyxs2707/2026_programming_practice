@@ -1,0 +1,2 @@
+fn target() { return 7; }
+print(target);

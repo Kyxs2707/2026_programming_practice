@@ -1,0 +1,5 @@
+{
+    let local = 7;
+    print(local);
+}
+print(local);

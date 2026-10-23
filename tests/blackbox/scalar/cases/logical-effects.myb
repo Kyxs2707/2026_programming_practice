@@ -1,0 +1,4 @@
+print(false && (write("X") == null));
+print(true || (write("Y") == null));
+print(true && (write("A") == null));
+print(false || (write("B") == null));
