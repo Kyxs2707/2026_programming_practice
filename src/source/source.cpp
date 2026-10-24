@@ -53,6 +53,8 @@ SourcePosition SourceManager::locate(SourceId id, std::uint64_t offset) const {
     const auto line = static_cast<std::size_t>(upper - source.line_starts.begin() - 1);
     auto current = line == 0 ? source.bom_size : source.line_starts[line];
     std::uint64_t column = 1;
+    // 编码失败后保留的源码也用于诊断；只累计目标偏移之前完整合法的码点。
+    // 遇非法序列或偏移落在码点内部时保留当前列，供首错定位使用。
     while (current < offset) {
         const auto decoded = utf8::decode_one(source.bytes, current);
         if (!decoded || current + decoded->width > offset)

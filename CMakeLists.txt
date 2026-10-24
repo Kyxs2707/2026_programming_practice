@@ -63,6 +63,7 @@ add_library(myb_core STATIC
     src/runtime/value_ops.cpp
     src/runtime/display.cpp
     src/ast/nodes.cpp
+    src/frontend/flex_allocations.cpp
     src/frontend/scanner.cpp
     src/frontend/driver.cpp
     src/semantic/checker.cpp

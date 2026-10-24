@@ -164,6 +164,8 @@ void VM::execute(const CompiledProgram &program) {
         ensure_frames(1, {first_, {}});
         frames_.push_back(frame);
         for (;;) {
+            // 本轮 current 引用及捕获它的 need/local/drop 只在帧表变更前有效。
+            // CALL/RETURN 后结束本轮，不再使用这些借用；下一轮重新取得活动帧。
             auto &current = frames_.back();
             const auto &unit = program.units[current.unit_id];
             if (current.next_ip >= unit.instructions.size())
@@ -249,10 +251,12 @@ void VM::execute(const CompiledProgram &program) {
                 break;
             case Op::BINARY: {
                 need(2);
+                // 运算可能分配受管结果，两个原操作数始终保留在有效操作数根中。
                 RootedValue result(roots_);
                 ValueOps(heap_, roots_)
                     .binary(static_cast<BinaryOp>(ins.a), store_.value(top_index - 2),
                             store_.value(top_index - 1), site, result);
+                // 结果经 RootedValue 写入左槽后才 drop 右槽；这段交接不增长 VM 存储或触发 GC。
                 store_.value(top_index - 2) = result.get();
                 drop();
                 break;

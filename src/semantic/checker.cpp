@@ -207,12 +207,14 @@ void Checker::visit(const LetStmt &n) {
         n.initializer()->accept(*this);
 }
 void Checker::visit(const AssignStmt &n) {
+    // 仅剥去目标最外层分组以识别写入形状，保留原树供后续子树检查。
     auto *target = &n.target();
     while (auto *group = dynamic_cast<const GroupExpr *>(target))
         target = &group->expr();
     if (!dynamic_cast<const NameExpr *>(target) && !dynamic_cast<const FieldExpr *>(target) &&
         !dynamic_cast<const IndexExpr *>(target))
         structure_error(n.operator_span(), ReasonCode::Syntax, "invalid assignment target");
+    // 形状合法后先检查右侧再检查原始目标；此处不读取绑定或运行值。
     n.value().accept(*this);
     n.target().accept(*this);
 }
@@ -238,6 +240,8 @@ void Checker::visit(const WhileStmt &n) {
     --loop_depth_;
 }
 void Checker::visit(const ForStmt &n) {
+    // 来源先按外层上下文检查；循环变量与循环体最外层随后共用一个声明集合。
+    // block_contents 沿用这一作用域，避免为循环体再开一层。
     n.source().accept(*this);
     scopes_.emplace_back();
     declare(n.name(), n.name_span());

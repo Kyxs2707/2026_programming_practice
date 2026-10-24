@@ -63,6 +63,7 @@ void ScannerContext::escape(std::string_view text) {
         return;
     }
     std::uint32_t cp = 0;
+    // 词法规则已确认转义形状；跳过 \u{ 前缀和末尾右花括号，只累计十六进制幅值。
     for (std::size_t i = 3; i + 1 < text.size(); ++i) {
         auto c = text[i];
         cp = (cp << 4) | static_cast<unsigned>(c <= '9'   ? c - '0'
@@ -71,6 +72,7 @@ void ScannerContext::escape(std::string_view text) {
     }
     if (cp > 0x10ffff || (cp >= 0xd800 && cp <= 0xdfff))
         lexical_error("Unicode escape is not a scalar value");
+    // 先排除非法标量，再按码点上界选择最短 UTF-8 编码宽度。
     if (cp < 0x80)
         decoded_string.push_back(static_cast<char>(cp));
     else if (cp < 0x800) {
@@ -89,6 +91,7 @@ void ScannerContext::escape(std::string_view text) {
 }
 [[noreturn]] void flex_fatal(const char *text, yyscan_t scanner) {
     auto *c = yyget_extra(scanner);
+    // 适配 Flex 后端的错误文本；容量关键词优先，其次分配，其余归内部状态错误。
     bool allocation = std::strstr(text, "memory") || std::strstr(text, "alloc");
     bool capacity = std::strstr(text, "overflow") || std::strstr(text, "capacity");
     fail({c->failure, {}},

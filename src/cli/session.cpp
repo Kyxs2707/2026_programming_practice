@@ -70,6 +70,7 @@ int Session::run(const Options &options) noexcept {
     } catch (const Failure &failure) {
         first_.record_first(failure.header());
         auto header = first_.header();
+        // 保留首错的 domain、reason 和 OS 信息，只从同类捕获异常补齐缺失的 span。
         if (!header.span && header.domain == failure.header().domain &&
             header.reason == failure.header().reason)
             header.span = failure.header().span;

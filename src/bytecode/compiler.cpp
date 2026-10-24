@@ -40,6 +40,8 @@ void BytecodeCompiler::compile(const CheckedAst &checked, CompiledProgram &out) 
             structures.push_back(type);
         }
     }
+    // 第一遍先固定全部结构的身份与编号，第二遍再解析字段中的结构引用，支持引用后方声明。
+    // 字段解析期间 schemas 集合保持不变，schema_id 从完整集合中查找。
     for (std::size_t i = 0; i < structures.size(); ++i) {
         for (const auto &field : structures[i]->fields()) {
             FieldType type{TypeKind::Null, {}, field.type.nullable};
@@ -107,6 +109,7 @@ void BytecodeCompiler::patch(std::uint32_t instruction, std::uint32_t target) {
 }
 void BytecodeCompiler::statement() {
     unit_->statement_boundaries.push_back(index_of(unit_->instructions.size(), {first_, {}}));
+    // 按词法嵌套记录活动遍历，使 return/break 后的不可达语句也能恢复核验上下文。
     unit_->boundary_iterations.push_back(active_iterations_);
 }
 void BytecodeCompiler::clear(LocalRange range, SourceSpan span) {
@@ -180,6 +183,7 @@ void BytecodeCompiler::visit(const GroupExpr &n) {
 }
 void BytecodeCompiler::visit(const UnaryExpr &n) {
     if (checked_->literals.contains(&n)) {
+        // 复用 Checker 规范化的 Int64 最小值，跳过无法独立表示的正幅值子表达式。
         literal(n);
         return;
     }
@@ -199,6 +203,7 @@ void BytecodeCompiler::visit(const BinaryExpr &n) {
 }
 void BytecodeCompiler::visit(const LogicalExpr &n) {
     n.left().accept(*this);
+    // 跳转只消费副本，短路时保留左值；继续求值则替换为右值，两路均留下一个严格 Bool。
     emit(Op::DUP, n.operator_span());
     const auto jump =
         emit(n.op() == LogicalOp::And ? Op::JUMP_FALSE : Op::JUMP_TRUE, n.operator_span());
@@ -258,6 +263,7 @@ void BytecodeCompiler::visit(const LetStmt &n) {
         emit(Op::DECL_GLOBAL, n.name_span(), program_->intern_name(n.name(), first_));
     else {
         const auto slot = unit_layout_->slots.at(&n);
+        // 先建立新局部，使初始化中的同名读取命中未初始化槽；外层同名绑定此时已被遮蔽。
         scopes_.back().emplace(n.name(), slot);
         emit(Op::DECL_LOCAL, n.name_span(), slot);
     }
@@ -339,8 +345,10 @@ void BytecodeCompiler::visit(const ForStmt &n) {
     scopes_.back().emplace(n.name(), slot);
     loops_.push_back({next, unit_layout_->ranges.at(&n), {}});
     n.body().accept(*this);
+    // 回边前将循环变量与体内局部恢复为未声明状态，下一轮重新使用这些槽位。
     clear(unit_layout_->ranges.at(&n), n.span());
     emit(Op::JUMP, n.span(), next);
+    // 耗尽路径与 break 共用此出口，恰好解除一次遍历登记。
     const auto end = emit(Op::ITER_END, n.span(), site);
     active_iterations_.pop_back();
     unit_->instructions[next].b = end;
@@ -364,6 +372,7 @@ void BytecodeCompiler::visit(const BreakStmt &n) {
 }
 void BytecodeCompiler::visit(const ContinueStmt &n) {
     statement();
+    // for 的 next 指向 ITER_NEXT；清理局部后直接进入下一轮，保留当前遍历登记。
     clear(loops_.back().locals, n.span());
     emit(Op::JUMP, n.span(), loops_.back().next);
 }

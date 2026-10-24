@@ -6,7 +6,13 @@
 #include <tuple>
 namespace myb {
 namespace {
-/** @brief 保存控制流点的栈深和未完成调用、构造、遍历协议。 */
+/**
+ * @brief 保存控制流点的栈深和未完成调用、构造、遍历协议。
+ *
+ * calls 各项为（调用点号，PRECALL 时的操作数深度），按未完成调用的嵌套次序保存。
+ * constructions 各项为（构造方案号，下个待检查字段序号，CHECK_STRUCT 时的操作数深度）。
+ * iterations 从外到内保存活动遍历站点号，末项为当前最内层遍历。
+ */
 struct State {
     std::uint64_t depth{};
     std::vector<std::pair<std::uint32_t, std::uint64_t>> calls;
@@ -124,6 +130,8 @@ void verify(CodeUnit &unit, EmergencyFailure &first) {
             if (site >= unit.iterations.size())
                 bad();
     }
+    // 合流要求栈深及全部未完成协议一致；不一致表示生成错误。
+    // 因此仅首次到达时入队，无需用最大深度反复合并状态。
     std::vector<std::optional<State>> states(count);
     std::deque<std::size_t> work;
     std::uint64_t maximum = 0;
@@ -285,6 +293,8 @@ void verify(CodeUnit &unit, EmergencyFailure &first) {
     };
     seed(0, {});
     analyze(true);
+    // return/break 后的不可达语句仍可能处于 for 的词法范围，用记录的遍历栈核验后续遍历指令。
+    // 这些入口从零操作数深度开始，analyze(false) 只核验结构，不扩大 max_operand。
     for (std::size_t i = 0; i < unit.statement_boundaries.size(); ++i) {
         const auto ip = unit.statement_boundaries[i];
         if (!states[ip]) {
