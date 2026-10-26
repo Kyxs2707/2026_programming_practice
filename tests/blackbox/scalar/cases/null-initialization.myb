@@ -1,0 +1,8 @@
+let first;
+first = null;
+print(first);
+{
+    let second;
+    ((second)) = null;
+    print(second);
+}

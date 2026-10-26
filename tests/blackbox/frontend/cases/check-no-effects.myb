@@ -1,0 +1,1 @@
+print("bad"); read_line(); write_text("unexpected.txt","bad");

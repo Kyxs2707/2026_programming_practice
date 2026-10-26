@@ -1,14 +1,12 @@
 #pragma once
 #include "diagnostic/failure.hpp"
 #include "semantic/checked_ast.hpp"
+#include <unordered_set>
 namespace myb {
 /**
- * @brief 在执行前遍历整个 M1 程序，并生成规范化字面量侧表。
+ * @brief 三遍检查顶层声明、结构字段类型与全部子树，并生成字面量侧表。
  *
- * 当前接收字面量、名称、分组、一元/二元节点、命名调用及表达式语句；
- * 其余预留节点由对应 visit 重载拒绝。此阶段不求运行值，
- * 名称读取和调用目标的合法性留至运行时判断。
- * 各 visit 通过对象成员累计结果；调用方通过 check() 开始完整检查。
+ * 检查器不求运行值；名称存在性、调用数量和构造字段集合留至运行时。
  * 借用的 EmergencyFailure 须比检查器存活更久。
  */
 class Checker final : public AstVisitor {
@@ -17,8 +15,8 @@ class Checker final : public AstVisitor {
     /**
      * @brief 清除上次临时结果，检查整棵树并交付本次侧表。
      * @return 借用输入程序、独占侧表的结果；调用方负责输入树的寿命。
-     * @throws FrontendFailure 发现超范围字面量或 M1 未支持的节点。
-     * @throws HostFailure AST 整数载荷违反内部约束。
+     * @throws FrontendFailure 发现超范围字面量、非法声明或控制语句。
+     * @throws HostFailure AST 整数载荷违反内部约束，或声明编号超过 uint32 容量。
      * @throws std::bad_alloc 侧表或宿主字符串分配失败。
      * 任一异常均终止本次检查，不交付部分结果。
      */
@@ -61,11 +59,18 @@ class Checker final : public AstVisitor {
      * @throws HostFailure 词素含非十进制数字，属于 AST 内部约束失败。
      */
     std::uint64_t magnitude(const IntExpr &);
-    /**
-     * @brief 在节点源码范围报告当前 M1 子集尚未支持的结构。
-     * @throws FrontendFailure 故障类别为 Frontend/Syntax。
-     */
-    [[noreturn]] void unsupported(const Node &);
+    /** @brief 在当前词法层登记名称，拒绝重复声明及受保护名称。 */
+    void declare(std::string_view, SourceSpan);
+    /** @brief 在已有词法层检查块内语句，供函数参数与 for 变量共享该层。 */
+    void block_contents(const BlockStmt &);
+    /** @brief 对结构错误登记首错并终止检查。 */
+    [[noreturn]] void structure_error(SourceSpan, ReasonCode, std::string_view);
+    DeclarationIndex declarations_;
+    std::unordered_set<std::string> protected_names_;
+    std::unordered_map<std::string, SchemaId> struct_names_;
+    std::vector<std::unordered_set<std::string>> scopes_;
+    bool in_function_{};
+    std::size_t loop_depth_{};
     EmergencyFailure &failure_;
     LiteralTable literals_;
 };

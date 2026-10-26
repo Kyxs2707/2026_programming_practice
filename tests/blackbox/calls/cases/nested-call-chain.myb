@@ -1,0 +1,10 @@
+fn leaf() {
+    return 1 / 0;
+}
+fn middle() {
+    return leaf();
+}
+fn outer() {
+    return middle();
+}
+print(outer());

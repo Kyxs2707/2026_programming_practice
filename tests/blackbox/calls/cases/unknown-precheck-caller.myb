@@ -1,0 +1,4 @@
+fn outer() {
+    unknown(write("X"));
+}
+outer();

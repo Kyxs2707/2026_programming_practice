@@ -6,12 +6,12 @@ namespace myb {
 /**
  * @brief 用索引描述 VM 活动帧和值区边界，不持有容器元素地址。
  *
- * M1 仅建立顶层帧；函数身份、调用续接和遍历字段为后续执行能力预留。
+ * 用户帧保存函数身份、调用续接和独立参数区；顶层没有函数身份。
  * 根扫描只读取已初始化局部槽及 sp 描述的有效操作数，预留槽不属于根。
  */
 struct Frame {
-    std::uint32_t unit_id{}; ///< 所属 CompiledProgram 的单元编号。
-    std::optional<std::uint32_t> function_id; ///< 用户函数编号；M1 顶层帧为空。
+    std::uint32_t unit_id{};                  ///< 所属 CompiledProgram 的单元编号。
+    std::optional<std::uint32_t> function_id; ///< 用户函数编号，顶层帧为空。
     /**
      * @brief next_ip 指向下条指令，executing_ip 保留当前指令以供诊断。
      *

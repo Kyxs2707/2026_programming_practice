@@ -1,0 +1,4 @@
+fn outer() {
+    print(write("X"), write("Y"));
+}
+outer();

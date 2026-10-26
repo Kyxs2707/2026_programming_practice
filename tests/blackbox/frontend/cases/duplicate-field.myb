@@ -1,0 +1,2 @@
+print("before");
+struct P{a:Int64;a:Int64;}

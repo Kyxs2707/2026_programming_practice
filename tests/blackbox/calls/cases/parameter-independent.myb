@@ -1,0 +1,8 @@
+fn change(value) {
+    value = "changed";
+    print(value);
+    return value;
+}
+let value = 7;
+print(change(value));
+print(value);

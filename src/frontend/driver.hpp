@@ -30,7 +30,7 @@ class Driver {
     ~Driver() noexcept;
     /**
      * @brief 从源码起点解析完整文件，成功后转移整棵树的所有权。
-     * @return 当前 M1 文法生成的完整程序，空文件也返回有效程序节点。
+     * @return 语言文法生成的完整程序，空文件也返回有效程序节点。
      * @throws FrontendFailure 发生词法或语法错误；在首错处终止解析。
      * @throws HostFailure 扫描后端容量、分配或内部约束失败。
      * @throws std::bad_alloc 宿主容器或 AST 分配失败。

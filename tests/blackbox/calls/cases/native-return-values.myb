@@ -1,0 +1,4 @@
+print(print(7));
+print(write("A"));
+fn answer() { return print(8); }
+print(answer());

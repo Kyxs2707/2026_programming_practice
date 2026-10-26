@@ -101,6 +101,7 @@ NumericParseResult<std::int64_t> DecimalCodec::parse_int(std::string_view text) 
     }
     if (text.empty())
         return {{}, NumericParseError::Content};
+    // 先完整检查文本内容，再累计幅值检查范围；超长数字前缀带非法尾字符时返回 Content。
     for (char c : text)
         if (!digit(c))
             return {{}, NumericParseError::Content};

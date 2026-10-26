@@ -1,0 +1,196 @@
+{
+  "schema_version": 1,
+  "cases": [
+    {
+      "id": "frontend-unreachable-break",
+      "script": "cases/unreachable-break.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:2:14: structure error \\[Syntax\\]: .*\\n"
+    },
+    {
+      "id": "frontend-uncalled-return-scope",
+      "script": "cases/uncalled-return-scope.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: structure error \\[Syntax\\]: .*\\n"
+    },
+    {
+      "id": "frontend-return-top",
+      "script": "cases/return-top.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: structure error \\[Syntax\\]: .*\\n"
+    },
+    {
+      "id": "frontend-duplicate-local",
+      "script": "cases/duplicate-local.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: structure error \\[Declaration\\]: .*\\n"
+    },
+    {
+      "id": "frontend-duplicate-parameter",
+      "script": "cases/duplicate-parameter.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: structure error \\[Declaration\\]: .*\\n"
+    },
+    {
+      "id": "frontend-parameter-body-conflict",
+      "script": "cases/parameter-body-conflict.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: structure error \\[Declaration\\]: .*\\n"
+    },
+    {
+      "id": "frontend-for-body-conflict",
+      "script": "cases/for-body-conflict.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: structure error \\[Declaration\\]: .*\\n"
+    },
+    {
+      "id": "frontend-protected-declaration",
+      "script": "cases/protected-declaration.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: structure error \\[Declaration\\]: .*\\n"
+    },
+    {
+      "id": "frontend-global-function-conflict",
+      "script": "cases/global-function-conflict.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: structure error \\[Declaration\\]: .*\\n"
+    },
+    {
+      "id": "frontend-duplicate-field",
+      "script": "cases/duplicate-field.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: structure error \\[Declaration\\]: .*\\n"
+    },
+    {
+      "id": "frontend-unknown-field-type",
+      "script": "cases/unknown-field-type.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: structure error \\[Declaration\\]: .*\\n"
+    },
+    {
+      "id": "frontend-invalid-target",
+      "script": "cases/invalid-target.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: structure error \\[Syntax\\]: .*\\n"
+    },
+    {
+      "id": "frontend-slice-target",
+      "script": "cases/slice-target.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: structure error \\[Syntax\\]: .*\\n"
+    },
+    {
+      "id": "frontend-comparison-chain",
+      "script": "cases/comparison-chain.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: frontend error \\[Syntax\\]: .*\\n"
+    },
+    {
+      "id": "frontend-trailing-comma",
+      "script": "cases/trailing-comma.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: frontend error \\[Syntax\\]: .*\\n"
+    },
+    {
+      "id": "frontend-nested-function",
+      "script": "cases/nested-function.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: frontend error \\[Syntax\\]: .*\\n"
+    },
+    {
+      "id": "frontend-unreachable-range",
+      "script": "cases/unreachable-range.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: frontend error \\[Range\\]: .*\\n"
+    },
+    {
+      "id": "frontend-grouped-positive-min",
+      "script": "cases/grouped-positive-min.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: frontend error \\[Range\\]: .*\\n"
+    },
+    {
+      "id": "frontend-check-dynamic",
+      "script": "cases/check-dynamic.myb",
+      "mode": "check",
+      "expect_exit": 0,
+      "expect_stdout_file": "expected/empty.bin",
+      "expect_stderr_file": "expected/empty.bin"
+    },
+    {
+      "id": "frontend-check-no-effects",
+      "script": "cases/check-no-effects.myb",
+      "mode": "check",
+      "expect_exit": 0,
+      "expect_stdout_file": "expected/empty.bin",
+      "expect_stderr_file": "expected/empty.bin",
+      "stdin_file": "expected/invalid.stdin",
+      "expect_files": [
+        {
+          "path": "unexpected.txt",
+          "absent": true
+        }
+      ]
+    },
+    {
+      "id": "frontend-check-empty",
+      "script": "cases/check-empty.myb",
+      "mode": "check",
+      "expect_exit": 0,
+      "expect_stdout_file": "expected/empty.bin",
+      "expect_stderr_file": "expected/empty.bin"
+    },
+    {
+      "id": "frontend-check-forward",
+      "script": "cases/check-forward.myb",
+      "mode": "check",
+      "expect_exit": 0,
+      "expect_stdout_file": "expected/empty.bin",
+      "expect_stderr_file": "expected/empty.bin"
+    },
+    {
+      "id": "frontend-check-all-syntax",
+      "script": "../../fixtures/frontend/all_syntax.myb",
+      "mode": "check",
+      "expect_exit": 0,
+      "expect_stdout_file": "expected/empty.bin",
+      "expect_stderr_file": "expected/empty.bin"
+    }
+  ]
+}

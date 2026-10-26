@@ -1,68 +1,69 @@
 #pragma once
 #include "builtins/registry.hpp"
-#include "bytecode/program.hpp"
+#include "vm/call.hpp"
 #include "vm/frame.hpp"
+#include "vm/globals.hpp"
+#include "vm/value_store.hpp"
 namespace myb {
 /**
- * @brief 执行已核验的 M1 顶层字节码，并为活动帧的有效值登记 GC 根。
- *
- * VM 拥有值槽、绑定状态和帧存储，借用堆、根登记表、IO、首错记录及内置表。
- * 这些服务须覆盖 VM 使用期，RootRegistry 须覆盖 VM 析构；登记期间 VM 地址稳定。
+ * @brief 以统一值区和显式帧循环执行字节码，登记活动局部和操作数根。
+ * VM拥有槽位、全局绑定和帧，借用会话服务；服务须覆盖VM寿命，登记期间VM地址稳定。
+ * 用户调用不递归进入宿主解释函数，跨存储增长只保存索引。
  */
 class VM final {
   public:
-    /** @brief 借用会话服务并登记根回调，不创建活动执行帧。 */
-    VM(Heap &, RootRegistry &, HostIO &, EmergencyFailure &, const BuiltinRegistry &) noexcept;
+    /**
+     * @brief 登记根并借用服务；可选trace接收错误时的真实函数链。
+     * trace由调用方拥有，须覆盖execute调用；链记录可能因内存不足而省略。
+     */
+    VM(Heap &, RootRegistry &, HostIO &, EmergencyFailure &, const BuiltinRegistry &,
+       std::vector<CallTraceEntry> *trace = nullptr) noexcept;
     VM(const VM &) = delete;
     VM &operator=(const VM &) = delete;
     /**
-     * @brief 预留值区后执行顶层单元，HALT 或指令执行失败时清理活动帧。
-     * @param[in] program 执行期间借用的编译产物及其常量根。
-     * @pre VM 无活动帧；program 的顶层单元已核验且执行期间保持不变。
-     * @pre program 的常量根和所有受管值均属于本 VM 使用的堆及根登记表。
-     * @throws Failure 名称、数量、运算、宿主 IO、资源或 VM 状态检查失败。
-     *
-     * 内置回调可经 Heap 分配和回收；调用期间参数保留在有效操作数区。
-     * 当前执行仅支持顶层表达式及 print/write 等注册回调，不进入用户函数。
-     * 执行前的容量准备失败时尚无活动帧，已分配存储由 VM 继续持有。
+     * @brief 执行不可变程序，正常退出和异常均清除所有活动根。
+     * @pre VM无活动帧，program及其常量根、结构元数据覆盖执行期间。
+     * @throws Failure 动态检查、宿主IO、容量或内部状态失败。
+     * native借用实参期间不增长值区或帧表，其结果由独立根交接。
      */
-    void execute(const CompiledProgram &);
-    /**
-     * @brief 无分配地将所有值置 null、状态置 Dormant，并清空活动帧。
-     *
-     * 保留已分配容量和根回调登记；帧清空后扫描结果为空，不再由 VM 保活旧值。
-     */
+    void execute(const CompiledProgram &program);
+    /** @brief 无分配清除值、全局绑定和活动帧，保留预留存储及根登记。 */
     void clear() noexcept;
-    /** @brief 清理有效值和帧，随后由成员析构撤销根登记。 */
     ~VM() noexcept {
         clear();
     }
 
   private:
-    /** @brief 标记活动帧的 Initialized 局部槽及 sp 内操作数，不扫描预留空位。 */
+    /** @brief 仅标记活动帧中已初始化局部与有效操作数。 */
     static void trace_values(void *, Marker &);
-    /**
-     * @brief 将值写入已预留操作数槽，再递增 sp 使其成为根扫描范围的一部分。
-     * @pre 存在活动帧；受管输入值在槽位发布前已有根保护。
-     *
-     * 成功路径不分配或触发 GC；预留槽不足时报告内部状态错误。
-     */
+    /** @brief 在预留槽发布有根保护的值，不分配或回收。 */
     void push(Value);
-    /**
-     * @brief 检查调用点索引并短期借用该单元的调用点记录。
-     * @return 在 unit.calls 存储保持不变期间有效的引用。
-     */
+    /** @brief 检查本单元索引，借用只读调用记录。 */
     const CallSite &call_site(const CodeUnit &, std::uint32_t);
-    /** @brief 以内部状态错误终止执行，由活动指令异常边界补充源码位置。 */
+    /** @brief 按名称和数量预检，失败不求实参。 */
+    void precheck(const CallSite &, ErrorSite) const;
+    /**
+     * @brief 准备用户参数和子区域后才发布帧，准备失败保留父帧和实参根。
+     * 所有可能分配的操作在提交前完成，提交后清父实参不分配或回收。
+     */
+    void prepare_call(std::uint32_t call_site_id, ErrorSite);
+    /** @brief 经结果根清理子帧并恢复父预留结果槽，不分配或回收。 */
+    void return_to_caller(RootedValue &);
+    /** @brief 按至少16项和1.5倍策略准备帧容量，失败不发布新帧。 */
+    void ensure_frames(std::size_t required, ErrorSite);
+    /** @brief 清理前保存已进入的函数链，记录失败不替换首错。 */
+    void capture_trace() noexcept;
     [[noreturn]] void invalid();
     Heap &heap_;
     RootRegistry &roots_;
     HostIO &io_;
     EmergencyFailure &first_;
     const BuiltinRegistry &builtins_;
-    std::vector<Value> values_; ///< 含局部和操作数的预留存储，存储存在不等于槽位有效。
-    std::vector<BindingState> states_; ///< 与值区并列的局部绑定状态。
-    std::vector<Frame> frames_; ///< 定义根扫描范围及诊断位置的活动帧。
-    NativeRootSet root_set_; ///< 借用 VM 稳定地址的根集合登记。
+    ValueStore store_;
+    Globals globals_;
+    std::vector<Frame> frames_;
+    NativeRootSet root_set_;
+    const CompiledProgram *program_{};
+    std::vector<CallTraceEntry> *trace_;
 };
 } // namespace myb

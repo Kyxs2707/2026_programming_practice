@@ -1,0 +1,9 @@
+print(true == 1);
+print(false == 0);
+print(null == false);
+print(null == null);
+print("1" != 1);
+print("北" < "邮");
+print("a" < "aa");
+print("😀" > "邮");
+print("é" == "é");

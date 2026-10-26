@@ -1,0 +1,2 @@
+print("before");
+if(false){let x;let x;}

@@ -1,0 +1,8 @@
+fn empty() {}
+fn bare() { return; }
+fn expression() { 123; }
+fn explicit() { return null; }
+print(empty());
+print(bare());
+print(expression());
+print(explicit());

@@ -3,12 +3,21 @@
 #include "runtime/operators.hpp"
 #include "runtime/value.hpp"
 namespace myb {
+class Heap;
+class RootRegistry;
+class RootedValue;
 /**
- * @brief 集中实现当前数值算术与严格 Bool 取反，不分配受管对象或触发 GC。
- * Bool 不参与数值运算；Int64 溢出、除零和非有限浮点结果均报告算术故障。
+ * @brief 集中实现动态算术、严格 Bool 取反和数值、文本及对象身份比较。
+ * 实例借用同一会话的 Heap 与根表；二者寿命须覆盖本对象。
+ * 静态标量接口不分配受管对象；实例二元接口可在字符串拼接时触发 GC。
  */
 class ValueOps {
   public:
+    /**
+     * @brief 借用堆和该堆所属根表，供字符串拼接建立临时根并发布结果。
+     * @pre heap 与 roots 属于同一会话，且在本对象存续期间保持有效。
+     */
+    ValueOps(Heap &heap, RootRegistry &roots) noexcept : heap_(heap), roots_(roots) {}
     /**
      * @brief 对合法数值应用正负号，或对 Bool 应用逻辑取反。
      * @return 运算后的标量值；正号保留原数值表示。
@@ -25,5 +34,30 @@ class ValueOps {
      * @throws HostFailure 运算符编号无效。
      */
     static Value binary(BinaryOp, Value, Value, ErrorSite);
+    /**
+     * @brief 执行数值算术或两个 String 的拼接，成功后才替换输出槽。
+     * @param[in] lhs 已完成求值且仍有效的左操作数。
+     * @param[in] rhs 已完成求值且仍有效的右操作数。
+     * @param[in,out] out 同会话已登记的根槽，可与任一输入共用原值。
+     * 入口先为输入登记临时根；Builder 增长及发布可触发 GC，输出接管后撤销临时根。
+     * 失败时保留 out 原值；成功后结果由 out 保活，借用至撤根后回收或 Heap 清空。
+     * @throws MybRuntimeFailure 类型错误、除零、整数溢出或非有限浮点结果。
+     * @throws HostFailure 无效运算符、输出根归属错误、容量或宿主分配失败。
+     */
+    void binary(BinaryOp, Value lhs, Value rhs, ErrorSite, RootedValue &out);
+    /**
+     * @brief 按 MYB 规则返回 Bool 比较结果，不分配受管对象、不触发 GC。
+     * 混合数值比较保留 Int64 精度；String 按无规范化的 Unicode 码点序比较。
+     * Array 与结构只比较身份；跨类别仅数值组合可相等，其他组合不相等。
+     * @pre 对象引用仍有效；double 为有限值。
+     * @return 相等判断或有序比较的 Bool 值。
+     * @throws MybRuntimeFailure 对数值组合及两个 String 之外的值执行有序比较。
+     * @throws HostFailure 比较运算符编号无效。
+     */
+    static Value compare(CompareOp, Value, Value, ErrorSite);
+
+  private:
+    Heap &heap_;
+    RootRegistry &roots_;
 };
 } // namespace myb

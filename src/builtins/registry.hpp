@@ -12,11 +12,11 @@ namespace myb {
  * Heap 和 RootRegistry 属于同一会话；Heap 分配及 TextBuilder 增长可能触发 GC。
  */
 struct NativeContext {
-    Heap &heap; ///< 受管对象分配及 GC 服务。
-    RootRegistry &roots; ///< 登记跨分配仍须使用的临时值。
-    HostIO &io; ///< 当前会话的宿主输入输出服务。
+    Heap &heap;                ///< 受管对象分配及 GC 服务。
+    RootRegistry &roots;       ///< 登记跨分配仍须使用的临时值。
+    HostIO &io;                ///< 当前会话的宿主输入输出服务。
     EmergencyFailure &failure; ///< 固定首错记录。
-    SourceSpan span; ///< 当前 MYB 调用的源码范围。
+    SourceSpan span;           ///< 当前 MYB 调用的源码范围。
 };
 /**
  * @brief 内置回调接口，借用实参数组并通过已登记的稳定输出根交接结果。
@@ -31,10 +31,13 @@ using NativeFn = void (*)(NativeContext &, std::span<const Value>, RootedValue &
 /** @brief 描述一个固定实参数量的内置入口，名称存储由登记表提供者维持。 */
 struct BuiltinDescriptor {
     std::string_view name; ///< 借用的内置名称。
-    std::uint8_t arity; ///< 必须精确匹配的实参数量。
-    NativeFn invoke; ///< 由 VM 在调用前检查非空的回调入口。
+    std::uint8_t arity;    ///< 必须精确匹配的实参数量。
+    NativeFn invoke;       ///< 由 VM 在调用前检查非空的回调入口。
 };
-/** @brief 返回静态只读的 M1 内置描述表，当前包含 print 和 write。 */
+/**
+ * @brief 返回21个静态名称及固定数量的描述表，供结构保护和调用预检共用。
+ * 当前M2的print/write回调可执行；其余回调在所属M3任务接入，空指针不能执行。
+ */
 std::span<const BuiltinDescriptor> builtin_descriptors() noexcept;
 /**
  * @brief 借用内置描述表，提供名称查找和实参数量预检。

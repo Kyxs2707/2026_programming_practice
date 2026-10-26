@@ -1,0 +1,5 @@
+let value = 7;
+{
+    let value;
+    print(value);
+}

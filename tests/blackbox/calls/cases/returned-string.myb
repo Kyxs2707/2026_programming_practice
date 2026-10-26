@@ -1,0 +1,5 @@
+fn tag() {
+    return "北" + "邮";
+}
+print(tag());
+print(tag() + tag());
