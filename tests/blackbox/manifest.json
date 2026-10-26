@@ -900,18 +900,18 @@
     },
     {
       "id": "objects-field-set-precheck",
-      "script": "objects/cases/field-set-precheck.myb",
+      "script": "objects/cases/invalid-construction.myb",
       "mode": "run",
       "expect_exit": 1,
-      "expect_stdout_file": "objects/expected/field-set-precheck.stdout",
+      "expect_stdout_file": "objects/expected/empty.bin",
       "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Type\\]: .*\\n"
     },
     {
       "id": "objects-field-set-check",
-      "script": "objects/cases/field-set-check.myb",
+      "script": "objects/cases/invalid-construction.myb",
       "mode": "check",
       "expect_exit": 0,
-      "expect_stdout_file": "objects/expected/field-set-check.stdout",
+      "expect_stdout_file": "objects/expected/empty.bin",
       "expect_stderr_file": "objects/expected/empty.bin"
     },
     {
@@ -919,7 +919,7 @@
       "script": "objects/cases/field-duplicate.myb",
       "mode": "run",
       "expect_exit": 1,
-      "expect_stdout_file": "objects/expected/field-duplicate.stdout",
+      "expect_stdout_file": "objects/expected/empty.bin",
       "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Type\\]: .*\\n"
     },
     {
@@ -927,7 +927,7 @@
       "script": "objects/cases/field-missing.myb",
       "mode": "run",
       "expect_exit": 1,
-      "expect_stdout_file": "objects/expected/field-missing.stdout",
+      "expect_stdout_file": "objects/expected/empty.bin",
       "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Type\\]: .*\\n"
     },
     {
@@ -935,7 +935,7 @@
       "script": "objects/cases/unknown-constructor.myb",
       "mode": "run",
       "expect_exit": 1,
-      "expect_stdout_file": "objects/expected/unknown-constructor.stdout",
+      "expect_stdout_file": "objects/expected/empty.bin",
       "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Name\\]: .*\\n"
     },
     {
@@ -943,7 +943,7 @@
       "script": "objects/cases/unconstructible.myb",
       "mode": "run",
       "expect_exit": 1,
-      "expect_stdout_file": "objects/expected/unconstructible.stdout",
+      "expect_stdout_file": "objects/expected/empty.bin",
       "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Type\\]: .*\\n"
     },
     {
@@ -1015,7 +1015,7 @@
       "script": "objects/cases/null-endpoint.myb",
       "mode": "run",
       "expect_exit": 1,
-      "expect_stdout_file": "objects/expected/null-endpoint.stdout",
+      "expect_stdout_file": "objects/expected/empty.bin",
       "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Type\\]: .*\\n"
     },
     {
@@ -1023,7 +1023,7 @@
       "script": "objects/cases/null-startpoint.myb",
       "mode": "run",
       "expect_exit": 1,
-      "expect_stdout_file": "objects/expected/null-startpoint.stdout",
+      "expect_stdout_file": "objects/expected/empty.bin",
       "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Type\\]: .*\\n"
     },
     {
@@ -1031,7 +1031,7 @@
       "script": "objects/cases/bool-index.myb",
       "mode": "run",
       "expect_exit": 1,
-      "expect_stdout_file": "objects/expected/bool-index.stdout",
+      "expect_stdout_file": "objects/expected/empty.bin",
       "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Type\\]: .*\\n"
     },
     {
@@ -1039,7 +1039,7 @@
       "script": "objects/cases/index-range.myb",
       "mode": "run",
       "expect_exit": 1,
-      "expect_stdout_file": "objects/expected/index-range.stdout",
+      "expect_stdout_file": "objects/expected/empty.bin",
       "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Range\\]: .*\\n"
     },
     {
@@ -1047,7 +1047,7 @@
       "script": "objects/cases/empty-index.myb",
       "mode": "run",
       "expect_exit": 1,
-      "expect_stdout_file": "objects/expected/empty-index.stdout",
+      "expect_stdout_file": "objects/expected/empty.bin",
       "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Range\\]: .*\\n"
     },
     {
@@ -1055,7 +1055,7 @@
       "script": "objects/cases/string-write.myb",
       "mode": "run",
       "expect_exit": 1,
-      "expect_stdout_file": "objects/expected/string-write.stdout",
+      "expect_stdout_file": "objects/expected/empty.bin",
       "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Type\\]: .*\\n"
     },
     {
@@ -1071,7 +1071,7 @@
       "script": "objects/cases/insert-range.myb",
       "mode": "run",
       "expect_exit": 1,
-      "expect_stdout_file": "objects/expected/insert-range.stdout",
+      "expect_stdout_file": "objects/expected/empty.bin",
       "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Range\\]: .*\\n"
     },
     {
@@ -1079,7 +1079,7 @@
       "script": "objects/cases/empty-pop.myb",
       "mode": "run",
       "expect_exit": 1,
-      "expect_stdout_file": "objects/expected/empty-pop.stdout",
+      "expect_stdout_file": "objects/expected/empty.bin",
       "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Range\\]: .*\\n"
     },
     {
@@ -1087,7 +1087,7 @@
       "script": "objects/cases/remove-range.myb",
       "mode": "run",
       "expect_exit": 1,
-      "expect_stdout_file": "objects/expected/remove-range.stdout",
+      "expect_stdout_file": "objects/expected/empty.bin",
       "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Range\\]: .*\\n"
     },
     {
@@ -1095,7 +1095,7 @@
       "script": "objects/cases/len-type.myb",
       "mode": "run",
       "expect_exit": 1,
-      "expect_stdout_file": "objects/expected/len-type.stdout",
+      "expect_stdout_file": "objects/expected/empty.bin",
       "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Type\\]: .*\\n"
     },
     {
@@ -1119,7 +1119,7 @@
       "script": "objects/cases/named-field.myb",
       "mode": "run",
       "expect_exit": 1,
-      "expect_stdout_file": "objects/expected/named-field.stdout",
+      "expect_stdout_file": "objects/expected/empty.bin",
       "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Type\\]: .*\\n"
     },
     {
@@ -1127,7 +1127,7 @@
       "script": "objects/cases/int-field.myb",
       "mode": "run",
       "expect_exit": 1,
-      "expect_stdout_file": "objects/expected/int-field.stdout",
+      "expect_stdout_file": "objects/expected/empty.bin",
       "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Type\\]: .*\\n"
     },
     {
@@ -1135,7 +1135,7 @@
       "script": "objects/cases/field-missing-read.myb",
       "mode": "run",
       "expect_exit": 1,
-      "expect_stdout_file": "objects/expected/field-missing-read.stdout",
+      "expect_stdout_file": "objects/expected/empty.bin",
       "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Name\\]: .*\\n"
     },
     {
@@ -1191,7 +1191,7 @@
       "script": "objects/cases/nullable-still-required.myb",
       "mode": "run",
       "expect_exit": 1,
-      "expect_stdout_file": "objects/expected/nullable-still-required.stdout",
+      "expect_stdout_file": "objects/expected/empty.bin",
       "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Type\\]: .*\\n"
     },
     {
@@ -1199,7 +1199,7 @@
       "script": "objects/cases/nonnull-field.myb",
       "mode": "run",
       "expect_exit": 1,
-      "expect_stdout_file": "objects/expected/nonnull-field.stdout",
+      "expect_stdout_file": "objects/expected/empty.bin",
       "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Type\\]: .*\\n"
     },
     {
@@ -1207,7 +1207,7 @@
       "script": "objects/cases/array-field.myb",
       "mode": "run",
       "expect_exit": 1,
-      "expect_stdout_file": "objects/expected/array-field.stdout",
+      "expect_stdout_file": "objects/expected/empty.bin",
       "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Type\\]: .*\\n"
     },
     {
@@ -1239,7 +1239,7 @@
       "script": "objects/cases/index-int-min.myb",
       "mode": "run",
       "expect_exit": 1,
-      "expect_stdout_file": "objects/expected/index-int-min.stdout",
+      "expect_stdout_file": "objects/expected/empty.bin",
       "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Range\\]: .*\\n"
     },
     {
@@ -1247,7 +1247,7 @@
       "script": "objects/cases/insert-float-index.myb",
       "mode": "run",
       "expect_exit": 1,
-      "expect_stdout_file": "objects/expected/insert-float-index.stdout",
+      "expect_stdout_file": "objects/expected/empty.bin",
       "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Type\\]: .*\\n"
     },
     {
@@ -1255,7 +1255,7 @@
       "script": "objects/cases/slice-float-endpoint.myb",
       "mode": "run",
       "expect_exit": 1,
-      "expect_stdout_file": "objects/expected/slice-float-endpoint.stdout",
+      "expect_stdout_file": "objects/expected/empty.bin",
       "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Type\\]: .*\\n"
     },
     {
@@ -1271,7 +1271,7 @@
       "script": "iteration/cases/nested-same-array.myb",
       "mode": "run",
       "expect_exit": 1,
-      "expect_stdout_file": "iteration/expected/nested-same-array.stdout",
+      "expect_stdout_file": "iteration/expected/empty.bin",
       "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[IterationMutation\\]: .*\\n(?:.*\\n)*"
     },
     {
@@ -1319,7 +1319,7 @@
       "script": "iteration/cases/fresh-uninitialized.myb",
       "mode": "run",
       "expect_exit": 1,
-      "expect_stdout_file": "iteration/expected/fresh-uninitialized.stdout",
+      "expect_stdout_file": "iteration/expected/empty.bin",
       "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Uninitialized\\]: .*\\n(?:.*\\n)*"
     },
     {
@@ -1343,7 +1343,7 @@
       "script": "iteration/cases/while-preserve-outer.myb",
       "mode": "run",
       "expect_exit": 1,
-      "expect_stdout_file": "iteration/expected/while-preserve-outer.stdout",
+      "expect_stdout_file": "iteration/expected/empty.bin",
       "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[IterationMutation\\]: .*\\n(?:.*\\n)*"
     },
     {
@@ -1359,7 +1359,7 @@
       "script": "iteration/cases/parameter-reject.myb",
       "mode": "run",
       "expect_exit": 1,
-      "expect_stdout_file": "iteration/expected/parameter-reject.stdout",
+      "expect_stdout_file": "iteration/expected/empty.bin",
       "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[IterationMutation\\]: .*\\n(?:.*\\n)*"
     },
     {
@@ -1367,7 +1367,7 @@
       "script": "iteration/cases/alias-reject.myb",
       "mode": "run",
       "expect_exit": 1,
-      "expect_stdout_file": "iteration/expected/alias-reject.stdout",
+      "expect_stdout_file": "iteration/expected/empty.bin",
       "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[IterationMutation\\]: .*\\n(?:.*\\n)*"
     },
     {
@@ -1375,7 +1375,7 @@
       "script": "iteration/cases/field-reject.myb",
       "mode": "run",
       "expect_exit": 1,
-      "expect_stdout_file": "iteration/expected/field-reject.stdout",
+      "expect_stdout_file": "iteration/expected/empty.bin",
       "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[IterationMutation\\]: .*\\n(?:.*\\n)*"
     },
     {
@@ -1383,7 +1383,7 @@
       "script": "iteration/cases/remove-reject.myb",
       "mode": "run",
       "expect_exit": 1,
-      "expect_stdout_file": "iteration/expected/remove-reject.stdout",
+      "expect_stdout_file": "iteration/expected/empty.bin",
       "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[IterationMutation\\]: .*\\n(?:.*\\n)*"
     },
     {
@@ -1399,7 +1399,7 @@
       "script": "iteration/cases/source-type.myb",
       "mode": "run",
       "expect_exit": 1,
-      "expect_stdout_file": "iteration/expected/source-type.stdout",
+      "expect_stdout_file": "iteration/expected/empty.bin",
       "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Type\\]: .*\\n(?:.*\\n)*"
     },
     {
@@ -1431,7 +1431,7 @@
       "script": "iteration/cases/function-preserves-parent.myb",
       "mode": "run",
       "expect_exit": 1,
-      "expect_stdout_file": "iteration/expected/function-preserves-parent.stdout",
+      "expect_stdout_file": "iteration/expected/empty.bin",
       "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[IterationMutation\\]: .*\\n(?:.*\\n)*"
     },
     {
@@ -1535,7 +1535,7 @@
       "script": "builtins/cases/assert-nul-message.myb",
       "mode": "run",
       "expect_exit": 1,
-      "expect_stdout_file": "builtins/expected/assert-nul-message.stdout",
+      "expect_stdout_file": "builtins/expected/empty.bin",
       "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Assertion\\]: a\\\\x00b\\n"
     },
     {
@@ -1543,7 +1543,7 @@
       "script": "builtins/cases/assert-unicode-controls.myb",
       "mode": "run",
       "expect_exit": 1,
-      "expect_stdout_file": "builtins/expected/assert-unicode-controls.stdout",
+      "expect_stdout_file": "builtins/expected/empty.bin",
       "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Assertion\\]: a\\\\u\\{85\\}b\\\\u\\{2028\\}c\\\\u\\{2029\\}d\\n"
     },
     {
@@ -1559,7 +1559,7 @@
       "script": "builtins/cases/assert-condition-type.myb",
       "mode": "run",
       "expect_exit": 1,
-      "expect_stdout_file": "builtins/expected/assert-condition-type.stdout",
+      "expect_stdout_file": "builtins/expected/empty.bin",
       "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Type\\]: [^\\n]*\\n"
     },
     {
@@ -1567,7 +1567,7 @@
       "script": "builtins/cases/int-bool.myb",
       "mode": "run",
       "expect_exit": 1,
-      "expect_stdout_file": "builtins/expected/int-bool.stdout",
+      "expect_stdout_file": "builtins/expected/empty.bin",
       "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Type\\]: [^\\n]*\\n"
     },
     {
@@ -1575,7 +1575,7 @@
       "script": "builtins/cases/float-null.myb",
       "mode": "run",
       "expect_exit": 1,
-      "expect_stdout_file": "builtins/expected/float-null.stdout",
+      "expect_stdout_file": "builtins/expected/empty.bin",
       "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Type\\]: [^\\n]*\\n"
     },
     {
@@ -1583,7 +1583,7 @@
       "script": "builtins/cases/try-int-type.myb",
       "mode": "run",
       "expect_exit": 1,
-      "expect_stdout_file": "builtins/expected/try-int-type.stdout",
+      "expect_stdout_file": "builtins/expected/empty.bin",
       "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Type\\]: [^\\n]*\\n"
     },
     {
@@ -1591,7 +1591,7 @@
       "script": "builtins/cases/try-float-type.myb",
       "mode": "run",
       "expect_exit": 1,
-      "expect_stdout_file": "builtins/expected/try-float-type.stdout",
+      "expect_stdout_file": "builtins/expected/empty.bin",
       "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Type\\]: [^\\n]*\\n"
     },
     {
@@ -1599,7 +1599,7 @@
       "script": "builtins/cases/int-text-range.myb",
       "mode": "run",
       "expect_exit": 1,
-      "expect_stdout_file": "builtins/expected/int-text-range.stdout",
+      "expect_stdout_file": "builtins/expected/empty.bin",
       "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Range\\]: [^\\n]*\\n"
     },
     {
@@ -1607,7 +1607,7 @@
       "script": "builtins/cases/float-text-range.myb",
       "mode": "run",
       "expect_exit": 1,
-      "expect_stdout_file": "builtins/expected/float-text-range.stdout",
+      "expect_stdout_file": "builtins/expected/empty.bin",
       "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Range\\]: [^\\n]*\\n"
     },
     {
@@ -1615,7 +1615,7 @@
       "script": "builtins/cases/int-float-range.myb",
       "mode": "run",
       "expect_exit": 1,
-      "expect_stdout_file": "builtins/expected/int-float-range.stdout",
+      "expect_stdout_file": "builtins/expected/empty.bin",
       "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Range\\]: [^\\n]*\\n"
     },
     {
@@ -1623,7 +1623,7 @@
       "script": "builtins/cases/int-bad-text.myb",
       "mode": "run",
       "expect_exit": 1,
-      "expect_stdout_file": "builtins/expected/int-bad-text.stdout",
+      "expect_stdout_file": "builtins/expected/empty.bin",
       "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Type\\]: [^\\n]*\\n"
     },
     {
@@ -1631,7 +1631,7 @@
       "script": "builtins/cases/float-bad-text.myb",
       "mode": "run",
       "expect_exit": 1,
-      "expect_stdout_file": "builtins/expected/float-bad-text.stdout",
+      "expect_stdout_file": "builtins/expected/empty.bin",
       "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Type\\]: [^\\n]*\\n"
     },
     {
@@ -1639,7 +1639,7 @@
       "script": "builtins/cases/float-leading-dot.myb",
       "mode": "run",
       "expect_exit": 1,
-      "expect_stdout_file": "builtins/expected/float-leading-dot.stdout",
+      "expect_stdout_file": "builtins/expected/empty.bin",
       "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Type\\]: [^\\n]*\\n"
     },
     {
@@ -1647,7 +1647,7 @@
       "script": "builtins/cases/split-empty-separator.myb",
       "mode": "run",
       "expect_exit": 1,
-      "expect_stdout_file": "builtins/expected/split-empty-separator.stdout",
+      "expect_stdout_file": "builtins/expected/empty.bin",
       "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Range\\]: [^\\n]*\\n"
     },
     {
@@ -1655,7 +1655,7 @@
       "script": "builtins/cases/split-type.myb",
       "mode": "run",
       "expect_exit": 1,
-      "expect_stdout_file": "builtins/expected/split-type.stdout",
+      "expect_stdout_file": "builtins/expected/empty.bin",
       "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Type\\]: [^\\n]*\\n"
     },
     {
@@ -1663,7 +1663,7 @@
       "script": "builtins/cases/join-mixed.myb",
       "mode": "run",
       "expect_exit": 1,
-      "expect_stdout_file": "builtins/expected/join-mixed.stdout",
+      "expect_stdout_file": "builtins/expected/empty.bin",
       "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Type\\]: [^\\n]*\\n"
     },
     {
@@ -1671,7 +1671,7 @@
       "script": "builtins/cases/join-type.myb",
       "mode": "run",
       "expect_exit": 1,
-      "expect_stdout_file": "builtins/expected/join-type.stdout",
+      "expect_stdout_file": "builtins/expected/empty.bin",
       "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Type\\]: [^\\n]*\\n"
     },
     {
@@ -1679,7 +1679,7 @@
       "script": "builtins/cases/trim-type.myb",
       "mode": "run",
       "expect_exit": 1,
-      "expect_stdout_file": "builtins/expected/trim-type.stdout",
+      "expect_stdout_file": "builtins/expected/empty.bin",
       "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Type\\]: [^\\n]*\\n"
     },
     {
@@ -1687,7 +1687,7 @@
       "script": "builtins/cases/lines-type.myb",
       "mode": "run",
       "expect_exit": 1,
-      "expect_stdout_file": "builtins/expected/lines-type.stdout",
+      "expect_stdout_file": "builtins/expected/empty.bin",
       "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Type\\]: [^\\n]*\\n"
     },
     {
@@ -1700,7 +1700,7 @@
     },
     {
       "id": "valid-line-before-invalid",
-      "script": "io/cases/valid-line-before-invalid.myb",
+      "script": "io/cases/read-two-lines.myb",
       "expect_exit": 1,
       "expect_stdout_file": "io/expected/valid-line-before-invalid.stdout",
       "expect_stderr_regex": "(?s).*Encoding.*",
@@ -1708,15 +1708,14 @@
     },
     {
       "id": "empty-input",
-      "script": "io/cases/empty-input.myb",
+      "script": "io/cases/read-two-lines.myb",
       "expect_exit": 0,
       "expect_stdout_file": "io/expected/empty-input.stdout",
-      "expect_stderr_file": "io/expected/empty.stderr",
-      "stdin_file": "io/fixtures/empty-input.stdin"
+      "expect_stderr_file": "io/expected/empty.stderr"
     },
     {
       "id": "empty-line-and-last-line",
-      "script": "io/cases/empty-line-and-last-line.myb",
+      "script": "io/cases/read-three-lines.myb",
       "expect_exit": 0,
       "expect_stdout_file": "io/expected/empty-line-and-last-line.stdout",
       "expect_stderr_file": "io/expected/empty.stderr",
@@ -1724,7 +1723,7 @@
     },
     {
       "id": "line-ending-rules",
-      "script": "io/cases/line-ending-rules.myb",
+      "script": "io/cases/read-three-lines.myb",
       "expect_exit": 0,
       "expect_stdout_file": "io/expected/line-ending-rules.stdout",
       "expect_stderr_file": "io/expected/empty.stderr",
@@ -1732,7 +1731,7 @@
     },
     {
       "id": "pipe-control-z-is-data",
-      "script": "io/cases/pipe-control-z-is-data.myb",
+      "script": "io/cases/write-line-then-eof.myb",
       "expect_exit": 0,
       "expect_stdout_file": "io/expected/pipe-control-z-is-data.stdout",
       "expect_stderr_file": "io/expected/empty.stderr",
@@ -1740,7 +1739,7 @@
     },
     {
       "id": "line-preserves-bom-nul",
-      "script": "io/cases/line-preserves-bom-nul.myb",
+      "script": "io/cases/write-line-then-eof.myb",
       "expect_exit": 0,
       "expect_stdout_file": "io/expected/line-preserves-bom-nul.stdout",
       "expect_stderr_file": "io/expected/empty.stderr",
@@ -1748,7 +1747,7 @@
     },
     {
       "id": "line-cross-buffer-character",
-      "script": "io/cases/line-cross-buffer-character.myb",
+      "script": "io/cases/write-line-then-eof.myb",
       "expect_exit": 0,
       "expect_stdout_file": "io/expected/line-cross-buffer-character.stdout",
       "expect_stderr_file": "io/expected/empty.stderr",
@@ -1756,25 +1755,25 @@
     },
     {
       "id": "truncated-line",
-      "script": "io/cases/truncated-line.myb",
+      "script": "io/cases/read-one-line.myb",
       "expect_exit": 1,
-      "expect_stdout_file": "io/expected/truncated-line.stdout",
+      "expect_stdout_file": "io/expected/empty.stderr",
       "expect_stderr_regex": "(?s).*Encoding.*",
       "stdin_file": "io/fixtures/truncated-line.stdin"
     },
     {
       "id": "surrogate-line",
-      "script": "io/cases/surrogate-line.myb",
+      "script": "io/cases/read-one-line.myb",
       "expect_exit": 1,
-      "expect_stdout_file": "io/expected/surrogate-line.stdout",
+      "expect_stdout_file": "io/expected/empty.stderr",
       "expect_stderr_regex": "(?s).*Encoding.*",
       "stdin_file": "io/fixtures/surrogate-line.stdin"
     },
     {
       "id": "overlong-line",
-      "script": "io/cases/overlong-line.myb",
+      "script": "io/cases/read-one-line.myb",
       "expect_exit": 1,
-      "expect_stdout_file": "io/expected/overlong-line.stdout",
+      "expect_stdout_file": "io/expected/empty.stderr",
       "expect_stderr_regex": "(?s).*Encoding.*",
       "stdin_file": "io/fixtures/overlong-line.stdin"
     },
@@ -1796,7 +1795,7 @@
       "id": "read-empty-text",
       "script": "io/cases/read-empty-text.myb",
       "expect_exit": 0,
-      "expect_stdout_file": "io/expected/read-empty-text.stdout",
+      "expect_stdout_file": "io/expected/empty.stderr",
       "expect_stderr_file": "io/expected/empty.stderr",
       "files": [
         {
@@ -1809,7 +1808,7 @@
       "id": "read-bad-text",
       "script": "io/cases/read-bad-text.myb",
       "expect_exit": 1,
-      "expect_stdout_file": "io/expected/read-bad-text.stdout",
+      "expect_stdout_file": "io/expected/empty.stderr",
       "expect_stderr_regex": "(?s).*Encoding.*",
       "files": [
         {
@@ -1822,21 +1821,21 @@
       "id": "read-missing-text",
       "script": "io/cases/read-missing-text.myb",
       "expect_exit": 1,
-      "expect_stdout_file": "io/expected/read-missing-text.stdout",
+      "expect_stdout_file": "io/expected/empty.stderr",
       "expect_stderr_regex": "(?s).*IO.*"
     },
     {
       "id": "read-path-nul",
       "script": "io/cases/read-path-nul.myb",
       "expect_exit": 1,
-      "expect_stdout_file": "io/expected/read-path-nul.stdout",
+      "expect_stdout_file": "io/expected/empty.stderr",
       "expect_stderr_regex": "(?s).*IO.*"
     },
     {
       "id": "write-path-nul",
       "script": "io/cases/write-path-nul.myb",
       "expect_exit": 1,
-      "expect_stdout_file": "io/expected/write-path-nul.stdout",
+      "expect_stdout_file": "io/expected/empty.stderr",
       "expect_stderr_regex": "(?s).*IO.*"
     },
     {
@@ -1857,7 +1856,7 @@
       "id": "write-missing-parent",
       "script": "io/cases/write-missing-parent.myb",
       "expect_exit": 1,
-      "expect_stdout_file": "io/expected/write-missing-parent.stdout",
+      "expect_stdout_file": "io/expected/empty.stderr",
       "expect_stderr_regex": "(?s).*IO.*",
       "expect_files": [
         {
@@ -1870,14 +1869,14 @@
       "id": "read-type",
       "script": "io/cases/read-type.myb",
       "expect_exit": 1,
-      "expect_stdout_file": "io/expected/read-type.stdout",
+      "expect_stdout_file": "io/expected/empty.stderr",
       "expect_stderr_regex": "(?s).*Type.*"
     },
     {
       "id": "write-type",
       "script": "io/cases/write-type.myb",
       "expect_exit": 1,
-      "expect_stdout_file": "io/expected/write-type.stdout",
+      "expect_stdout_file": "io/expected/empty.stderr",
       "expect_stderr_regex": "(?s).*Type.*",
       "expect_files": [
         {
@@ -1890,14 +1889,14 @@
       "id": "write-path-type",
       "script": "io/cases/write-path-type.myb",
       "expect_exit": 1,
-      "expect_stdout_file": "io/expected/write-path-type.stdout",
+      "expect_stdout_file": "io/expected/empty.stderr",
       "expect_stderr_regex": "(?s).*Type.*"
     },
     {
       "id": "read-bom-only",
       "script": "io/cases/read-bom-only.myb",
       "expect_exit": 0,
-      "expect_stdout_file": "io/expected/read-bom-only.stdout",
+      "expect_stdout_file": "io/expected/empty.stderr",
       "expect_stderr_file": "io/expected/empty.stderr",
       "files": [
         {
@@ -1910,7 +1909,7 @@
       "id": "write-overwrites",
       "script": "io/cases/write-overwrites.myb",
       "expect_exit": 0,
-      "expect_stdout_file": "io/expected/write-overwrites.stdout",
+      "expect_stdout_file": "io/expected/empty.stderr",
       "expect_stderr_file": "io/expected/empty.stderr",
       "files": [
         {

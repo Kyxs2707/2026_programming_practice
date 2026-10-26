@@ -14,7 +14,7 @@
       "script": "cases/nested-same-array.myb",
       "mode": "run",
       "expect_exit": 1,
-      "expect_stdout_file": "expected/nested-same-array.stdout",
+      "expect_stdout_file": "expected/empty.bin",
       "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[IterationMutation\\]: .*\\n(?:.*\\n)*"
     },
     {
@@ -62,7 +62,7 @@
       "script": "cases/fresh-uninitialized.myb",
       "mode": "run",
       "expect_exit": 1,
-      "expect_stdout_file": "expected/fresh-uninitialized.stdout",
+      "expect_stdout_file": "expected/empty.bin",
       "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Uninitialized\\]: .*\\n(?:.*\\n)*"
     },
     {
@@ -86,7 +86,7 @@
       "script": "cases/while-preserve-outer.myb",
       "mode": "run",
       "expect_exit": 1,
-      "expect_stdout_file": "expected/while-preserve-outer.stdout",
+      "expect_stdout_file": "expected/empty.bin",
       "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[IterationMutation\\]: .*\\n(?:.*\\n)*"
     },
     {
@@ -102,7 +102,7 @@
       "script": "cases/parameter-reject.myb",
       "mode": "run",
       "expect_exit": 1,
-      "expect_stdout_file": "expected/parameter-reject.stdout",
+      "expect_stdout_file": "expected/empty.bin",
       "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[IterationMutation\\]: .*\\n(?:.*\\n)*"
     },
     {
@@ -110,7 +110,7 @@
       "script": "cases/alias-reject.myb",
       "mode": "run",
       "expect_exit": 1,
-      "expect_stdout_file": "expected/alias-reject.stdout",
+      "expect_stdout_file": "expected/empty.bin",
       "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[IterationMutation\\]: .*\\n(?:.*\\n)*"
     },
     {
@@ -118,7 +118,7 @@
       "script": "cases/field-reject.myb",
       "mode": "run",
       "expect_exit": 1,
-      "expect_stdout_file": "expected/field-reject.stdout",
+      "expect_stdout_file": "expected/empty.bin",
       "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[IterationMutation\\]: .*\\n(?:.*\\n)*"
     },
     {
@@ -126,7 +126,7 @@
       "script": "cases/remove-reject.myb",
       "mode": "run",
       "expect_exit": 1,
-      "expect_stdout_file": "expected/remove-reject.stdout",
+      "expect_stdout_file": "expected/empty.bin",
       "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[IterationMutation\\]: .*\\n(?:.*\\n)*"
     },
     {
@@ -142,7 +142,7 @@
       "script": "cases/source-type.myb",
       "mode": "run",
       "expect_exit": 1,
-      "expect_stdout_file": "expected/source-type.stdout",
+      "expect_stdout_file": "expected/empty.bin",
       "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Type\\]: .*\\n(?:.*\\n)*"
     },
     {
@@ -174,7 +174,7 @@
       "script": "cases/function-preserves-parent.myb",
       "mode": "run",
       "expect_exit": 1,
-      "expect_stdout_file": "expected/function-preserves-parent.stdout",
+      "expect_stdout_file": "expected/empty.bin",
       "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[IterationMutation\\]: .*\\n(?:.*\\n)*"
     }
   ]

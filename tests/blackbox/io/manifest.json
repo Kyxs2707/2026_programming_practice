@@ -3,7 +3,7 @@
   "cases": [
     {
       "id": "valid-line-before-invalid",
-      "script": "cases/valid-line-before-invalid.myb",
+      "script": "cases/read-two-lines.myb",
       "expect_exit": 1,
       "expect_stdout_file": "expected/valid-line-before-invalid.stdout",
       "expect_stderr_regex": "(?s).*Encoding.*",
@@ -11,15 +11,14 @@
     },
     {
       "id": "empty-input",
-      "script": "cases/empty-input.myb",
+      "script": "cases/read-two-lines.myb",
       "expect_exit": 0,
       "expect_stdout_file": "expected/empty-input.stdout",
-      "expect_stderr_file": "expected/empty.stderr",
-      "stdin_file": "fixtures/empty-input.stdin"
+      "expect_stderr_file": "expected/empty.stderr"
     },
     {
       "id": "empty-line-and-last-line",
-      "script": "cases/empty-line-and-last-line.myb",
+      "script": "cases/read-three-lines.myb",
       "expect_exit": 0,
       "expect_stdout_file": "expected/empty-line-and-last-line.stdout",
       "expect_stderr_file": "expected/empty.stderr",
@@ -27,7 +26,7 @@
     },
     {
       "id": "line-ending-rules",
-      "script": "cases/line-ending-rules.myb",
+      "script": "cases/read-three-lines.myb",
       "expect_exit": 0,
       "expect_stdout_file": "expected/line-ending-rules.stdout",
       "expect_stderr_file": "expected/empty.stderr",
@@ -35,7 +34,7 @@
     },
     {
       "id": "pipe-control-z-is-data",
-      "script": "cases/pipe-control-z-is-data.myb",
+      "script": "cases/write-line-then-eof.myb",
       "expect_exit": 0,
       "expect_stdout_file": "expected/pipe-control-z-is-data.stdout",
       "expect_stderr_file": "expected/empty.stderr",
@@ -43,7 +42,7 @@
     },
     {
       "id": "line-preserves-bom-nul",
-      "script": "cases/line-preserves-bom-nul.myb",
+      "script": "cases/write-line-then-eof.myb",
       "expect_exit": 0,
       "expect_stdout_file": "expected/line-preserves-bom-nul.stdout",
       "expect_stderr_file": "expected/empty.stderr",
@@ -51,7 +50,7 @@
     },
     {
       "id": "line-cross-buffer-character",
-      "script": "cases/line-cross-buffer-character.myb",
+      "script": "cases/write-line-then-eof.myb",
       "expect_exit": 0,
       "expect_stdout_file": "expected/line-cross-buffer-character.stdout",
       "expect_stderr_file": "expected/empty.stderr",
@@ -59,25 +58,25 @@
     },
     {
       "id": "truncated-line",
-      "script": "cases/truncated-line.myb",
+      "script": "cases/read-one-line.myb",
       "expect_exit": 1,
-      "expect_stdout_file": "expected/truncated-line.stdout",
+      "expect_stdout_file": "expected/empty.stderr",
       "expect_stderr_regex": "(?s).*Encoding.*",
       "stdin_file": "fixtures/truncated-line.stdin"
     },
     {
       "id": "surrogate-line",
-      "script": "cases/surrogate-line.myb",
+      "script": "cases/read-one-line.myb",
       "expect_exit": 1,
-      "expect_stdout_file": "expected/surrogate-line.stdout",
+      "expect_stdout_file": "expected/empty.stderr",
       "expect_stderr_regex": "(?s).*Encoding.*",
       "stdin_file": "fixtures/surrogate-line.stdin"
     },
     {
       "id": "overlong-line",
-      "script": "cases/overlong-line.myb",
+      "script": "cases/read-one-line.myb",
       "expect_exit": 1,
-      "expect_stdout_file": "expected/overlong-line.stdout",
+      "expect_stdout_file": "expected/empty.stderr",
       "expect_stderr_regex": "(?s).*Encoding.*",
       "stdin_file": "fixtures/overlong-line.stdin"
     },
@@ -99,7 +98,7 @@
       "id": "read-empty-text",
       "script": "cases/read-empty-text.myb",
       "expect_exit": 0,
-      "expect_stdout_file": "expected/read-empty-text.stdout",
+      "expect_stdout_file": "expected/empty.stderr",
       "expect_stderr_file": "expected/empty.stderr",
       "files": [
         {
@@ -112,7 +111,7 @@
       "id": "read-bad-text",
       "script": "cases/read-bad-text.myb",
       "expect_exit": 1,
-      "expect_stdout_file": "expected/read-bad-text.stdout",
+      "expect_stdout_file": "expected/empty.stderr",
       "expect_stderr_regex": "(?s).*Encoding.*",
       "files": [
         {
@@ -125,21 +124,21 @@
       "id": "read-missing-text",
       "script": "cases/read-missing-text.myb",
       "expect_exit": 1,
-      "expect_stdout_file": "expected/read-missing-text.stdout",
+      "expect_stdout_file": "expected/empty.stderr",
       "expect_stderr_regex": "(?s).*IO.*"
     },
     {
       "id": "read-path-nul",
       "script": "cases/read-path-nul.myb",
       "expect_exit": 1,
-      "expect_stdout_file": "expected/read-path-nul.stdout",
+      "expect_stdout_file": "expected/empty.stderr",
       "expect_stderr_regex": "(?s).*IO.*"
     },
     {
       "id": "write-path-nul",
       "script": "cases/write-path-nul.myb",
       "expect_exit": 1,
-      "expect_stdout_file": "expected/write-path-nul.stdout",
+      "expect_stdout_file": "expected/empty.stderr",
       "expect_stderr_regex": "(?s).*IO.*"
     },
     {
@@ -160,7 +159,7 @@
       "id": "write-missing-parent",
       "script": "cases/write-missing-parent.myb",
       "expect_exit": 1,
-      "expect_stdout_file": "expected/write-missing-parent.stdout",
+      "expect_stdout_file": "expected/empty.stderr",
       "expect_stderr_regex": "(?s).*IO.*",
       "expect_files": [
         {
@@ -173,14 +172,14 @@
       "id": "read-type",
       "script": "cases/read-type.myb",
       "expect_exit": 1,
-      "expect_stdout_file": "expected/read-type.stdout",
+      "expect_stdout_file": "expected/empty.stderr",
       "expect_stderr_regex": "(?s).*Type.*"
     },
     {
       "id": "write-type",
       "script": "cases/write-type.myb",
       "expect_exit": 1,
-      "expect_stdout_file": "expected/write-type.stdout",
+      "expect_stdout_file": "expected/empty.stderr",
       "expect_stderr_regex": "(?s).*Type.*",
       "expect_files": [
         {
@@ -193,14 +192,14 @@
       "id": "write-path-type",
       "script": "cases/write-path-type.myb",
       "expect_exit": 1,
-      "expect_stdout_file": "expected/write-path-type.stdout",
+      "expect_stdout_file": "expected/empty.stderr",
       "expect_stderr_regex": "(?s).*Type.*"
     },
     {
       "id": "read-bom-only",
       "script": "cases/read-bom-only.myb",
       "expect_exit": 0,
-      "expect_stdout_file": "expected/read-bom-only.stdout",
+      "expect_stdout_file": "expected/empty.stderr",
       "expect_stderr_file": "expected/empty.stderr",
       "files": [
         {
@@ -213,7 +212,7 @@
       "id": "write-overwrites",
       "script": "cases/write-overwrites.myb",
       "expect_exit": 0,
-      "expect_stdout_file": "expected/write-overwrites.stdout",
+      "expect_stdout_file": "expected/empty.stderr",
       "expect_stderr_file": "expected/empty.stderr",
       "files": [
         {

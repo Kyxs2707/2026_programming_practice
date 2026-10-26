@@ -70,7 +70,7 @@
       "script": "cases/assert-nul-message.myb",
       "mode": "run",
       "expect_exit": 1,
-      "expect_stdout_file": "expected/assert-nul-message.stdout",
+      "expect_stdout_file": "expected/empty.bin",
       "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Assertion\\]: a\\\\x00b\\n"
     },
     {
@@ -78,7 +78,7 @@
       "script": "cases/assert-unicode-controls.myb",
       "mode": "run",
       "expect_exit": 1,
-      "expect_stdout_file": "expected/assert-unicode-controls.stdout",
+      "expect_stdout_file": "expected/empty.bin",
       "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Assertion\\]: a\\\\u\\{85\\}b\\\\u\\{2028\\}c\\\\u\\{2029\\}d\\n"
     },
     {
@@ -94,7 +94,7 @@
       "script": "cases/assert-condition-type.myb",
       "mode": "run",
       "expect_exit": 1,
-      "expect_stdout_file": "expected/assert-condition-type.stdout",
+      "expect_stdout_file": "expected/empty.bin",
       "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Type\\]: [^\\n]*\\n"
     },
     {
@@ -102,7 +102,7 @@
       "script": "cases/int-bool.myb",
       "mode": "run",
       "expect_exit": 1,
-      "expect_stdout_file": "expected/int-bool.stdout",
+      "expect_stdout_file": "expected/empty.bin",
       "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Type\\]: [^\\n]*\\n"
     },
     {
@@ -110,7 +110,7 @@
       "script": "cases/float-null.myb",
       "mode": "run",
       "expect_exit": 1,
-      "expect_stdout_file": "expected/float-null.stdout",
+      "expect_stdout_file": "expected/empty.bin",
       "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Type\\]: [^\\n]*\\n"
     },
     {
@@ -118,7 +118,7 @@
       "script": "cases/try-int-type.myb",
       "mode": "run",
       "expect_exit": 1,
-      "expect_stdout_file": "expected/try-int-type.stdout",
+      "expect_stdout_file": "expected/empty.bin",
       "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Type\\]: [^\\n]*\\n"
     },
     {
@@ -126,7 +126,7 @@
       "script": "cases/try-float-type.myb",
       "mode": "run",
       "expect_exit": 1,
-      "expect_stdout_file": "expected/try-float-type.stdout",
+      "expect_stdout_file": "expected/empty.bin",
       "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Type\\]: [^\\n]*\\n"
     },
     {
@@ -134,7 +134,7 @@
       "script": "cases/int-text-range.myb",
       "mode": "run",
       "expect_exit": 1,
-      "expect_stdout_file": "expected/int-text-range.stdout",
+      "expect_stdout_file": "expected/empty.bin",
       "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Range\\]: [^\\n]*\\n"
     },
     {
@@ -142,7 +142,7 @@
       "script": "cases/float-text-range.myb",
       "mode": "run",
       "expect_exit": 1,
-      "expect_stdout_file": "expected/float-text-range.stdout",
+      "expect_stdout_file": "expected/empty.bin",
       "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Range\\]: [^\\n]*\\n"
     },
     {
@@ -150,7 +150,7 @@
       "script": "cases/int-float-range.myb",
       "mode": "run",
       "expect_exit": 1,
-      "expect_stdout_file": "expected/int-float-range.stdout",
+      "expect_stdout_file": "expected/empty.bin",
       "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Range\\]: [^\\n]*\\n"
     },
     {
@@ -158,7 +158,7 @@
       "script": "cases/int-bad-text.myb",
       "mode": "run",
       "expect_exit": 1,
-      "expect_stdout_file": "expected/int-bad-text.stdout",
+      "expect_stdout_file": "expected/empty.bin",
       "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Type\\]: [^\\n]*\\n"
     },
     {
@@ -166,7 +166,7 @@
       "script": "cases/float-bad-text.myb",
       "mode": "run",
       "expect_exit": 1,
-      "expect_stdout_file": "expected/float-bad-text.stdout",
+      "expect_stdout_file": "expected/empty.bin",
       "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Type\\]: [^\\n]*\\n"
     },
     {
@@ -174,7 +174,7 @@
       "script": "cases/float-leading-dot.myb",
       "mode": "run",
       "expect_exit": 1,
-      "expect_stdout_file": "expected/float-leading-dot.stdout",
+      "expect_stdout_file": "expected/empty.bin",
       "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Type\\]: [^\\n]*\\n"
     },
     {
@@ -182,7 +182,7 @@
       "script": "cases/split-empty-separator.myb",
       "mode": "run",
       "expect_exit": 1,
-      "expect_stdout_file": "expected/split-empty-separator.stdout",
+      "expect_stdout_file": "expected/empty.bin",
       "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Range\\]: [^\\n]*\\n"
     },
     {
@@ -190,7 +190,7 @@
       "script": "cases/split-type.myb",
       "mode": "run",
       "expect_exit": 1,
-      "expect_stdout_file": "expected/split-type.stdout",
+      "expect_stdout_file": "expected/empty.bin",
       "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Type\\]: [^\\n]*\\n"
     },
     {
@@ -198,7 +198,7 @@
       "script": "cases/join-mixed.myb",
       "mode": "run",
       "expect_exit": 1,
-      "expect_stdout_file": "expected/join-mixed.stdout",
+      "expect_stdout_file": "expected/empty.bin",
       "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Type\\]: [^\\n]*\\n"
     },
     {
@@ -206,7 +206,7 @@
       "script": "cases/join-type.myb",
       "mode": "run",
       "expect_exit": 1,
-      "expect_stdout_file": "expected/join-type.stdout",
+      "expect_stdout_file": "expected/empty.bin",
       "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Type\\]: [^\\n]*\\n"
     },
     {
@@ -214,7 +214,7 @@
       "script": "cases/trim-type.myb",
       "mode": "run",
       "expect_exit": 1,
-      "expect_stdout_file": "expected/trim-type.stdout",
+      "expect_stdout_file": "expected/empty.bin",
       "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Type\\]: [^\\n]*\\n"
     },
     {
@@ -222,7 +222,7 @@
       "script": "cases/lines-type.myb",
       "mode": "run",
       "expect_exit": 1,
-      "expect_stdout_file": "expected/lines-type.stdout",
+      "expect_stdout_file": "expected/empty.bin",
       "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Type\\]: [^\\n]*\\n"
     },
     {
