@@ -374,7 +374,7 @@ print(100 + add(3, 4));
 ```
 - [x] **2. 确认红。** 重建运行 `--case vm_calls` 与 `python tools/run_blackbox.py --interpreter build/debug/myb.exe --manifest tests/blackbox/calls/manifest.json`，新用户帧/返回断言应失败。
 - [x] **3. 实现。** PRECALL预检→全部实参→准备父完整保留区之后的子区域；参数复制/初始化并完成可扫描状态后无分配提交活动帧，才撤父实参。普通MYB调用仅推进同一个VM循环；RETURN先根→统一清理→恢复父预留结果槽。native期间禁VM扩容/重入，先清旧args再写重叠结果，out根持续保护。
-- [x] **4. 验证绿。** 两组为0；默认null/零实参、前向互递归、词法全局可见性均正确：全局x=1、caller局部x=2而被调f读x时应得1；f在全局let执行前读取x应为Name/1。4096层计数递归输出4096、不借宿主递归；强制GC下tag返回新字符串仍存活。vm_call_failures逐个准备点失败为3、子帧不入链、旧帧根完整；native无伪帧、调用位置用executing_ip，清理不覆盖首错。
+- [x] **4. 验证绿。** 两组为0；默认null/零实参、前向互递归、词法全局可见性均正确：全局x=1、caller局部x=2而被调f读x时应得1；f在全局let执行前读取x应为Name/1。4096层计数递归输出4096、不借宿主递归；强制GC下tag返回新字符串仍存活。vm_call_failures逐个准备点失败为3、子帧不入链、旧帧根完整；native无伪帧、调用位置用executing_ip，清理不覆盖首错。调用链顺序按 2026-10-26 修订的设计采用内到外。
 - [x] **5. 提交。** 聚合calls组后提交 `feat: add explicit function frames and protected handoffs`。
 
 ## M3：完整对象、遍历、内置与 Windows I/O
@@ -483,7 +483,7 @@ print(int(-2.9));
 
 **Interfaces:** Produces拥有存储的Diagnostic/出错时的实际调用链记录及 `report_failure(const Diagnostic&,HostIO&)`；EmergencyFailure固定记录和无分配最小报告路径保持独立。完成全部FaultPoint接缝；HostIO错误不直接成为语言异常对象，用户不获得catch/栈访问接口。
 
-- [ ] **1. 写红测试。** 设计demo的inner在第2行 `return x + 1;` 失败，首行位置精确2:14，Type/1；实际链outer→inner，print不入用户链。错误参数/入口读取无虚构位置；invalid UTF-8为Frontend1。failure_fallback先登记Runtime/Type，再注入DiagnosticSnapshot/bad_alloc/OsWrite，保持exit1，报告最多一次；没有已有首错的宿主故障为3。
+- [ ] **1. 写红测试。** 设计demo的inner在第2行 `return x + 1;` 失败，首行位置精确2:14，Type/1；实际链inner→outer，print不入用户链。错误参数/入口读取无虚构位置；invalid UTF-8为Frontend1。failure_fallback先登记Runtime/Type，再注入DiagnosticSnapshot/bad_alloc/OsWrite，保持exit1，报告最多一次；没有已有首错的宿主故障为3。
 
 ```cpp
 EmergencyFailure first;
