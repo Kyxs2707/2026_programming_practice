@@ -1,0 +1,1 @@
+let a=[[1]];fn right(){write("R");return 8;}fn index(){write("I");return 0;}a[index()][index()]=right();print(a[0][0]);

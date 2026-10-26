@@ -1,0 +1,1 @@
+write(read_text("bom.txt"));

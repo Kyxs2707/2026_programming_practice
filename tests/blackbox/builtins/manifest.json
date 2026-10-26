@@ -1,0 +1,237 @@
+{
+  "schema_version": 1,
+  "cases": [
+    {
+      "id": "builtins-parse",
+      "script": "cases/parse.myb",
+      "mode": "run",
+      "expect_exit": 0,
+      "expect_stdout_file": "expected/parse.stdout",
+      "expect_stderr_file": "expected/empty.bin"
+    },
+    {
+      "id": "builtins-bounds",
+      "script": "cases/bounds.myb",
+      "mode": "run",
+      "expect_exit": 0,
+      "expect_stdout_file": "expected/bounds.stdout",
+      "expect_stderr_file": "expected/empty.bin"
+    },
+    {
+      "id": "builtins-split",
+      "script": "cases/split.myb",
+      "mode": "run",
+      "expect_exit": 0,
+      "expect_stdout_file": "expected/split.stdout",
+      "expect_stderr_file": "expected/empty.bin"
+    },
+    {
+      "id": "builtins-lines",
+      "script": "cases/lines.myb",
+      "mode": "run",
+      "expect_exit": 0,
+      "expect_stdout_file": "expected/lines.stdout",
+      "expect_stderr_file": "expected/empty.bin"
+    },
+    {
+      "id": "builtins-trim",
+      "script": "cases/trim.myb",
+      "mode": "run",
+      "expect_exit": 0,
+      "expect_stdout_file": "expected/trim.stdout",
+      "expect_stderr_file": "expected/empty.bin"
+    },
+    {
+      "id": "builtins-text-nul",
+      "script": "cases/text-nul.myb",
+      "mode": "run",
+      "expect_exit": 0,
+      "expect_stdout_file": "expected/text-nul.stdout",
+      "expect_stderr_file": "expected/empty.bin"
+    },
+    {
+      "id": "builtins-assert-success",
+      "script": "cases/assert-success.myb",
+      "mode": "run",
+      "expect_exit": 0,
+      "expect_stdout_file": "expected/assert-success.stdout",
+      "expect_stderr_file": "expected/empty.bin"
+    },
+    {
+      "id": "builtins-assert-failure",
+      "script": "cases/assert-failure.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "expected/assert-failure.stdout",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Assertion\\]: [^\\n]*\\n"
+    },
+    {
+      "id": "builtins-assert-nul-message",
+      "script": "cases/assert-nul-message.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Assertion\\]: a\\\\x00b\\n"
+    },
+    {
+      "id": "builtins-assert-unicode-controls",
+      "script": "cases/assert-unicode-controls.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Assertion\\]: a\\\\u\\{85\\}b\\\\u\\{2028\\}c\\\\u\\{2029\\}d\\n"
+    },
+    {
+      "id": "builtins-assert-message-type",
+      "script": "cases/assert-message-type.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "expected/assert-message-type.stdout",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Type\\]: [^\\n]*\\n"
+    },
+    {
+      "id": "builtins-assert-condition-type",
+      "script": "cases/assert-condition-type.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Type\\]: [^\\n]*\\n"
+    },
+    {
+      "id": "builtins-int-bool",
+      "script": "cases/int-bool.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Type\\]: [^\\n]*\\n"
+    },
+    {
+      "id": "builtins-float-null",
+      "script": "cases/float-null.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Type\\]: [^\\n]*\\n"
+    },
+    {
+      "id": "builtins-try-int-type",
+      "script": "cases/try-int-type.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Type\\]: [^\\n]*\\n"
+    },
+    {
+      "id": "builtins-try-float-type",
+      "script": "cases/try-float-type.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Type\\]: [^\\n]*\\n"
+    },
+    {
+      "id": "builtins-int-text-range",
+      "script": "cases/int-text-range.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Range\\]: [^\\n]*\\n"
+    },
+    {
+      "id": "builtins-float-text-range",
+      "script": "cases/float-text-range.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Range\\]: [^\\n]*\\n"
+    },
+    {
+      "id": "builtins-int-float-range",
+      "script": "cases/int-float-range.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Range\\]: [^\\n]*\\n"
+    },
+    {
+      "id": "builtins-int-bad-text",
+      "script": "cases/int-bad-text.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Type\\]: [^\\n]*\\n"
+    },
+    {
+      "id": "builtins-float-bad-text",
+      "script": "cases/float-bad-text.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Type\\]: [^\\n]*\\n"
+    },
+    {
+      "id": "builtins-float-leading-dot",
+      "script": "cases/float-leading-dot.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Type\\]: [^\\n]*\\n"
+    },
+    {
+      "id": "builtins-split-empty-separator",
+      "script": "cases/split-empty-separator.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Range\\]: [^\\n]*\\n"
+    },
+    {
+      "id": "builtins-split-type",
+      "script": "cases/split-type.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Type\\]: [^\\n]*\\n"
+    },
+    {
+      "id": "builtins-join-mixed",
+      "script": "cases/join-mixed.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Type\\]: [^\\n]*\\n"
+    },
+    {
+      "id": "builtins-join-type",
+      "script": "cases/join-type.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Type\\]: [^\\n]*\\n"
+    },
+    {
+      "id": "builtins-trim-type",
+      "script": "cases/trim-type.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Type\\]: [^\\n]*\\n"
+    },
+    {
+      "id": "builtins-lines-type",
+      "script": "cases/lines-type.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Type\\]: [^\\n]*\\n"
+    },
+    {
+      "id": "builtins-all-args-before-check",
+      "script": "cases/all-args-before-check.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "expected/all-args-before-check.stdout",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Type\\]: [^\\n]*\\n"
+    }
+  ]
+}

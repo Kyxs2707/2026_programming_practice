@@ -4,6 +4,8 @@
 #endif
 #include <cstddef>
 #include <new>
+#include <cstdint>
+#include <optional>
 
 namespace myb {
 class Heap;
@@ -44,9 +46,13 @@ void fail_next(FaultPoint point) noexcept;
 void clear_fault() noexcept;
 /** @brief 若命中已设置位置，先清除设置再抛 std::bad_alloc，保证只触发一次。 */
 void hit(FaultPoint point);
+/** @brief 设置下一次指定宿主 I/O 调用的 Windows 错误码，仅触发一次。 */
+void fail_os_next(FaultPoint point, std::uint32_t code) noexcept;
+/** @brief 取出并清除匹配位置的 OS 故障；未匹配时返回空值。 */
+std::optional<std::uint32_t> take_os_failure(FaultPoint point) noexcept;
 /** @brief 读取堆中对象数、标记数、回收状态与具有活动遍历的数组数。 */
 HeapCounts heap_counts(const Heap &heap) noexcept;
-/** @brief 预留的 VM 活动遍历计数接口，M1 尚无实现。 */
+/** @brief 读取 VM 已提交活动遍历记录数，不分配或保活来源对象。 */
 std::size_t active_iteration_count(const VM &vm) noexcept;
 } // namespace TestHooks
 } // namespace myb

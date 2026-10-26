@@ -1,0 +1,17 @@
+let child = [1];
+let shared = [child, child];
+print(shared);
+let self = [];
+append(self, self);
+print(self);
+let copy = deep_copy(shared);
+print(copy == shared);
+print(copy[0] == copy[1]);
+print(copy[0] == child);
+copy[0][0] = 9;
+print(shared);
+print(copy);
+let self_copy = deep_copy(self);
+print(self_copy == self);
+print(self_copy[0] == self_copy);
+print(self_copy);

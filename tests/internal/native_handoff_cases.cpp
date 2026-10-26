@@ -72,3 +72,17 @@ MYB_TEST(native_failure_location) {
     REQUIRE(io.err.starts_with("native.myb:2:1: runtime error [IO]:"));
     REQUIRE(io.err.find("call chain") == std::string::npos);
 }
+
+#ifndef NDEBUG
+MYB_TEST(native_requires_result) {
+    EmergencyFailure first;
+    NativeTestIO io(first);
+    io.source = "missing_result();";
+    const BuiltinDescriptor descriptors[] = {
+        {"missing_result", 0, [](NativeContext &, std::span<const Value>, RootedValue &) {}}};
+    BuiltinRegistry registry(descriptors);
+    Session session(first, io, registry);
+    REQUIRE(session.run({RunMode::Run, "native.myb"}) == 3);
+    REQUIRE(first.header().reason == ReasonCode::Invariant);
+}
+#endif

@@ -1,0 +1,22 @@
+struct Record {
+    name: String;
+    value: Float64;
+}
+
+fn increase(record, amount) {
+    record.value = record.value + amount;
+}
+
+let data = [Record { name: "甲", value: 10 }];
+let outer_copy = data[:];
+let independent = deep_copy(data);
+
+{
+    let first = outer_copy[0];
+    increase(first, 2.5);
+}
+
+assert(data[0].value == 12.5, "切片保留内部对象共享");
+assert(independent[0].value == 10.0, "深拷贝隔离原对象");
+assert(outer_copy != data, "切片外层对象独立");
+print("通过");

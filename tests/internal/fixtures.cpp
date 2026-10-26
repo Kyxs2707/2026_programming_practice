@@ -36,13 +36,22 @@ void counted_write(NativeContext &ctx, std::span<const Value> args, RootedValue 
     ++static_cast<MemoryHostIO &>(ctx.io).calls;
     builtin_descriptors()[1].invoke(ctx, args, result);
 }
-constexpr BuiltinDescriptor counted[] = {{"print", 1, counted_print}, {"write", 1, counted_write}};
 } // namespace
 struct VmFixture::State {
     EmergencyFailure first;
     MemoryHostIO io;
-    BuiltinRegistry registry{counted};
+    std::vector<BuiltinDescriptor> descriptors;
+    BuiltinRegistry registry;
     Session session{first, io, registry};
+    State() : descriptors(builtin_descriptors().begin(), builtin_descriptors().end()),
+              registry(descriptors) {
+        for (auto &entry : descriptors) {
+            if (entry.name == "print")
+                entry.invoke = counted_print;
+            else if (entry.name == "write")
+                entry.invoke = counted_write;
+        }
+    }
 };
 VmFixture::VmFixture() = default;
 VmFixture::~VmFixture() = default;

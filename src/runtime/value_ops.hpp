@@ -1,6 +1,7 @@
 #pragma once
 #include "diagnostic/failure.hpp"
 #include "runtime/operators.hpp"
+#include "runtime/schema.hpp"
 #include "runtime/value.hpp"
 namespace myb {
 class Heap;
@@ -55,6 +56,13 @@ class ValueOps {
      * @throws HostFailure 比较运算符编号无效。
      */
     static Value compare(CompareOp, Value, Value, ErrorSite);
+    /**
+     * @brief 检查结构字段的类别、可空约束和具名结构身份，按需提升 Int64 至 Float64。
+     * @return 已通过约束的值；除数值提升外保留原表示和共享关系。
+     * @pre 引用对象与其 Schema 仍有效；接口不分配受管对象或触发 GC。
+     * @throws MybRuntimeFailure 字段值不符合约束。
+     */
+    static Value check_field_value(const FieldConstraint &, Value, ErrorSite);
 
   private:
     Heap &heap_;

@@ -1,0 +1,1 @@
+let a=[1,2];for(let x in a[:]){append(a,x);}print(len(a));

@@ -1,5 +1,6 @@
 #include "vm/vm.hpp"
 #include "runtime/value_ops.hpp"
+#include "runtime/sequence_ops.hpp"
 #include <algorithm>
 #include <limits>
 #ifdef MYB_TEST_HOOKS
@@ -12,6 +13,8 @@ VM::VM(Heap &heap, RootRegistry &roots, HostIO &io, EmergencyFailure &first,
       root_set_(roots, this, trace_values), trace_(trace) {}
 void VM::trace_values(void *self, Marker &marker) {
     auto &vm = *static_cast<VM *>(self);
+    for (const auto &record : vm.iterations_)
+        marker.mark(record.source);
     for (const auto &frame : vm.frames_) {
         for (auto i = frame.base; i < frame.operand_base; ++i)
             if (vm.store_.state(i) == BindingState::Initialized)
@@ -34,6 +37,30 @@ const CallSite &VM::call_site(const CodeUnit &unit, std::uint32_t index) {
     if (index >= unit.calls.size())
         invalid();
     return unit.calls[index];
+}
+const StructSchema &VM::construction_schema(const CodeUnit &unit, std::uint32_t id,
+                                           ErrorSite site) const {
+    if (id >= unit.constructions.size() || unit.constructions[id].type >= program_->names.size())
+        fail(site, FailureDomain::Internal, ReasonCode::Invariant, "invalid construction plan");
+    const auto type = unit.constructions[id].type;
+    const auto &name = program_->names[type];
+    for (const auto &schema : program_->schemas)
+        if (schema->name == name)
+            return *schema;
+    bool known = name == "Bool" || name == "Int64" || name == "Float64" || name == "String" ||
+                 name == "Array" || builtins_.find(name);
+    for (const auto &function : program_->functions)
+        known = known || function.name == type;
+    fail(site, FailureDomain::Runtime, known ? ReasonCode::Type : ReasonCode::Name,
+         known ? "name is not a constructible structure" : "unknown structure name");
+}
+std::size_t VM::field_slot(const StructSchema &schema, NameId name, ErrorSite site) const {
+    if (name >= program_->names.size())
+        fail(site, FailureDomain::Internal, ReasonCode::Invariant, "invalid field name index");
+    for (std::size_t i = 0; i < schema.fields.size(); ++i)
+        if (schema.fields[i].name == program_->names[name])
+            return i;
+    fail(site, FailureDomain::Runtime, ReasonCode::Name, "unknown structure field");
 }
 void VM::precheck(const CallSite &call, ErrorSite site) const {
     if (call.target >= program_->names.size())
@@ -90,6 +117,7 @@ void VM::prepare_call(std::uint32_t id, ErrorSite site) {
                                               std::numeric_limits<std::size_t>::max(), first_);
         child.caller_arg_base = parent.sp - call.arity;
         child.caller_call_ip = parent.executing_ip;
+        child.iteration_base = iterations_.size();
         // 准备期间只保存索引，父sp与实参根保持不变。
         store_.ensure(child.region_end, site);
         ensure_frames(frames_.size() + 1, site);
@@ -112,7 +140,7 @@ void VM::prepare_call(std::uint32_t id, ErrorSite site) {
     RootedValue result(roots_);
     NativeContext context{heap_, roots_, io_, first_, *site.span};
     // native期间禁止VM扩容，实参在回调及GC期间仍属于父帧有效栈。
-    target.invoke(context, std::span<const Value>(&store_.value(base), call.arity), result);
+    invoke_builtin(target, context, std::span<const Value>(&store_.value(base), call.arity), result);
     store_.clear(base, base + call.arity);
     frames_.back().sp = parent.sp - call.arity;
     push(result.get());
@@ -121,6 +149,7 @@ void VM::return_to_caller(RootedValue &result) {
     if (frames_.size() < 2)
         invalid();
     const auto child = frames_.back();
+    unwind_iterations(child.iteration_base);
     store_.clear(child.base, child.region_end);
     frames_.pop_back();
     frames_.back().sp = child.caller_arg_base;
@@ -270,6 +299,123 @@ void VM::execute(const CompiledProgram &program) {
                 drop();
                 break;
             }
+            case Op::BUILD_ARRAY: {
+                need(ins.a);
+                RootedValue result(roots_);
+                heap_.make_array(ins.a, result);
+                auto &elements = std::get<ArrayRef>(result.get().data).ptr->elements;
+                for (std::size_t i = top_index - ins.a; i < top_index; ++i)
+                    elements.push_back(store_.value(i));
+                store_.clear(top_index - ins.a, top_index);
+                current.sp -= ins.a;
+                push(result.get());
+                break;
+            }
+            case Op::CHECK_STRUCT: {
+                const auto &schema = construction_schema(unit, ins.a, site);
+                const auto &plan = unit.constructions[ins.a];
+                bool valid = plan.fields.size() == schema.fields.size();
+                for (std::size_t i = 0; i < plan.fields.size(); ++i) {
+                    if (plan.fields[i] >= program.names.size())
+                        invalid();
+                    bool found = false;
+                    for (const auto &field : schema.fields)
+                        found = found || field.name == program.names[plan.fields[i]];
+                    valid = valid && found;
+                    for (std::size_t j = 0; j < i; ++j)
+                        valid = valid && plan.fields[j] != plan.fields[i];
+                }
+                if (!valid)
+                    fail(site, FailureDomain::Runtime, ReasonCode::Type,
+                         "construction fields must match structure declaration exactly");
+                break;
+            }
+            case Op::CHECK_FIELD: {
+                need(1);
+                const auto &schema = construction_schema(unit, ins.a, site);
+                const auto &plan = unit.constructions[ins.a];
+                if (ins.b >= plan.fields.size())
+                    invalid();
+                const auto slot = field_slot(schema, plan.fields[ins.b], site);
+                store_.value(top_index - 1) = ValueOps::check_field_value(
+                    schema.fields[slot].type, store_.value(top_index - 1), site);
+                break;
+            }
+            case Op::BUILD_STRUCT: {
+                const auto &schema = construction_schema(unit, ins.a, site);
+                const auto &plan = unit.constructions[ins.a];
+                need(plan.fields.size());
+                RootedValue result(roots_);
+                heap_.make_struct(schema, result);
+                auto &fields = std::get<StructRef>(result.get().data).ptr->fields;
+                for (std::size_t i = 0; i < plan.fields.size(); ++i)
+                    fields[field_slot(schema, plan.fields[i], site)] =
+                        store_.value(top_index - plan.fields.size() + i);
+                store_.clear(top_index - plan.fields.size(), top_index);
+                current.sp -= plan.fields.size();
+                push(result.get());
+                break;
+            }
+            case Op::GET_FIELD: {
+                need(1);
+                const auto object = std::get_if<StructRef>(&store_.value(top_index - 1).data);
+                if (!object)
+                    fail(site, FailureDomain::Runtime, ReasonCode::Type,
+                         "field access requires structure");
+                const auto slot = field_slot(*object->ptr->schema, ins.a, site);
+                store_.value(top_index - 1) = object->ptr->fields[slot];
+                break;
+            }
+            case Op::GET_INDEX: {
+                need(2);
+                RootedValue result(roots_);
+                SequenceOps(heap_, roots_).get_index(store_.value(top_index - 2),
+                                                     store_.value(top_index - 1), site, result);
+                store_.value(top_index - 2) = result.get();
+                drop();
+                break;
+            }
+            case Op::GET_SLICE: {
+                if (ins.a > 3)
+                    invalid();
+                const std::size_t count = 1 + ((ins.a & 1) ? 1 : 0) + ((ins.a & 2) ? 1 : 0);
+                need(count);
+                auto next = top_index - count + 1;
+                std::optional<Value> start, end;
+                if (ins.a & 1)
+                    start = store_.value(next++);
+                if (ins.a & 2)
+                    end = store_.value(next);
+                RootedValue result(roots_);
+                SequenceOps(heap_, roots_).get_slice(store_.value(top_index - count), start,
+                                                     end, site, result);
+                store_.clear(top_index - count, top_index);
+                current.sp -= count;
+                push(result.get());
+                break;
+            }
+            case Op::SET_FIELD: {
+                need(2);
+                const auto object = std::get_if<StructRef>(&store_.value(top_index - 1).data);
+                if (!object)
+                    fail(site, FailureDomain::Runtime, ReasonCode::Type,
+                         "field assignment requires structure");
+                const auto slot = field_slot(*object->ptr->schema, ins.a, site);
+                const auto value = ValueOps::check_field_value(
+                    object->ptr->schema->fields[slot].type, store_.value(top_index - 2), site);
+                object->ptr->fields[slot] = value;
+                store_.clear(top_index - 2, top_index);
+                current.sp -= 2;
+                break;
+            }
+            case Op::SET_INDEX:
+                need(3);
+                SequenceOps(heap_, roots_).set_index(store_.value(top_index - 2),
+                                                     store_.value(top_index - 1),
+                                                     store_.value(top_index - 3), site);
+                store_.clear(top_index - 3, top_index);
+                current.sp -= 3;
+                break;
             case Op::CHECK_BOOL:
                 need(1);
                 if (!std::holds_alternative<bool>(store_.value(top_index - 1).data))
@@ -303,6 +449,19 @@ void VM::execute(const CompiledProgram &program) {
                 return_to_caller(result);
                 break;
             }
+            case Op::ITER_BEGIN:
+                begin_iteration(ins.a);
+                break;
+            case Op::ITER_NEXT:
+                if (!next_iteration(ins.a))
+                    current.next_ip = ins.b;
+                break;
+            case Op::ITER_END:
+                if (iterations_.empty() || iterations_.back().frame_index != frames_.size() - 1 ||
+                    iterations_.back().site != ins.a)
+                    invalid();
+                end_iteration(ins.a);
+                break;
             case Op::HALT:
                 if (frames_.size() != 1 || current.sp)
                     invalid();
@@ -322,8 +481,8 @@ void VM::execute(const CompiledProgram &program) {
         capture_trace();
         clear();
         if (header.domain == FailureDomain::Runtime)
-            throw MybRuntimeFailure(header, failure.what());
-        throw HostFailure(header, failure.what());
+            throw MybRuntimeFailure(header, failure.message());
+        throw HostFailure(header, failure.message());
     } catch (const std::bad_alloc &) {
         std::optional<SourceSpan> span;
         if (!frames_.empty())
@@ -339,6 +498,10 @@ void VM::execute(const CompiledProgram &program) {
     }
 }
 void VM::clear() noexcept {
+    unwind_all();
+}
+void VM::unwind_all() noexcept {
+    unwind_iterations(0);
     store_.clear(0, store_.size());
     frames_.clear();
     globals_.clear();

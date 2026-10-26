@@ -1,0 +1,1 @@
+let n=0;for(let x in []){n=n+1;}for(let x in ""){n=n+1;}print(n);

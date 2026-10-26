@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "cases": [
+    {
+      "id": "display-shared-cycle",
+      "script": "cases/shared-cycle.myb",
+      "mode": "run",
+      "expect_exit": 0,
+      "expect_stdout_file": "expected/shared-cycle.stdout",
+      "expect_stderr_file": "expected/empty.bin"
+    },
+    {
+      "id": "display-exact-format",
+      "script": "cases/exact-format.myb",
+      "mode": "run",
+      "expect_exit": 0,
+      "expect_stdout_file": "expected/exact-format.stdout",
+      "expect_stderr_file": "expected/empty.bin"
+    },
+    {
+      "id": "display-spec-sharing",
+      "script": "cases/spec-sharing.myb",
+      "mode": "run",
+      "expect_exit": 0,
+      "expect_stdout_file": "expected/spec-sharing.stdout",
+      "expect_stderr_file": "expected/empty.bin"
+    },
+    {
+      "id": "display-design-combination",
+      "script": "cases/design-combination.myb",
+      "mode": "run",
+      "expect_exit": 0,
+      "expect_stdout_file": "expected/design-combination.stdout",
+      "expect_stderr_file": "expected/empty.bin"
+    }
+  ]
+}

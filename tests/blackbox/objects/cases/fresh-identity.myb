@@ -1,0 +1,1 @@
+fn make(){return [];}struct Z{}print(make()==make());print(Z{}==Z{});

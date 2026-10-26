@@ -1,0 +1,3 @@
+print(split("a,,", ",")); print(split("", ","));
+print(split("aaaaa", "aa")); print(split("北😀邮😀", "😀"));
+print(join(["北", "😀", "邮"], "::")); print([join([], ",")]);

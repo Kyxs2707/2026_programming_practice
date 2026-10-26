@@ -1,0 +1,1 @@
+let a=[1,2];let old=a;for(let x in a){a=[];print(x);}append(old,3);print(len(old));

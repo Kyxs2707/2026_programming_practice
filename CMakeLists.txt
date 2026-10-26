@@ -61,6 +61,8 @@ add_library(myb_core STATIC
     src/runtime/heap.cpp
     src/runtime/text_builder.cpp
     src/runtime/value_ops.cpp
+    src/runtime/sequence_ops.cpp
+    src/runtime/graph_copy.cpp
     src/runtime/display.cpp
     src/ast/nodes.cpp
     src/frontend/flex_allocations.cpp
@@ -73,10 +75,14 @@ add_library(myb_core STATIC
     src/bytecode/verify.cpp
     src/builtins/registry.cpp
     src/builtins/io_builtins.cpp
+    src/builtins/array_builtins.cpp
+    src/builtins/scalar_builtins.cpp
+    src/builtins/text_builtins.cpp
     src/vm/vm.cpp
     src/vm/value_store.cpp
     src/vm/globals.cpp
     src/vm/call.cpp
+    src/vm/iteration.cpp
     src/cli/options.cpp
     src/cli/session.cpp
     $<TARGET_OBJECTS:myb_generated>
@@ -91,6 +97,23 @@ target_link_libraries(myb PRIVATE myb_core)
 target_compile_options(myb PRIVATE -Wall -Wextra -Wpedantic -fno-fast-math -ffp-contract=off -finput-charset=UTF-8 -fexec-charset=UTF-8)
 if(WIN32)
     target_link_options(myb PRIVATE -municode)
+endif()
+
+if(WIN32 AND CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+    get_filename_component(MYB_COMPILER_BIN "${CMAKE_CXX_COMPILER}" DIRECTORY)
+    set(MYB_RUNTIME_COPY_COMMANDS)
+    foreach(library IN ITEMS libgcc_s_seh-1.dll libstdc++-6.dll libwinpthread-1.dll)
+        set(runtime_source "${MYB_COMPILER_BIN}/${library}")
+        if(NOT EXISTS "${runtime_source}")
+            message(FATAL_ERROR "Missing UCRT64 runtime library: ${runtime_source}")
+        endif()
+        list(APPEND MYB_RUNTIME_COPY_COMMANDS
+            COMMAND "${CMAKE_COMMAND}" -E copy_if_different
+                "${runtime_source}" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${library}")
+    endforeach()
+    # 两个可执行目标共用一次复制；增量构建也恢复被移走的运行库。
+    add_custom_target(myb_runtime_files ${MYB_RUNTIME_COPY_COMMANDS} VERBATIM)
+    add_dependencies(myb myb_runtime_files)
 endif()
 
 if(MYB_BUILD_INTERNAL_TESTS)
@@ -120,9 +143,17 @@ if(MYB_BUILD_INTERNAL_TESTS)
         tests/internal/vm_failure_cases.cpp
         tests/internal/checker_cases.cpp
         tests/internal/bytecode_cases.cpp
+        tests/internal/vm_object_cases.cpp
+        tests/internal/graph_display_cases.cpp
+        tests/internal/host_io_cases.cpp
+        tests/internal/builtin_cases.cpp
+        tests/internal/vm_iteration_cases.cpp
     )
     target_compile_definitions(myb_internal_tests PRIVATE MYB_TEST_HOOKS)
     target_include_directories(myb_internal_tests PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/tests/internal" "${MYB_GENERATED_DIR}")
     target_link_libraries(myb_internal_tests PRIVATE myb_core myb_fast_float myb_decimal_ryu)
     target_compile_options(myb_internal_tests PRIVATE -Wall -Wextra -Wpedantic -fno-fast-math -ffp-contract=off -finput-charset=UTF-8 -fexec-charset=UTF-8)
+    if(TARGET myb_runtime_files)
+        add_dependencies(myb_internal_tests myb_runtime_files)
+    endif()
 endif()
