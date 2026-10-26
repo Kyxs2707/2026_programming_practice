@@ -1,0 +1,14 @@
+struct Marker {}
+struct Point { x: Int64; y: Int64; }
+print(Marker {});
+let point = Point { y: 2, x: 1 };
+print(point);
+print("北邮😀");
+print(["\"\\\n\r\t\u{0}\u{1f}\u{7f}\u{80}\u{9f}\u{2028}\u{2029}北邮😀'"]);
+print([0.0, -0.0, 1e-4, 1e-5, 1e15, 1e16]);
+let values = [point, "第一行\n第二行", 1.0];
+append(values, values);
+print(values);
+print(str(values));
+write(str(point));
+print("");

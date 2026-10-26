@@ -1,0 +1,27 @@
+struct Record {
+    name: String;
+    value: Float64;
+}
+
+fn add(record, amount) {
+    record.value = record.value + amount;
+}
+
+fn select(records) {
+    for (let item in records) {
+        if (item.value > 0) {
+            return [item];
+        }
+    }
+    return [];
+}
+
+let records = [Record { value: 1, name: "北邮😀" }];
+let selected = select(records);
+append(records, Record { name: "乙", value: 2 });
+add(selected[0], 0.5);
+let saved = deep_copy(selected);
+add(selected[0], 0.5);
+assert(saved[0].value == 1.5, "explicit deep copy");
+assert(records[0].value == 2.0, "shared object");
+print(saved);

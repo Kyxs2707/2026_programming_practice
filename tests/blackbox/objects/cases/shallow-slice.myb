@@ -1,0 +1,1 @@
+let a=[[1]];let b=a[:];append(b[0],2);print(a[0][1]);print(a==b);

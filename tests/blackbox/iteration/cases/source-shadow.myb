@@ -1,0 +1,1 @@
+let x=[1,2];for(let x in x){print(x);}print(len(x));

@@ -1,0 +1,1 @@
+struct P{x:Float64;y:Array;next:P?;}let p=P{next:null,y:[1,"x",false],x:2};print(p.x);p.x=3;print(p.x);print(len(p.y));p.next=p;print(p.next==p);

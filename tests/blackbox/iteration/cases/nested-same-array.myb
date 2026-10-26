@@ -1,0 +1,1 @@
+let a=[1];for(let x in a){for(let y in a){break;}append(a,2);}

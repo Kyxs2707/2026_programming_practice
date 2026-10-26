@@ -79,7 +79,20 @@ class RootedValue final {
      */
     void set(Value value) noexcept {
         slot_ = value;
+#ifndef NDEBUG
+        written_ = true;
+#endif
     }
+#ifndef NDEBUG
+    /** @brief 开始检查一次 native 输出交接，仅重置调试标记，原值继续由根保活。 */
+    void begin_output() noexcept {
+        written_ = false;
+    }
+    /** @brief 查询本次 native 输出检查开始后是否调用过 set。 */
+    bool was_written() const noexcept {
+        return written_;
+    }
+#endif
     /** @brief 幂等撤销根登记，保留槽值；后续回收不再通过本槽保活对象。 */
     void detach() noexcept {
         link_.detach();
@@ -92,6 +105,9 @@ class RootedValue final {
     static void trace_slot(void *, Marker &);
     Value slot_{NullValue{}};
     RootLink link_;
+#ifndef NDEBUG
+    bool written_{};
+#endif
 };
 /**
  * @brief 为宿主多值集合登记一个稳定上下文，回调每次枚举容器的当前内容。

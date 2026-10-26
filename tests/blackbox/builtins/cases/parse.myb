@@ -1,0 +1,3 @@
+print(try_int("bad")); print(try_float("-1e-9999")); print(int(-2.9));
+print(int(" +00042 ")); print(float(" 0.5 ")); print(float(7)); print(int(-0.9));
+print(try_int("9223372036854775808")); print(try_float("1e9999")); print(try_float("NaN"));

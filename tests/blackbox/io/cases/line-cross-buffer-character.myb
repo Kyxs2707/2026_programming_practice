@@ -1,0 +1,1 @@
+write(read_line()); print(read_line());

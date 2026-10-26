@@ -1,0 +1,1 @@
+let calls=0;fn source(){calls=calls+1;return [1,2];}for(let x in source()){print(x);}print(calls);

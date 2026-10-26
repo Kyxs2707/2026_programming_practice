@@ -1,0 +1,1 @@
+let a=[1];let b=a;fn index(){a=[9];return 0;}a[index()]=7;print(a[0]);print(b[0]);

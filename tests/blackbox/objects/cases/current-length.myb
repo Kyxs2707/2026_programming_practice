@@ -1,0 +1,1 @@
+let a=[1,2];let b=a;fn end(){append(b,3);a=[];return 3;}let c=a[0:end()];print(len(c));print(c[2]);print(len(a));

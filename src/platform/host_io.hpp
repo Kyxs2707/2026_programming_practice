@@ -4,6 +4,27 @@
 #include <string>
 #include <string_view>
 namespace myb {
+/**
+ * @brief 无分配地携带宿主 I/O 原因及 Windows 错误码，由调用方决定语言退出状态。
+ * 消息须为静态存储期文本；异常不持有受管对象，也不记录会话首错。
+ */
+class IoFailure final : public std::exception {
+  public:
+    /** @brief 保存原因、可选 OS 代码及具有静态寿命的说明。 */
+    IoFailure(ReasonCode reason, const char *message,
+              std::optional<std::uint32_t> code = {}) noexcept
+        : reason_(reason), message_(message), code_(code) {}
+    /** @brief 返回宿主失败原因。 */
+    ReasonCode reason() const noexcept { return reason_; }
+    /** @brief 返回调用失败时保存的 OS 错误码。 */
+    std::optional<std::uint32_t> os_code() const noexcept { return code_; }
+    /** @brief 借用具有静态寿命的错误说明。 */
+    const char *what() const noexcept override { return message_; }
+  private:
+    ReasonCode reason_;
+    const char *message_;
+    std::optional<std::uint32_t> code_;
+};
 /** @brief 入口读取结果，独占保存解析后的 UTF-8 路径与未经文本转换的源码字节。 */
 struct EntryBytes {
     std::string path_utf8, bytes;
@@ -20,11 +41,11 @@ class HostIO {
     virtual ~HostIO() noexcept = default;
     /** @brief 读取入口的原始字节并返回拥有存储的路径与内容。 */
     virtual EntryBytes read_entry(std::string_view) = 0;
-    /** @brief 预留的行读取接口，M1 的 Windows 实现以 Internal/Invariant 拒绝调用。 */
+    /** @brief 严格读取一行 UTF-8，移去 LF/CRLF；正常 EOF 返回 End，失败抛 IoFailure。 */
     virtual LineStatus read_line(Utf8Sink &) = 0;
-    /** @brief 预留的文本文件读取接口，M1 的 Windows 实现以 Internal/Invariant 拒绝调用。 */
+    /** @brief 严格读取 UTF-8 文件，去一次开头 BOM，保留其余字节；失败抛 IoFailure。 */
     virtual void read_text(std::string_view, Utf8Sink &) = 0;
-    /** @brief 预留的文本文件写入接口，M1 的 Windows 实现以 Internal/Invariant 拒绝调用。 */
+    /** @brief 创建或覆盖文本文件，按长度写尽并检查关闭；失败抛 IoFailure。 */
     virtual void write_text(std::string_view, std::string_view) = 0;
     /** @brief 写出全部 stdout 字节，并按 append_lf 决定是否额外写一个 LF。 */
     virtual void write_stdout(std::string_view, bool append_lf) = 0;
@@ -42,16 +63,17 @@ std::wstring utf8_to_wide(std::string_view, ErrorSite);
  */
 std::string wide_to_utf8(std::wstring_view, ErrorSite);
 /**
- * @brief 使用 Windows 宽路径读取源码并按句柄类型写标准流的 M1 平台实现。
+ * @brief 使用 Windows 宽路径读写文件，并按标准句柄类型严格桥接 Unicode 文本。
  *
  * 借用的首错记录须覆盖本对象寿命。入口路径拒绝 NUL 并解析为绝对路径；
  * 源码编码由 SourceManager 验证。控制台输出严格转 UTF-16，文件和管道按原字节写尽。
- * 标准流由宿主持有，本对象不关闭；read_line、read_text、write_text 留待后续阶段实现。
+ * 标准流由宿主持有，本对象不关闭；输入缓冲保存尚未交出的当前块内容。
+ * 文件相对路径按构造时工作目录解析；输入缓冲不持有受管对象，sink 增长可触发 GC。
  */
 class WindowsHostIO final : public HostIO {
   public:
     /** @brief 绑定会话首错记录，不预读标准流。 */
-    explicit WindowsHostIO(EmergencyFailure &failure) : failure_(failure) {}
+    explicit WindowsHostIO(EmergencyFailure &failure);
     EntryBytes read_entry(std::string_view) override;
     LineStatus read_line(Utf8Sink &) override;
     void read_text(std::string_view, Utf8Sink &) override;
@@ -61,5 +83,12 @@ class WindowsHostIO final : public HostIO {
 
   private:
     EmergencyFailure &failure_;
+    std::wstring working_directory_;
+    std::string input_bytes_;
+    std::wstring input_wide_;
+    bool input_started_{};
+    bool input_console_{};
+    bool input_end_{};
+    std::uintptr_t input_handle_{};
 };
 } // namespace myb

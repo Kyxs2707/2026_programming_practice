@@ -1,0 +1,1 @@
+write_text("existing.txt", ""); print(read_text("existing.txt"));

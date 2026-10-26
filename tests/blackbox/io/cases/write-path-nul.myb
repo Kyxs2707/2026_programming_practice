@@ -1,0 +1,1 @@
+write_text("bad\u{0}name", "text");

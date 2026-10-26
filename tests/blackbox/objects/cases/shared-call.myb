@@ -1,0 +1,1 @@
+fn change(x){x[0]=7;x=[];append(x,9);}let a=[1];change(a);print(a[0]);print(len(a));

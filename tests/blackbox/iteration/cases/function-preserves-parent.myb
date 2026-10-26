@@ -1,0 +1,1 @@
+fn inner(a){for(let x in a){return;}}let a=[1];for(let x in a){inner(a);append(a,2);}

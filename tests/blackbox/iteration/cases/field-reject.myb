@@ -1,0 +1,1 @@
+struct Box{a:Array;}let a=[1];let box=Box{a:a};for(let x in a){pop(box.a);}

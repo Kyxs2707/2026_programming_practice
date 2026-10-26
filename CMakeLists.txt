@@ -61,6 +61,8 @@ add_library(myb_core STATIC
     src/runtime/heap.cpp
     src/runtime/text_builder.cpp
     src/runtime/value_ops.cpp
+    src/runtime/sequence_ops.cpp
+    src/runtime/graph_copy.cpp
     src/runtime/display.cpp
     src/ast/nodes.cpp
     src/frontend/flex_allocations.cpp
@@ -73,10 +75,14 @@ add_library(myb_core STATIC
     src/bytecode/verify.cpp
     src/builtins/registry.cpp
     src/builtins/io_builtins.cpp
+    src/builtins/array_builtins.cpp
+    src/builtins/scalar_builtins.cpp
+    src/builtins/text_builtins.cpp
     src/vm/vm.cpp
     src/vm/value_store.cpp
     src/vm/globals.cpp
     src/vm/call.cpp
+    src/vm/iteration.cpp
     src/cli/options.cpp
     src/cli/session.cpp
     $<TARGET_OBJECTS:myb_generated>
@@ -120,6 +126,11 @@ if(MYB_BUILD_INTERNAL_TESTS)
         tests/internal/vm_failure_cases.cpp
         tests/internal/checker_cases.cpp
         tests/internal/bytecode_cases.cpp
+        tests/internal/vm_object_cases.cpp
+        tests/internal/graph_display_cases.cpp
+        tests/internal/host_io_cases.cpp
+        tests/internal/builtin_cases.cpp
+        tests/internal/vm_iteration_cases.cpp
     )
     target_compile_definitions(myb_internal_tests PRIVATE MYB_TEST_HOOKS)
     target_include_directories(myb_internal_tests PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/tests/internal" "${MYB_GENERATED_DIR}")

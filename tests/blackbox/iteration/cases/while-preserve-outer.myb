@@ -1,0 +1,1 @@
+let a=[1];for(let x in a){while(true){break;}append(a,2);}

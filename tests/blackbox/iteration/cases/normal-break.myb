@@ -1,0 +1,1 @@
+let a=[1,2];for(let x in a){let local=[x];if(x==1){continue;}break;}append(a,3);print(len(a));for(let x in a){}append(a,4);print(len(a));

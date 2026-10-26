@@ -3,28 +3,42 @@
 #include "frontend/driver.hpp"
 #include "runtime/decimal_codec.hpp"
 #include "semantic/checker.hpp"
+#include "source/utf8.hpp"
 #include "vm/vm.hpp"
+#include <charconv>
 #include <new>
 #include <stdexcept>
 namespace myb {
 namespace {
-/** @brief 转义诊断中的控制字节，保持路径和原因文本位于同一诊断行。 */
+/** @brief 按码点转义诊断中的控制字符和行分隔符，非法 UTF-8 字节逐项转义。 */
 std::string escaped(std::string_view text) {
     std::string out;
-    for (unsigned char c : text) {
+    for (std::size_t at = 0; at < text.size();) {
+        const auto decoded = utf8::decode_one(text, at);
+        const auto c = static_cast<unsigned char>(text[at]);
+        const auto width = decoded ? decoded->width : std::size_t{1};
         if (c == '\n')
             out += "\\n";
         else if (c == '\r')
             out += "\\r";
         else if (c == '\t')
             out += "\\t";
-        else if (c < 32 || c == 127) {
+        else if (!decoded || c < 32 || c == 127) {
             constexpr char hex[] = "0123456789abcdef";
             out += "\\x";
             out += hex[c >> 4];
             out += hex[c & 15];
+        } else if ((decoded->value >= 0x80 && decoded->value <= 0x9f) ||
+                   decoded->value == 0x2028 || decoded->value == 0x2029) {
+            char digits[8];
+            const auto converted = std::to_chars(digits, digits + sizeof digits,
+                                                  decoded->value, 16);
+            out += "\\u{";
+            out.append(digits, converted.ptr);
+            out += '}';
         } else
-            out += static_cast<char>(c);
+            out.append(text.substr(at, width));
+        at += width;
     }
     return out;
 }
@@ -74,7 +88,7 @@ int Session::run(const Options &options) noexcept {
         if (!header.span && header.domain == failure.header().domain &&
             header.reason == failure.header().reason)
             header.span = failure.header().span;
-        report(header, failure.what());
+        report(header, failure.message());
     } catch (const std::bad_alloc &) {
         first_.record_first({FailureDomain::Resource, ReasonCode::Allocation});
         report(first_.header(), "host allocation failed");

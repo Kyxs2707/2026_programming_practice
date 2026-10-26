@@ -1,0 +1,1 @@
+struct P{x:Int64;}let p=P{x:2.0};

@@ -1,0 +1,1 @@
+print(write_text("输出 文本.txt", "A\r\n\u{0}中😀"));

@@ -10,7 +10,7 @@
 
 **Spec:** [MYB 解释器设计](../specs/MYB解释器设计.md)；语言行为以 [MYB 语言规范](../specs/MYB语言规范.md) v0.2（含 2026-10-22 D63 澄清）为准；完整课程交付顺序见 [项目实施步骤](../superpowers/plans/2026-10-11-myb-implementation.md)。
 
-状态：用户于 2026-10-22 明确要求“好，你先完成M1吧”，已授权任务 01–06。**M1 已于 2026-10-23 完成实现与验收；用户同日授权完成 M2，任务 07–11 已通过本地 Debug/Release 验收与独立审查，见 [M2 测试报告](../reports/M2测试报告.md)。M3–M4 未启动。** 2026-10-23 按用户要求在 M1 与 M2 之间新增 CI-01/CI-02 两项工程任务，用户已授权实施；CI-01 的本地脚本、远端两 job 正常→失败→恢复和独立仅文档 PR 触发均已验收；用户随后将仓库改为 public 并授权完成 CI-02，强制合并条件已配置并完成失败/恢复验收；整个 CI 工程阶段完成。 独立构建、源码前端与堆模块并行实施，由根代理集成并安排一次独立整体审查。实测命令、范围与调整见 [构建与测试](../guides/构建与测试.md) 和 [测试报告](../reports/测试报告_v0.1.md)。
+状态：用户于 2026-10-22 明确要求“好，你先完成M1吧”，已授权任务 01–06。**M1 已于 2026-10-23 完成实现与验收；用户同日授权完成 M2，任务 07–11 已通过本地 Debug/Release 验收与独立审查，见 [M2 测试报告](../reports/M2测试报告.md)。M3 任务 12–16 的运行时实现和自动化验收于 2026-10-26 完成，见 [M3 测试报告](../reports/M3测试报告.md)；真实控制台人工验收未完成，M4 未启动。** 2026-10-23 按用户要求在 M1 与 M2 之间新增 CI-01/CI-02 两项工程任务，用户已授权实施；CI-01 的本地脚本、远端两 job 正常→失败→恢复和独立仅文档 PR 触发均已验收；用户随后将仓库改为 public 并授权完成 CI-02，强制合并条件已配置并完成失败/恢复验收；整个 CI 工程阶段完成。 独立构建、源码前端与堆模块并行实施，由根代理集成并安排一次独立整体审查。实测命令、范围与调整见 [构建与测试](../guides/构建与测试.md) 和 [测试报告](../reports/测试报告_v0.1.md)。
 
 ## Global Constraints（全局约束）
 
@@ -385,16 +385,16 @@ print(100 + add(3, 4));
 
 **Interfaces:** Produces `SequenceOps::get_index(Value,Value,ErrorSite,RootedValue&)`、`get_slice(Value,optional<Value>,optional<Value>,ErrorSite,RootedValue&)`、`set_index(Value,Value,Value,ErrorSite)`；`ValueOps::check_field_value(const FieldConstraint&,Value,ErrorSite)->Value`。CHECK_STRUCT/CHECK_FIELD/BUILD_STRUCT按本单元原始方案执行；新增len/append/insert/pop/remove_at回调，活动计数检查从此存在。
 
-- [ ] **1. 写红测试。** `struct P{a:Int64;b:Int64;} let x=P{b:write("B"),a:write("A")};` 仅输出B后Type1；改为 `P{bad:write("X")}` 不输出X，集合预检1，--check仍成功。`let a=[[1]];let b=a[:];append(b[0],2);print(a[0][1]);print(a==b);` 输出 `2\nfalse\n`；`print("北邮😀"[-1]);` 输出emoji。
+- [x] **1. 写红测试。** `struct P{a:Int64;b:Int64;} let x=P{b:write("B"),a:write("A")};` 仅输出B后Type1；改为 `P{bad:write("X")}` 不输出X，集合预检1，--check仍成功。`let a=[[1]];let b=a[:];append(b[0],2);print(a[0][1]);print(a==b);` 输出 `2\nfalse\n`；`print("北邮😀"[-1]);` 输出emoji。
 
 ```myb
 struct P { a: Int64; b: Int64; }
 let x = P { b: write("B"), a: write("A") };
 ```
-- [ ] **2. 确认红。** 重建，运行 `--case vm_objects` 和 `python tools/run_blackbox.py --interpreter build/debug/myb.exe --manifest tests/blackbox/objects/manifest.json`，新对象/访问/字段断言应失败。
-- [ ] **3. 实现。** 元素LtoR；构造集合先检、每字段即时检查和Int64→Float64提升，最终按声明顺序存储。索引/显式端点全求完后按原接收对象当前长度检查；省略不同于null。完整RHS先于最终LHS位置，最终目标不先LOAD；中间访问仍逐层执行。所有结果走受保护Heap，pop/remove_at先把移出值交out根再删槽。
-- [ ] **4. 验证绿。** 两组为0；`1[write("I")]=write("R");` 先RI后Type，`print(1[write("S"):write("E")]);` 先SE后Type；端点改变长度后取当前长度。补负/越界/空切片、String不可写、显式null端点、insert的0..n/-n..-1、空pop、零字段独立身份、nullable/具名结构约束/数组字段混合元素。`fn make(){return [];}print(make()==make());` 必须false，不能把可变字面量缓存为常量。vm_objects_gc强制GC，嵌套/切片/移出值均保活，失败不发布半成品。
-- [ ] **5. 提交。** 聚合objects组，复验参数改绑隔离/数组修改共享后提交 `feat: implement object operations and array builtins`。
+- [x] **2. 确认红。** 重建，运行 `--case vm_objects` 和 `python tools/run_blackbox.py --interpreter build/debug/myb.exe --manifest tests/blackbox/objects/manifest.json`，新对象/访问/字段断言应失败。
+- [x] **3. 实现。** 元素LtoR；构造集合先检、每字段即时检查和Int64→Float64提升，最终按声明顺序存储。索引/显式端点全求完后按原接收对象当前长度检查；省略不同于null。完整RHS先于最终LHS位置，最终目标不先LOAD；中间访问仍逐层执行。所有结果走受保护Heap，pop/remove_at先把移出值交out根再删槽。
+- [x] **4. 验证绿。** 两组为0；`1[write("I")]=write("R");` 先RI后Type，`print(1[write("S"):write("E")]);` 先SE后Type；端点改变长度后取当前长度。补负/越界/空切片、String不可写、显式null端点、insert的0..n/-n..-1、空pop、零字段独立身份、nullable/具名结构约束/数组字段混合元素。`fn make(){return [];}print(make()==make());` 必须false，不能把可变字面量缓存为常量。vm_objects_gc强制GC，嵌套/切片/移出值均保活，失败不发布半成品。
+- [x] **5. 提交。** 聚合objects组，复验参数改绑隔离/数组修改共享后提交 `feat: 实现对象操作与数组内置`。
 
 ### 任务 13：for、活动遍历与所有出口清理
 
@@ -402,7 +402,7 @@ let x = P { b: write("B"), a: write("A") };
 
 **Interfaces:** Produces `VM::begin_iteration(IterationSiteId)`、`next_iteration(IterationSiteId)->bool`、`end_iteration(IterationSiteId) noexcept`、`unwind_all() noexcept`；活动记录持来源Value、帧/站点、游标和登记状态，参与根；Array计数而非布尔锁。内部fixture提供清理后记录/活动计数检查，不增加用户接口。
 
-- [ ] **1. 写红测试。** `fn pick(a){for(let x in a){let r=[x];if(x==1){continue;}return r;}return [];} let a=[1,2];let r=pick(a);append(a,3);print(r[0]);print(len(a));` 输出 `2\n3\n`。`let a=[1];for(let x in a){for(let y in a){break;}append(a,2);}` IterationMutation/1，证明内层退出不解除外层。
+- [x] **1. 写红测试。** `fn pick(a){for(let x in a){let r=[x];if(x==1){continue;}return r;}return [];} let a=[1,2];let r=pick(a);append(a,3);print(r[0]);print(len(a));` 输出 `2\n3\n`。`let a=[1];for(let x in a){for(let y in a){break;}append(a,2);}` IterationMutation/1，证明内层退出不解除外层。
 
 ```myb
 let a = [1];
@@ -411,10 +411,10 @@ for (let x in a) {
     append(a, 2);
 }
 ```
-- [ ] **2. 确认红。** 重建运行 `--case vm_iteration` 与 `python tools/run_blackbox.py --interpreter build/debug/myb.exe --manifest tests/blackbox/iteration/manifest.json`，应在遍历或出口协议处失败。
-- [ ] **3. 实现。** source在旧环境求一次；先准备记录容量，再无分配提交来源根/checked计数。每轮新绑定，与本轮体同层；String字节游标产生单码点String。正常/continue清本轮局部，continue保留目标for；break/耗尽恰好ITER_END，return仅统一收尾。编译器安排词法清理，普通块不建立运行时作用域记录。
-- [ ] **4. 验证绿。** 两组为0；已有元素替换后续轮可见（1、9），重绑来源变量不换遍历对象；别名/字段/参数增删都先拒绝。覆盖内层while出口、同数组嵌套、Unicode、每轮未初始化、source同名外层、return结果。vm_iteration_failures对记录分配、码点分配和循环体错误断言：诊断先保存、记录/全部数组计数归0、首错不变，满足 Review Focus 5。
-- [ ] **5. 提交。** 聚合iteration组后提交 `feat: enforce active iteration and lexical exit cleanup`。
+- [x] **2. 确认红。** 重建运行 `--case vm_iteration` 与 `python tools/run_blackbox.py --interpreter build/debug/myb.exe --manifest tests/blackbox/iteration/manifest.json`，应在遍历或出口协议处失败。
+- [x] **3. 实现。** source在旧环境求一次；先准备记录容量，再无分配提交来源根/checked计数。每轮新绑定，与本轮体同层；String字节游标产生单码点String。正常/continue清本轮局部，continue保留目标for；break/耗尽恰好ITER_END，return仅统一收尾。编译器安排词法清理，普通块不建立运行时作用域记录。
+- [x] **4. 验证绿。** 两组为0；已有元素替换后续轮可见（1、9），重绑来源变量不换遍历对象；别名/字段/参数增删都先拒绝。覆盖内层while出口、同数组嵌套、Unicode、每轮未初始化、source同名外层、return结果。vm_iteration_failures对记录分配、码点分配和循环体错误断言：诊断先保存、记录/全部数组计数归0、首错不变，满足 Review Focus 5。
+- [x] **5. 提交。** 聚合iteration组后提交 `feat: 实现活动遍历与出口清理`。
 
 ### 任务 14：深拷贝与完整统一显示
 
@@ -422,17 +422,17 @@ for (let x in a) {
 
 **Interfaces:** Produces `deep_copy(Heap&,RootRegistry&,Value,RootedValue&)`、`format_value(Heap&,Value,TextBuilder&)`，输入必须已有根；deep_copy/str回调接入统一NativeFn。Scalar显示委托03，不复制浮点算法；print/write/str共用同一显示器。
 
-- [ ] **1. 写红测试。** 共享子数组显示 `[[1], [1]]`，自环显示 `[<cycle>]`；graph_display要求副本不同于原可变对象、两共享边指向同一副本、自环回到副本、改副本不改原对象；String可共享。精确golden包括 `Marker {}`、`Point { x: 1, y: 2 }`、根字符串原样、嵌套双引号和控制转义、0.0/-0.0/科学阈值。
+- [x] **1. 写红测试。** 共享子数组显示 `[[1], [1]]`，自环显示 `[<cycle>]`；graph_display要求副本不同于原可变对象、两共享边指向同一副本、自环回到副本、改副本不改原对象；String可共享。精确golden包括 `Marker {}`、`Point { x: 1, y: 2 }`、根字符串原样、嵌套双引号和控制转义、0.0/-0.0/科学阈值。
 
 ```myb
 let a = [];
 append(a, a);
 print(a);
 ```
-- [ ] **2. 确认红。** 重建运行 `--case graph_display` 与 `python tools/run_blackbox.py --interpreter build/debug/myb.exe --manifest tests/blackbox/display/manifest.json`，应因图算法/精确显示未完成而失败。
-- [ ] **3. 实现。** 迭代memo＋工作队列登记为NativeRootSet，原对象键/副本/半成品均追踪；新副本先登记再处理子边。显示器显式栈和当前路径集合，退出路径后共享对象可再展开，字段按声明顺序；TextBuilder增长计入压力，无MYB回调。str先make_string进out根，native交接复用首参数槽不清掉新结果。
-- [ ] **4. 验证绿。** 两组为0；小图在每允许点强制GC并注入工作区失败，原图保留、无悬空根/半成品发布；另构建5万层图链，关闭逐点强制GC，仅按正常阈值回收，复制/显示不按图深递归宿主栈。运行语言规范12.1/设计末尾组合例（含assert的部分在15后接入），共享/复制/字段显示精确通过。
-- [ ] **5. 提交。** 聚合display组后提交 `feat: preserve shared graphs in deep copy and display`。
+- [x] **2. 确认红。** 重建运行 `--case graph_display` 与 `python tools/run_blackbox.py --interpreter build/debug/myb.exe --manifest tests/blackbox/display/manifest.json`，应因图算法/精确显示未完成而失败。
+- [x] **3. 实现。** 迭代memo＋工作队列登记为NativeRootSet，原对象键/副本/半成品均追踪；新副本先登记再处理子边。显示器显式栈和当前路径集合，退出路径后共享对象可再展开，字段按声明顺序；TextBuilder增长计入压力，无MYB回调。str先make_string进out根，native交接复用首参数槽不清掉新结果。
+- [x] **4. 验证绿。** 两组为0；小图在每允许点强制GC并注入工作区失败，原图保留、无悬空根/半成品发布；另构建5万层图链，关闭逐点强制GC，仅按正常阈值回收，复制/显示不按图深递归宿主栈。运行语言规范12.1/设计末尾组合例（含assert的部分在15后接入），共享/复制/字段显示精确通过。
+- [x] **5. 提交。** 聚合display组后提交 `feat: 实现图复制与统一显示`。
 
 ### 任务 15：转换、断言与文本辅助内置
 
@@ -440,25 +440,25 @@ print(a);
 
 **Interfaces:** Completes int/float/try_int/try_float/assert/split/join/trim/split_lines 与Array/String len；`invoke_builtin(const BuiltinDescriptor&,NativeContext&,span<const Value>,RootedValue&)` 只在预检和全部实参之后做值检查。回调成功必须写out；调试“已写”标记不以默认null代替协议验证。
 
-- [ ] **1. 写红测试。** builtins/parse.myb：`print(try_int("bad")); print(try_float("-1e-9999")); print(int(-2.9));` 输出 `null\n-0.0\n-2\n`；内部随后assert(false,"stop")必须Runtime/Assertion，首错不受try失败污染。`assert(true,write("M"));` 先输出M再因message非String报Type；Bool/Null不能int/float转换。
+- [x] **1. 写红测试。** builtins/parse.myb：`print(try_int("bad")); print(try_float("-1e-9999")); print(int(-2.9));` 输出 `null\n-0.0\n-2\n`；内部随后assert(false,"stop")必须Runtime/Assertion，首错不受try失败污染。`assert(true,write("M"));` 先输出M再因message非String报Type；Bool/Null不能int/float转换。
 
 ```myb
 print(try_int("bad"));
 print(try_float("-1e-9999"));
 print(int(-2.9));
 ```
-- [ ] **2. 确认红。** 重建运行 `--case builtins` 和 `python tools/run_blackbox.py --interpreter build/debug/myb.exe --manifest tests/blackbox/builtins/manifest.json`，预期新回调/约束断言失败。
-- [ ] **3. 实现。** 静态表固定参数数，普通无结果写null；解析调用03，try仅Content/Range转null，类型/资源故障不吞。join先检查全String再构造；split结果数组/片段逐步根接管，精确非重叠拆分；trim仅ASCII9–13/32，split_lines只CRLF/LF、单CR为内容。
-- [ ] **4. 验证绿。** 两组为0；`split("a,,",",")` 精确为 `["a", "", ""]`，`split_lines("a\r\n\r\nb\r")` 为 `["a", "", "b\r"]` 的既定转义显示；空串split_lines=[]、`join([],",")==""`、末尾换行规则、中文/emoji、多码点与重叠分隔符、NBSP不trim、join混合元素失败均有独立期望。强制GC/资源故障不丢片段、不冒充null；14的完整组合例通过。
-- [ ] **5. 提交。** 聚合builtins组后提交 `feat: implement conversions assertions and text builtins`。
+- [x] **2. 确认红。** 重建运行 `--case builtins` 和 `python tools/run_blackbox.py --interpreter build/debug/myb.exe --manifest tests/blackbox/builtins/manifest.json`，预期新回调/约束断言失败。
+- [x] **3. 实现。** 静态表固定参数数，普通无结果写null；解析调用03，try仅Content/Range转null，类型/资源故障不吞。join先检查全String再构造；split结果数组/片段逐步根接管，精确非重叠拆分；trim仅ASCII9–13/32，split_lines只CRLF/LF、单CR为内容。
+- [x] **4. 验证绿。** 两组为0；`split("a,,",",")` 精确为 `["a", "", ""]`，`split_lines("a\r\n\r\nb\r")` 为 `["a", "", "b\r"]` 的既定转义显示；空串split_lines=[]、`join([],",")==""`、末尾换行规则、中文/emoji、多码点与重叠分隔符、NBSP不trim、join混合元素失败均有独立期望。强制GC/资源故障不丢片段、不冒充null；14的完整组合例通过。
+- [x] **5. 提交。** 聚合builtins组后提交 `feat: 实现转换断言与文本内置`。
 
 ### 任务 16：Windows 行输入与整文件读写
 
-**Files:** Create `tests/internal/host_io_cases.cpp`、`tests/blackbox/io/manifest.json` 和二进制fixtures/cases/expected、`docs/Windows终端验收.md`；Modify windows_io、io_builtins、registry、TestHooks、CMake、默认manifest。
+**Files:** Create `tests/internal/host_io_cases.cpp`、`tests/blackbox/io/manifest.json` 和二进制fixtures/cases/expected、`docs/reports/Windows终端验收.md`；Modify windows_io、io_builtins、registry、TestHooks、CMake、默认manifest。
 
 **Interfaces:** Completes02的HostIO读取/写文件接口，回调经Utf8Sink/TextBuilder再Heap.make_string交out；IoFailure只携宿主原因/代码，调用者决定入口2或程序1，bad_alloc/Capacity仍3。此项结束21回调全部实际实现，表中名称/数量/非空回调逐一核对。
 
-- [ ] **1. 写红测试。** stdin fixture字节为 `b"ok\n\xff\n"`，连续两次read_line：先正常输出 `ok\n`，第二次Encoding/1，不能预读坏第二行导致首行失败。空stdin返回null，空行返回""，无换行末行先返回内容再null；`b"\x1a\n"` 在管道是内容。read_text去一次BOM保留CRLF/NUL，write_text字节无新增BOM/换行。
+- [x] **1. 写红测试。** stdin fixture字节为 `b"ok\n\xff\n"`，连续两次read_line：先正常输出 `ok\n`，第二次Encoding/1，不能预读坏第二行导致首行失败。空stdin返回null，空行返回""，无换行末行先返回内容再null；`b"\x1a\n"` 在管道是内容。read_text去一次BOM保留CRLF/NUL，write_text字节无新增BOM/换行。
 
 ```json
 {
@@ -470,10 +470,12 @@ print(int(-2.9));
   "expect_stderr_regex": "(?s).*Encoding.*"
 }
 ```
-- [ ] **2. 确认红。** 重建运行 `--case host_io` 与 `python tools/run_blackbox.py --interpreter build/debug/myb.exe --manifest tests/blackbox/io/manifest.json`，应在I/O/编码/EOF行为处失败。
-- [ ] **3. 实现。** 分标准句柄识别，控制台Read/WriteConsoleW严格桥接，管道/文件Read/WriteFile字节；保留跨块UTF-8/代理对，不因未返回行坏字节提前报错。输入零进度/ERROR_HANDLE_EOF/读端BROKEN_PIPE为EOF，写端broken pipe为失败；部分写入循环、零进度停止、保存原错误码，write_text显式检查close，RAII失败清理不抛。
+- [x] **2. 确认红。** 重建运行 `--case host_io` 与 `python tools/run_blackbox.py --interpreter build/debug/myb.exe --manifest tests/blackbox/io/manifest.json`，应在I/O/编码/EOF行为处失败。
+- [x] **3. 实现。** 分标准句柄识别，控制台Read/WriteConsoleW严格桥接，管道/文件Read/WriteFile字节；保留跨块UTF-8/代理对，不因未返回行坏字节提前报错。输入零进度/ERROR_HANDLE_EOF/读端BROKEN_PIPE为EOF，写端broken pipe为失败；部分写入循环、零进度停止、保存原错误码，write_text显式检查close，RAII失败清理不抛。
 - [ ] **4. 验证绿。** 两组为0；中文/空格相对路径按启动cwd，缺失父目录不创建、文件失败1/源入口读取失败2、路径NUL拒绝而文本NUL按长度保留，跨缓冲字符和OsRead/OsWrite/OsClose注入分类正确。分别记录 Windows Terminal/传统控制台的中文emoji、代理边界、LF/CRLF与仅Ctrl+Z整行EOF；管道测试不能充当这份控制台证据。
-- [ ] **5. 提交。** 聚合io组、逐表核对21内置后提交 `feat: complete Unicode Windows text IO`；未实测的控制台组合在验收文档明确保留未完成，不能标成通过。
+- [x] **5. 提交。** 聚合io组、逐表核对21内置后提交 `feat: 完成文本输入输出`；未实测的控制台组合在验收文档明确保留未完成，不能标成通过。
+
+任务 12–16 的实现、正式黑盒和故障检查已接入默认测试。Debug 内部 65 项、驱动 10 项、CLI 7 项和黑盒 235 项通过；Release CLI 7 项、黑盒 235 项通过。任务 16 第 4 项的文件、管道与故障注入检查已通过，真实 Windows Terminal/传统控制台组合未实测；状态见 [终端验收](../reports/Windows终端验收.md)。本轮跨模块改动统一提交可构建的 M3，逐项证据见 [M3 测试报告](../reports/M3测试报告.md)。
 
 ## M4：故障边界与最终验收
 
@@ -495,6 +497,8 @@ REQUIRE(first.header().reason == ReasonCode::Type);
 - [ ] **2. 确认红。** 重建运行 `--case failure_integration` 和 `python tools/run_blackbox.py --interpreter build/debug/myb.exe --manifest tests/blackbox/errors/manifest.json`，应在排版/链/低资源路径处发现未满足断言。
 - [ ] **3. 实现。** VM顶层边界在帧/源码可用时先保存诊断和实际调用链，再unwind；详细消息失败退固定首错，不为了清理分配/GC。真实executing_ip归失败，用户文本控制字符转义、无源码摘录；stderr失败停止递归。显式注销根幂等，Builder/VM先于Heap清空，Heap先于Schema，Registry最后；未知宿主异常为Internal3，不伪装成MYB错误。
 - [ ] **4. 验证绿。** 两组为0；跨04/08/11/13/14/16枚举故障位置，要求无悬空登记/根、未提交函数不入链、标记失败不sweep、遍历计数在Heap整体清空前已归零。用额外RootedValue保留被遍历数组以证明解除确实发生，不能只因对象已销毁而得到计数零。源码含300层分组的语法合法表达式触发AST Capacity/3而非Syntax/1，补外部资源分类证据。满足Review Focus 3/5；try_*与首错共存、既有stdout/文件副作用不回滚均覆盖。
+
+M3 整体审查建议：为 NativeWorkspace 安排指定命中次数，补齐映射登记后队列增长、多个副本形成后工作区增长、显示已进入多层容器后的栈与路径增长失败；核对原图和旧输出、根注销、对象数及首错。
 - [ ] **5. 提交。** 聚合errors组后提交 `fix: preserve diagnostics and cleanup across host failures`；不将OS强制终止/内存破坏写成受控可恢复测试承诺。
 
 ### 任务 18：全量黑盒、干净/并行/Release 构建与复现材料
@@ -537,11 +541,11 @@ print("after");
 
 ## 自审记录与执行交接
 
-- 已按设计逐节对照，解释器、21内置、GC/资源、Windows边界、CLI/诊断及构建/测试均有任务归属；原计划的测试值为预期；M1、M2 与 CI 已有实测证据，见阶段测试报告和 CI 与合并规则；M3–M4 的命令及验收仍为未来任务。
+- 已按设计逐节对照，解释器、21内置、GC/资源、Windows边界、CLI/诊断及构建/测试均有任务归属；原计划的测试值为预期；M1、M2 与 CI 已有实测证据，见阶段测试报告和 CI 与合并规则；M3 已通过两配置自动化验收，真实控制台组合待人工实测，M4 尚未启动。
 - 前期以内部协议/最小黑盒验收，中期按功能滚动聚合；07解析的新语法由08完整生成接管，11返回数组的对象验证由12/13接管，14完整例依赖15的assert。这些依赖不能被当作提前完成。
 - 正式用户/Agent开发指南、>=200行应用及真实开发记录、Python同功能性能报告属于后续课程交付，继续按原路线图10–13独立安排；本计划不选择应用或新增游戏API。
 - M1、CI-01、CI-02 已实施并验收。CI 工作流、代码/仅文档 PR、错误预期失败、恢复成功及远端强制规则均有实际证据；原 CI-02 验收未修改 main 的既有保护，main 验证 PR 已关闭且未合并。用户后续取消 `Restrict updates` 的现行配置见 [CI 与合并规则](../rules/CI与合并规则.md)；原 JSON 配置记录保留为历史验收证据。
 
 M2 的任务 07–11 已于 2026-10-23 完成：Debug 46 个内部测试、10 个驱动测试、7 个 CLI 测试及 110 个黑盒通过；Release 7 个 CLI 测试及 110 个黑盒通过，31 条编译命令无测试依赖；独立审查通过。具体证据与统一提交的调整见 [M2 测试报告](../reports/M2测试报告.md)。
 
-后续范围从 M3 任务 12“数组/结构构造、访问、写入及数组内置”起；M3–M4 尚未启动，继续按用户授权推进。
+M3 已完成运行时实现与自动化验收；后续为任务 16 的真实控制台验收及 M4 任务 17–18。M4 尚未启动，继续按用户授权推进。

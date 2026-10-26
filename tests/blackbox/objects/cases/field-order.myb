@@ -1,0 +1,1 @@
+struct P{a:Int64;b:Int64;}let x=P{b:write("B"),a:write("A")};
