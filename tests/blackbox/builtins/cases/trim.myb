@@ -1,0 +1,2 @@
+print(trim(" \t\r\n\u{b}\u{c}北 邮\t "));
+print([trim("\u{a0}x\u{a0}"),trim(""),trim(" \t ")]);

@@ -1,0 +1,1 @@
+struct P{a:Int64;}let p=P{a:0};fn receiver(){write("L");return p;}fn rhs(){write("R");return 7;}receiver().a=rhs();print(p.a);

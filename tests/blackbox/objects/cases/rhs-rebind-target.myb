@@ -1,0 +1,1 @@
+let a=[1];let b=a;fn rhs(){a=[2];return 9;}a[0]=rhs();print(a[0]);print(b[0]);

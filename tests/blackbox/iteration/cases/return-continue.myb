@@ -1,0 +1,1 @@
+fn pick(a){for(let x in a){let r=[x];if(x==1){continue;}return r;}return [];}let a=[1,2];let r=pick(a);append(a,3);print(r[0]);print(len(a));

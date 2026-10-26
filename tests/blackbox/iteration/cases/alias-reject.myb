@@ -1,0 +1,1 @@
+let a=[1];let alias=a;for(let x in a){insert(alias,0,2);}

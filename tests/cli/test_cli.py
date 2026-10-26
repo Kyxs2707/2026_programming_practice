@@ -2,6 +2,7 @@
 import os
 from pathlib import Path
 import subprocess
+import shutil
 import tempfile
 import unittest
 
@@ -32,6 +33,29 @@ class CliTests(unittest.TestCase):
                 failed = self.invoke(*args)
                 self.assertEqual(failed.returncode, 2, failed.stderr)
                 self.assertEqual(failed.stdout, b"")
+
+    def test_relocated_application_runs_without_development_path(self):
+        application = self.cwd / "独立 运行目录"
+        application.mkdir()
+        interpreter = application / "myb.exe"
+        shutil.copy2(INTERPRETER, interpreter)
+        for library in INTERPRETER.parent.glob("*.dll"):
+            shutil.copy2(library, application / library.name)
+        environment = os.environ.copy()
+        windows = Path(environment["SYSTEMROOT"])
+        environment["PATH"] = os.pathsep.join([str(windows / "System32"), str(windows)])
+        version = subprocess.run([str(interpreter), "--version"], cwd=application,
+                                 env=environment, input=b"", capture_output=True, timeout=5)
+        self.assertEqual((version.returncode, version.stdout, version.stderr),
+                         (0, b"myb 0.1.0 (language 0.2)\n", b""))
+        script = application / "程序.myb"
+        script.write_text('write_text("报告.txt", "北邮😀");print(read_text("报告.txt"));',
+                          encoding="utf-8")
+        run = subprocess.run([str(interpreter), str(script)], cwd=application,
+                             env=environment, input=b"", capture_output=True, timeout=5)
+        self.assertEqual((run.returncode, run.stdout, run.stderr),
+                         (0, "北邮😀\n".encode("utf-8"), b""))
+        self.assertEqual((application / "报告.txt").read_bytes(), "北邮😀".encode("utf-8"))
 
     def test_missing_source_has_no_invented_location_or_call_chain(self):
         result = self.invoke("missing file.myb")

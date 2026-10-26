@@ -1,0 +1,3 @@
+print(split_lines("a\r\n\r\nb\r")); print(split_lines(""));
+print(split_lines("\n")); print(split_lines("a\n\n")); print(split_lines("\r"));
+print(split_lines("北😀\n邮\r\n"));

@@ -1,0 +1,1 @@
+assert(false,"a\u{0}b");

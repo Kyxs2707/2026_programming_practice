@@ -1,0 +1,1 @@
+fn first(a){for(let x in a){for(let y in a){return [x,y];}}return [];}let a=[3];let r=first(a);append(a,4);print(r);print(len(a));

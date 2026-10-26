@@ -220,17 +220,27 @@ void Heap::make_string(TextBuilder &&builder, RootedValue &out) {
 void Heap::reserve_array(ArrayRef array, std::size_t required_capacity) {
     // 数组由调用方根保护且对象地址稳定；此处借用 vector 本身，未借用其可搬移元素。
     auto &elements = array.ptr->elements;
-    check_elements(required_capacity, elements.max_size());
+    auto maximum = std::min(elements.max_size(),
+                            std::numeric_limits<std::size_t>::max() / sizeof(Value));
+    if (maximum > static_cast<std::uint64_t>(std::numeric_limits<std::int64_t>::max()))
+        maximum = static_cast<std::size_t>(std::numeric_limits<std::int64_t>::max());
+    check_elements(required_capacity, maximum);
     if (required_capacity <= elements.capacity())
         return;
-    const auto previous = multiply(elements.capacity(), sizeof(Value));
-    const auto requested = multiply(required_capacity, sizeof(Value));
+    const auto old_capacity = elements.capacity();
+    check_elements(old_capacity, maximum);
+    // 连续追加按几何级数扩容；接近元素或字节上界时仅把建议增长量限制至上界。
+    const auto step = std::max<std::size_t>(old_capacity / 2, 1);
+    const auto grown = step > maximum - old_capacity ? maximum : old_capacity + step;
+    const auto capacity = std::max(required_capacity, grown);
+    const auto previous = multiply(old_capacity, sizeof(Value));
+    const auto requested = multiply(capacity, sizeof(Value));
     before_growth(requested - previous);
     try {
 #ifdef MYB_TEST_HOOKS
         TestHooks::hit(FaultPoint::Payload);
 #endif
-        elements.reserve(required_capacity);
+        elements.reserve(capacity);
         const auto updated =
             add(managed_bytes_ - previous, multiply(elements.capacity(), sizeof(Value)));
         (void)add(updated, builder_bytes_);

@@ -1,0 +1,1 @@
+write(read_text("输入 文本.txt"));

@@ -79,6 +79,10 @@ class Failure : public std::exception {
     const char *what() const noexcept override {
         return message_.c_str();
     }
+    /** @brief 借用完整消息字节，保留内嵌 NUL；视图有效至本异常销毁。 */
+    std::string_view message() const noexcept {
+        return message_;
+    }
 
   private:
     FailureHeader header_;

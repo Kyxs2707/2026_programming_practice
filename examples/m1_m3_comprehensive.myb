@@ -1,0 +1,263 @@
+# M1–M3 综合自检：成功后输出 M1-M3 ALL PASS。
+# 从仓库根目录运行：build/debug/myb.exe examples/m1_m3_comprehensive.myb
+# 输入一行标签并按 Enter；空行或 EOF 使用 MYB。
+# 文件读写结果保存在 build/m1_m3_report.txt。
+
+struct Point {
+    x: Float64;
+    y: Int64;
+    note: String?;
+}
+
+struct Record {
+    name: String;
+    score: Float64;
+    enabled: Bool;
+    notes: Array;
+    point: Point?;
+}
+
+struct Holder { record: Record; }
+struct Marker {}
+
+# 函数预登记允许先调用后定义；函数体仍使用实际已经声明的全局变量。
+assert(factorial(6) == 720, "递归与前向调用");
+
+fn factorial(n) {
+    if (n <= 1) { return 1; }
+    return n * factorial(n - 1);
+}
+
+fn gcd(a, b) {
+    while (b != 0) {
+        let next = a % b;
+        a = b;
+        b = next;
+    }
+    return a;
+}
+
+fn empty_result() {}
+fn explicit_null() { return; }
+fn make_array() { return [1, "北邮😀", true, null]; }
+fn rebind(value) { value = 100; return value; }
+fn add_note(record, text) { append(record.notes, text); }
+
+let trace = [];
+fn mark(label, value) {
+    append(trace, label);
+    return value;
+}
+fn pair(a, b) { return [a, b]; }
+
+print("请输入标签（空行或 EOF 使用 MYB）：");
+let label = read_line();
+if (label == null) {
+    label = "MYB";
+} else {
+    label = trim(label);
+    if (label == "") { label = "MYB"; }
+}
+print("标签：" + label);
+
+# M1：七类值中的标量、完整运算符、数值边界和 Unicode 字符串。
+assert(+7 == 7 && -7 + 2 * 3 == -1, "一元符号、优先级与整数算术");
+assert((9 - 3) / 4 == 1.5 && 3 + 0.5 == 3.5, "除法与混合数值");
+assert(-7 // 3 == -3 && -7 % 3 == 2 && 7 % -3 == -2, "向下整除与余数");
+let minimum = -9223372036854775808;
+assert(minimum % -1 == 0, "最小整数余数");
+assert(9007199254740993 != 9007199254740992.0, "混合比较保留整数精度");
+assert(1 < 2 && 2 <= 2 && 3 > 2 && 3 >= 3 && 3 != 2, "六种比较运算");
+assert(!false && true || false, "严格布尔逻辑");
+assert(str(-0.0) == "-0.0" && str(1.0) == "1.0", "浮点零与整数形式显示");
+assert(str(1e16) == "1e+16" && str(1e-5) == "1e-5", "科学记数显示");
+assert(float(str(0.1)) == 0.1, "浮点文本回读");
+let unicode = "北邮😀";
+assert(len(unicode) == 3 && unicode[0] == "北" && unicode[-1] == "😀", "码点长度和索引");
+assert(unicode[1:] == "邮😀" && unicode[:-1] == "北邮", "字符串省略端点");
+assert(unicode[-99:99] == unicode && unicode[2:1] == "", "端点限制与空切片");
+assert("北" < "邮" && "a" + "b" == "ab", "字符串排序与拼接");
+print("[M1] 数值、运算与字符串通过");
+
+# M2：动态绑定、声明状态、块作用域、参数隔离和调用顺序。
+let dynamic = 7;
+dynamic = "changed";
+assert(dynamic == "changed", "普通变量动态改绑");
+let pending;
+(pending) = 12;
+assert(pending == 12, "未初始化声明及带括号的赋值目标");
+let outer = 5;
+{
+    let outer = 8;
+    assert(outer == 8, "内层遮蔽");
+    pending = pending + 1;
+}
+assert(outer == 5 && pending == 13, "外层绑定与最近可见赋值");
+assert(rebind(outer) == 100 && outer == 5, "参数改绑不改变调用者绑定");
+assert(gcd(84, 30) == 6, "while 与函数参数");
+assert(empty_result() == null && explicit_null() == null, "两种空返回");
+
+trace = [];
+assert(!(false && mark("跳过", true)), "与运算短路");
+assert(true || mark("跳过", false), "或运算短路");
+assert(len(trace) == 0, "短路分支没有副作用");
+let arguments = pair(mark("左", 1), mark("右", 2));
+assert(join(trace, ",") == "左,右" && arguments[1] == 2, "实参从左到右");
+trace = [];
+let arithmetic = mark("左", 2) + mark("右", 3);
+assert(arithmetic == 5 && join(trace, ",") == "左,右", "二元操作求值顺序");
+let sum = 0;
+let i = 0;
+while (true) {
+    i = i + 1;
+    if (i == 2) { continue; }
+    else if (i > 4) { break; }
+    else { sum = sum + i; }
+}
+assert(sum == 8, "分支、continue 与 break");
+print("[M2] 绑定、函数与控制流通过");
+
+# M3：混合数组、负索引、增删返回值、结构约束及求值顺序。
+let mixed = make_array();
+assert(mixed[1] == unicode && mixed[2] && mixed[3] == null, "混合数组与返回值");
+insert(mixed, -1, "inserted");
+assert(remove_at(mixed, -2) == "inserted", "负位置插入与移出元素");
+assert(pop(mixed) == null && len(mixed) == 3, "删除末元素");
+append(mixed, 9);
+mixed[-1] = 10;
+assert(mixed[3] == 10, "追加与现有元素写入");
+trace = [];
+mixed[mark("位置", 0)] = mark("右值", 11);
+assert(mixed[0] == 11 && join(trace, ",") == "右值,位置", "完整右值先于最终位置");
+trace = [];
+let literal = [mark("一", 1), mark("二", 2)];
+assert(join(trace, ",") == "一,二" && literal[1] == 2, "数组元素求值顺序");
+trace = [];
+let point = Point { y: mark("y", 1), x: mark("x", 2), note: null };
+assert(join(trace, ",") == "y,x", "结构按填写顺序求值");
+assert(str(point) == "Point { x: 2.0, y: 1, note: null }", "声明显示顺序与数值提升");
+point.x = 7;
+point.note = "ok";
+assert(str(point.x) == "7.0" && point.note == "ok", "字段写入与可空字段");
+assert(Marker {} != Marker {} && str(Marker {}) == "Marker {}", "零字段结构独立身份");
+
+# 普通赋值共享，切片只复制外层，深复制保留副本内部共享与循环。
+let child = [1];
+let original = [child, child];
+let alias = original;
+let shallow = original[:];
+assert(alias == original && shallow != original, "赋值身份与浅切片身份");
+append(shallow[0], 2);
+assert(original[1][1] == 2, "浅切片共享内部对象");
+assert(str(original) == "[[1, 2], [1, 2]]", "共享节点重复展开");
+let copied = deep_copy(original);
+assert(copied != original && copied[0] == copied[1] && copied[0] != child, "深复制保留共享");
+copied[0][0] = 99;
+assert(original[0][0] == 1 && copied[1][0] == 99, "深复制与原图隔离");
+let cycle = [];
+append(cycle, cycle);
+let cycle_copy = deep_copy(cycle);
+assert(cycle_copy != cycle && cycle_copy[0] == cycle_copy, "深复制自环");
+assert(str(cycle) == "[<cycle>]", "循环显示");
+
+# 先保留切片接收对象，再求端点；端点内改绑变量和追加均有可见效果。
+let source = [1, 2];
+let retained = source;
+fn slice_end() {
+    source = [99];
+    append(retained, 3);
+    return len(retained);
+}
+let slice = source[:slice_end()];
+assert(str(slice) == "[1, 2, 3]" && source[0] == 99, "接收对象保留与当前长度");
+print("[M3] 数组、结构与对象图通过");
+
+# for 每轮读取最新元素；来源求一次；return 和 break 均解除活动计数。
+let values = [1, 2, 3];
+let seen = [];
+for (let value in values) {
+    append(seen, value);
+    if (value == 1) { values[1] = 9; }
+    value = 100;
+}
+assert(str(seen) == "[1, 9, 3]" && values[0] == 1, "后续元素替换与循环变量独立");
+let source_calls = 0;
+fn iteration_source() { source_calls = source_calls + 1; return values; }
+let visited = 0;
+for (let value in iteration_source()) {
+    values = [];
+    visited = visited + 1;
+}
+assert(source_calls == 1 && visited == 3 && len(values) == 0, "遍历保留原来源");
+let outer_item = [4, 5];
+for (let outer_item in outer_item) { assert(outer_item >= 4, "来源读取外层同名值"); }
+assert(len(outer_item) == 2, "循环后外层同名绑定有效");
+fn first_after_one(items) {
+    for (let item in items) {
+        let local = [item];
+        if (item == 1) { continue; }
+        return local;
+    }
+    return [];
+}
+let active = [1, 2];
+assert(first_after_one(active)[0] == 2, "for 的 continue 与返回对象");
+append(active, 3);
+for (let item in active) {
+    for (let nested in active) { break; }
+    break;
+}
+append(active, 4);
+assert(len(active) == 4, "return 和嵌套 break 后允许增删");
+let chars = [];
+for (let character in unicode) { append(chars, character); }
+assert(join(chars, "|") == "北|邮|😀", "字符串按码点遍历");
+
+# 文本处理与数据转换：最后一条无效数字由 try_float 转为 null 后跳过。
+assert(int(" +0042 ") == 42 && int(-2.9) == -2 && float(3) == 3.0, "显式转换");
+assert(try_int("bad") == null && try_int("-7") == -7, "整数尝试转换");
+assert(try_float("bad") == null && str(try_float("-1e-9999")) == "-0.0", "浮点尝试转换");
+assert(str(split("a,,", ",")) == "[\"a\", \"\", \"\"]", "拆分保留空片段");
+assert(join([], ",") == "" && trim(" \t北 邮\r\n") == "北 邮", "空连接与 ASCII 裁切");
+assert(trim("\u{a0}x\u{a0}") == "\u{a0}x\u{a0}", "非 ASCII 空白保留");
+assert(str(split_lines("a\r\n\r\nb\r")) == "[\"a\", \"\", \"b\\r\"]", "行拆分与单 CR");
+assert(len(split_lines("")) == 0, "空文本没有行");
+assert(str(["a\n\t\u{0}\"\\😀"]) == "[\"a\\n\\t\\u{0}\\\"\\\\😀\"]", "嵌套字符串转义");
+
+let records = [];
+for (let row in split_lines(" 北邮😀,3 \r\n乙,4.5\n丙,bad\n")) {
+    let fields = split(row, ",");
+    let score = try_float(trim(fields[1]));
+    if (score == null) { continue; }
+    append(records, Record {
+        score: score, name: trim(fields[0]), enabled: true, notes: [], point: point
+    });
+}
+assert(len(records) == 2 && records[0].point == point, "结构数组与具名结构字段");
+let holder = Holder { record: records[0] };
+add_note(holder.record, "shared");
+assert(records[0].notes[0] == "shared", "结构参数修改共享对象");
+let independent = deep_copy(holder);
+independent.record.name = "副本";
+assert(holder.record.name == "北邮😀" && independent.record.point != point, "混合结构图复制");
+let total = 0.0;
+let output_lines = [];
+for (let record in records) {
+    record.score = record.score + 0.5;
+    total = total + record.score;
+    append(output_lines, record.name + ": " + str(record.score));
+}
+assert(total == 8.5, "数据处理合计");
+
+# UTF-8 文件保留 CRLF/NUL；read_text 只去开头一次 BOM。
+let report_path = "build/m1_m3_report.txt";
+let report = "标签：" + label + "\r\n" + join(output_lines, "\n") + "\n合计：" + str(total)
+    + "\n编码检查：北邮😀\r\nNUL=\u{0}\n";
+write_text(report_path, "\u{feff}" + report);
+assert(read_text(report_path) == report, "读取去除开头 BOM");
+write_text(report_path, report);
+assert(read_text(report_path) == report, "覆盖写入及换行、NUL 回读");
+print("[M3] 遍历、全部内置与文件读写通过");
+print("报告：" + report_path);
+write("M1-M3 ");
+print("ALL PASS");

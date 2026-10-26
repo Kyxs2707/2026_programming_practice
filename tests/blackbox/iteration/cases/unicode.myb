@@ -1,0 +1,1 @@
+for(let x in "北邮😀e\u{301}"){print(x);print(len(x));}

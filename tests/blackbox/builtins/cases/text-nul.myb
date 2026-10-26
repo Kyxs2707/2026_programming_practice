@@ -1,0 +1,2 @@
+print(split("a\u{0}b\u{0}", "\u{0}"));
+print(join(["x\u{0}", "y"], "\u{0}"));

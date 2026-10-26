@@ -36,9 +36,16 @@ struct BuiltinDescriptor {
 };
 /**
  * @brief 返回21个静态名称及固定数量的描述表，供结构保护和调用预检共用。
- * 当前M2的print/write回调可执行；其余回调在所属M3任务接入，空指针不能执行。
+ * 21 个回调均按 NativeFn 协议执行，名称、数量与回调在运行期间保持不变。
  */
 std::span<const BuiltinDescriptor> builtin_descriptors() noexcept;
+/**
+ * @brief 在已完成实参求值后检查回调协议并执行内置，调试构建验证结果已写入。
+ * @pre 描述数量与 args 相同；args 和 out 由同一会话根保活，回调期间不重入 VM。
+ * @throws Failure 数量、回调、输出根契约失败，或回调报告动态及资源故障。
+ */
+void invoke_builtin(const BuiltinDescriptor &, NativeContext &, std::span<const Value>,
+                    RootedValue &out);
 /**
  * @brief 借用内置描述表，提供名称查找和实参数量预检。
  *

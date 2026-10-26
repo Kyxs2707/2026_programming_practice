@@ -1,0 +1,181 @@
+{
+  "schema_version": 1,
+  "cases": [
+    {
+      "id": "iteration-return-continue",
+      "script": "cases/return-continue.myb",
+      "mode": "run",
+      "expect_exit": 0,
+      "expect_stdout_file": "expected/return-continue.stdout",
+      "expect_stderr_file": "expected/empty.bin"
+    },
+    {
+      "id": "iteration-nested-same-array",
+      "script": "cases/nested-same-array.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[IterationMutation\\]: .*\\n(?:.*\\n)*"
+    },
+    {
+      "id": "iteration-replace-current",
+      "script": "cases/replace-current.myb",
+      "mode": "run",
+      "expect_exit": 0,
+      "expect_stdout_file": "expected/replace-current.stdout",
+      "expect_stderr_file": "expected/empty.bin"
+    },
+    {
+      "id": "iteration-source-rebind",
+      "script": "cases/source-rebind.myb",
+      "mode": "run",
+      "expect_exit": 0,
+      "expect_stdout_file": "expected/source-rebind.stdout",
+      "expect_stderr_file": "expected/empty.bin"
+    },
+    {
+      "id": "iteration-source-once",
+      "script": "cases/source-once.myb",
+      "mode": "run",
+      "expect_exit": 0,
+      "expect_stdout_file": "expected/source-once.stdout",
+      "expect_stderr_file": "expected/empty.bin"
+    },
+    {
+      "id": "iteration-source-shadow",
+      "script": "cases/source-shadow.myb",
+      "mode": "run",
+      "expect_exit": 0,
+      "expect_stdout_file": "expected/source-shadow.stdout",
+      "expect_stderr_file": "expected/empty.bin"
+    },
+    {
+      "id": "iteration-unicode",
+      "script": "cases/unicode.myb",
+      "mode": "run",
+      "expect_exit": 0,
+      "expect_stdout_file": "expected/unicode.stdout",
+      "expect_stderr_file": "expected/empty.bin"
+    },
+    {
+      "id": "iteration-fresh-uninitialized",
+      "script": "cases/fresh-uninitialized.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Uninitialized\\]: .*\\n(?:.*\\n)*"
+    },
+    {
+      "id": "iteration-normal-break",
+      "script": "cases/normal-break.myb",
+      "mode": "run",
+      "expect_exit": 0,
+      "expect_stdout_file": "expected/normal-break.stdout",
+      "expect_stderr_file": "expected/empty.bin"
+    },
+    {
+      "id": "iteration-while-cleanup",
+      "script": "cases/while-cleanup.myb",
+      "mode": "run",
+      "expect_exit": 0,
+      "expect_stdout_file": "expected/while-cleanup.stdout",
+      "expect_stderr_file": "expected/empty.bin"
+    },
+    {
+      "id": "iteration-while-preserve-outer",
+      "script": "cases/while-preserve-outer.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[IterationMutation\\]: .*\\n(?:.*\\n)*"
+    },
+    {
+      "id": "iteration-nested-complete",
+      "script": "cases/nested-complete.myb",
+      "mode": "run",
+      "expect_exit": 0,
+      "expect_stdout_file": "expected/nested-complete.stdout",
+      "expect_stderr_file": "expected/empty.bin"
+    },
+    {
+      "id": "iteration-parameter-reject",
+      "script": "cases/parameter-reject.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[IterationMutation\\]: .*\\n(?:.*\\n)*"
+    },
+    {
+      "id": "iteration-alias-reject",
+      "script": "cases/alias-reject.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[IterationMutation\\]: .*\\n(?:.*\\n)*"
+    },
+    {
+      "id": "iteration-field-reject",
+      "script": "cases/field-reject.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[IterationMutation\\]: .*\\n(?:.*\\n)*"
+    },
+    {
+      "id": "iteration-remove-reject",
+      "script": "cases/remove-reject.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[IterationMutation\\]: .*\\n(?:.*\\n)*"
+    },
+    {
+      "id": "iteration-copy-allows-growth",
+      "script": "cases/copy-allows-growth.myb",
+      "mode": "run",
+      "expect_exit": 0,
+      "expect_stdout_file": "expected/copy-allows-growth.stdout",
+      "expect_stderr_file": "expected/empty.bin"
+    },
+    {
+      "id": "iteration-source-type",
+      "script": "cases/source-type.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Type\\]: .*\\n(?:.*\\n)*"
+    },
+    {
+      "id": "iteration-empty-sources",
+      "script": "cases/empty-sources.myb",
+      "mode": "run",
+      "expect_exit": 0,
+      "expect_stdout_file": "expected/empty-sources.stdout",
+      "expect_stderr_file": "expected/empty.bin"
+    },
+    {
+      "id": "iteration-body-scope-shadow",
+      "script": "cases/body-scope-shadow.myb",
+      "mode": "run",
+      "expect_exit": 0,
+      "expect_stdout_file": "expected/body-scope-shadow.stdout",
+      "expect_stderr_file": "expected/empty.bin"
+    },
+    {
+      "id": "iteration-nested-return",
+      "script": "cases/nested-return.myb",
+      "mode": "run",
+      "expect_exit": 0,
+      "expect_stdout_file": "expected/nested-return.stdout",
+      "expect_stderr_file": "expected/empty.bin"
+    },
+    {
+      "id": "iteration-function-preserves-parent",
+      "script": "cases/function-preserves-parent.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[IterationMutation\\]: .*\\n(?:.*\\n)*"
+    }
+  ]
+}
