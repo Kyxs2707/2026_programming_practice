@@ -14,6 +14,14 @@ BUPT 2025–2026 学年程序设计实践：小型通用脚本语言与 C++20 �
 
 函数与循环示例：`myb examples/functions.myb` 输出 `6`、`25` 两行。`--check` 已能检查完整语言语法并生成、核验全部代码，运行时能力按里程碑验收。
 
+M1–M3 综合自检见 [m1_m3_comprehensive.myb](examples/m1_m3_comprehensive.myb)，覆盖主要语言成功路径和全部 21 个内置。在仓库根目录运行：
+
+```powershell
+& .\build\debug\myb.exe .\examples\m1_m3_comprehensive.myb
+```
+
+输入一行标签后按 Enter，空行或 EOF 使用默认值。断言全部通过后输出 `M1-M3 ALL PASS`；报告写入 `build/m1_m3_report.txt`，其中含换行与 NUL 的读写检查内容。
+
 默认黑盒入口（235 个用例）：
 
 ```powershell
@@ -30,3 +38,5 @@ pwsh -File ./tools/ci.ps1 -Configuration Release -Msys2Root D:/msys64
 ```
 
 脚本需要 PowerShell 7+（`pwsh`）；MSYS2 安装根按实际环境传入。自动回归与远端合并条件的验收记录见 [CI 与合并规则](docs/rules/CI与合并规则.md)。
+
+Windows 构建输出包含 `myb.exe` 和三个 GCC 运行库 DLL。保留这些文件在同一目录即可从普通终端直接运行，无需给用户安装 MSYS2 或配置开发工具 PATH。
