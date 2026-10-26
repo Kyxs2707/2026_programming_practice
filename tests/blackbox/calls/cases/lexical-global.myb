@@ -1,0 +1,8 @@
+let x = 1;
+fn read_global() { return x; }
+fn caller() {
+    let x = 2;
+    return read_global();
+}
+print(caller());
+print(x);

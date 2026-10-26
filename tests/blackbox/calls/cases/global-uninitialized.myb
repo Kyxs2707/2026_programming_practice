@@ -1,0 +1,3 @@
+let x;
+fn read_global() { return x; }
+print(read_global());

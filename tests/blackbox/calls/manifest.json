@@ -1,0 +1,246 @@
+{
+  "schema_version": 1,
+  "cases": [
+    {
+      "id": "calls-nested",
+      "script": "cases/nested.myb",
+      "mode": "run",
+      "expect_exit": 0,
+      "expect_stdout_file": "expected/nested.stdout",
+      "expect_stderr_file": "expected/empty.bin"
+    },
+    {
+      "id": "calls-returned-string",
+      "script": "cases/returned-string.myb",
+      "mode": "run",
+      "expect_exit": 0,
+      "expect_stdout_file": "expected/returned-string.stdout",
+      "expect_stderr_file": "expected/empty.bin"
+    },
+    {
+      "id": "calls-default-null",
+      "script": "cases/default-null.myb",
+      "mode": "run",
+      "expect_exit": 0,
+      "expect_stdout_file": "expected/default-null.stdout",
+      "expect_stderr_file": "expected/empty.bin"
+    },
+    {
+      "id": "calls-parameter-independent",
+      "script": "cases/parameter-independent.myb",
+      "mode": "run",
+      "expect_exit": 0,
+      "expect_stdout_file": "expected/parameter-independent.stdout",
+      "expect_stderr_file": "expected/empty.bin"
+    },
+    {
+      "id": "calls-parameter-shadowing",
+      "script": "cases/parameter-shadowing.myb",
+      "mode": "run",
+      "expect_exit": 0,
+      "expect_stdout_file": "expected/parameter-shadowing.stdout",
+      "expect_stderr_file": "expected/empty.bin"
+    },
+    {
+      "id": "calls-forward-mutual",
+      "script": "cases/forward-mutual.myb",
+      "mode": "run",
+      "expect_exit": 0,
+      "expect_stdout_file": "expected/forward-mutual.stdout",
+      "expect_stderr_file": "expected/empty.bin"
+    },
+    {
+      "id": "calls-recursive-4096",
+      "script": "cases/recursive-4096.myb",
+      "mode": "run",
+      "expect_exit": 0,
+      "expect_stdout_file": "expected/recursive-4096.stdout",
+      "expect_stderr_file": "expected/empty.bin",
+      "timeout_seconds": 20
+    },
+    {
+      "id": "calls-lexical-global",
+      "script": "cases/lexical-global.myb",
+      "mode": "run",
+      "expect_exit": 0,
+      "expect_stdout_file": "expected/lexical-global.stdout",
+      "expect_stderr_file": "expected/empty.bin"
+    },
+    {
+      "id": "calls-write-global",
+      "script": "cases/write-global.myb",
+      "mode": "run",
+      "expect_exit": 0,
+      "expect_stdout_file": "expected/write-global.stdout",
+      "expect_stderr_file": "expected/empty.bin"
+    },
+    {
+      "id": "calls-argument-order",
+      "script": "cases/argument-order.myb",
+      "mode": "run",
+      "expect_exit": 0,
+      "expect_stdout_file": "expected/argument-order.stdout",
+      "expect_stderr_file": "expected/empty.bin"
+    },
+    {
+      "id": "calls-arity-before-arguments",
+      "script": "cases/arity-before-arguments.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Type\\]: [^\\n]*\\n"
+    },
+    {
+      "id": "calls-unknown-before-arguments",
+      "script": "cases/unknown-before-arguments.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:1:1: runtime error \\[Name\\]: [^\\n]*\\n"
+    },
+    {
+      "id": "calls-argument-error-unentered",
+      "script": "cases/argument-error-unentered.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "expected/argument-error-unentered.stdout",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Name\\]: [^\\n]*\\n"
+    },
+    {
+      "id": "calls-argument-error-caller",
+      "script": "cases/argument-error-caller.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "expected/argument-error-caller.stdout",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Name\\]: [^\\n]*\\n  at outer \\($SCRIPT:\\d+:\\d+\\)\\n"
+    },
+    {
+      "id": "calls-precheck-caller",
+      "script": "cases/precheck-caller.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Type\\]: [^\\n]*\\n  at outer \\($SCRIPT:\\d+:\\d+\\)\\n"
+    },
+    {
+      "id": "calls-unknown-precheck-caller",
+      "script": "cases/unknown-precheck-caller.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Name\\]: [^\\n]*\\n  at outer \\($SCRIPT:\\d+:\\d+\\)\\n"
+    },
+    {
+      "id": "calls-global-before-let",
+      "script": "cases/global-before-let.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Name\\]: [^\\n]*\\n  at read_global \\($SCRIPT:\\d+:\\d+\\)\\n"
+    },
+    {
+      "id": "calls-global-uninitialized",
+      "script": "cases/global-uninitialized.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Uninitialized\\]: [^\\n]*\\n  at read_global \\($SCRIPT:\\d+:\\d+\\)\\n"
+    },
+    {
+      "id": "calls-caller-local-invisible",
+      "script": "cases/caller-local-invisible.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Name\\]: [^\\n]*\\n  at read_local \\($SCRIPT:\\d+:\\d+\\)\\n  at caller \\($SCRIPT:\\d+:\\d+\\)\\n"
+    },
+    {
+      "id": "calls-nested-call-chain",
+      "script": "cases/nested-call-chain.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:2:14: runtime error \\[Arithmetic\\]: [^\\n]*\\n  at leaf \\($SCRIPT:2:14\\)\\n  at middle \\($SCRIPT:5:12\\)\\n  at outer \\($SCRIPT:8:12\\)\\n"
+    },
+    {
+      "id": "calls-recursive-call-chain",
+      "script": "cases/recursive-call-chain.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Arithmetic\\]: [^\\n]*\\n  at descend \\($SCRIPT:\\d+:\\d+\\)\\n  at descend \\($SCRIPT:\\d+:\\d+\\)\\n  at descend \\($SCRIPT:\\d+:\\d+\\)\\n"
+    },
+    {
+      "id": "calls-native-precheck-no-frame",
+      "script": "cases/native-precheck-no-frame.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Type\\]: [^\\n]*\\n  at outer \\($SCRIPT:\\d+:\\d+\\)\\n"
+    },
+    {
+      "id": "calls-native-argument-no-frame",
+      "script": "cases/native-argument-no-frame.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Arithmetic\\]: [^\\n]*\\n  at outer \\($SCRIPT:\\d+:\\d+\\)\\n"
+    },
+    {
+      "id": "calls-argument-function-error",
+      "script": "cases/argument-function-error.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Name\\]: [^\\n]*\\n  at bad \\($SCRIPT:\\d+:\\d+\\)\\n  at outer \\($SCRIPT:\\d+:\\d+\\)\\n"
+    },
+    {
+      "id": "calls-native-return-values",
+      "script": "cases/native-return-values.myb",
+      "mode": "run",
+      "expect_exit": 0,
+      "expect_stdout_file": "expected/native-return-values.stdout",
+      "expect_stderr_file": "expected/empty.bin"
+    },
+    {
+      "id": "calls-return-through-loops",
+      "script": "cases/return-through-loops.myb",
+      "mode": "run",
+      "expect_exit": 0,
+      "expect_stdout_file": "expected/return-through-loops.stdout",
+      "expect_stderr_file": "expected/empty.bin"
+    },
+    {
+      "id": "calls-repeated-local-state",
+      "script": "cases/repeated-local-state.myb",
+      "mode": "run",
+      "expect_exit": 0,
+      "expect_stdout_file": "expected/repeated-local-state.stdout",
+      "expect_stderr_file": "expected/empty.bin"
+    },
+    {
+      "id": "calls-main-explicit-only",
+      "script": "cases/main-explicit-only.myb",
+      "mode": "run",
+      "expect_exit": 0,
+      "expect_stdout_file": "expected/main-explicit-only.stdout",
+      "expect_stderr_file": "expected/empty.bin"
+    },
+    {
+      "id": "calls-function-is-not-value",
+      "script": "cases/function-is-not-value.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Name\\]: [^\\n]*\\n"
+    },
+    {
+      "id": "calls-return-error-propagates",
+      "script": "cases/return-error-propagates.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "expected/return-error-propagates.stdout",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Arithmetic\\]: [^\\n]*\\n  at fail_value \\($SCRIPT:\\d+:\\d+\\)\\n"
+    }
+  ]
+}

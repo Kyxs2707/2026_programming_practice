@@ -1,0 +1,10 @@
+fn shadow(value) {
+    {
+        print(value);
+        let value = "inner";
+        print(value);
+    }
+    print(value);
+    return value;
+}
+print(shadow(7));

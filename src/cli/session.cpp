@@ -64,12 +64,13 @@ int Session::run(const Options &options) noexcept {
         const auto &program = compile_entry(options.file);
         if (options.mode == RunMode::Check)
             return 0;
-        VM vm(heap_, roots_, io_, first_, builtins_);
+        VM vm(heap_, roots_, io_, first_, builtins_, &call_trace_);
         vm.execute(program);
         return 0;
     } catch (const Failure &failure) {
         first_.record_first(failure.header());
         auto header = first_.header();
+        // 保留首错的 domain、reason 和 OS 信息，只从同类捕获异常补齐缺失的 span。
         if (!header.span && header.domain == failure.header().domain &&
             header.reason == failure.header().reason)
             header.span = failure.header().span;
@@ -107,6 +108,12 @@ void Session::report(const FailureHeader &header, std::string_view message) noex
             text += ')';
         }
         text += '\n';
+        for (const auto &entry : call_trace_) {
+            const auto &source = sources_.get(entry.span.source);
+            const auto position = sources_.locate(entry.span.source, entry.span.begin);
+            text += "  at " + escaped(entry.name) + " (" + escaped(source.path_utf8) + ':' +
+                    std::to_string(position.line) + ':' + std::to_string(position.column) + ")\n";
+        }
         // stderr 失败后停止报告，避免诊断通路再次调用报告器。
         try {
             io_.write_stderr(text);

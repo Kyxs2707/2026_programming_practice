@@ -1,0 +1,2 @@
+fn target(value) { print("entered"); }
+target(write("X"), write("Y"));

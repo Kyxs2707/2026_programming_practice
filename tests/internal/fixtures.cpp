@@ -62,6 +62,8 @@ TestRun VmFixture::execute(std::string_view source, bool check) {
         result.failure = state_->first.header();
     result.stdin_reads = state_->io.reads;
     result.native_calls = state_->io.calls;
+    for (const auto &entry : state_->session.call_trace())
+        result.call_names.push_back(entry.name);
     return result;
 }
 TestRun VmFixture::run(std::string_view source) {

@@ -1,0 +1,6 @@
+fn read_local() { return local; }
+fn caller() {
+    let local = 7;
+    return read_local();
+}
+print(caller());

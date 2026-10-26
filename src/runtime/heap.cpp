@@ -61,6 +61,8 @@ void Heap::before_growth(std::size_t growth) {
 #ifdef MYB_TEST_HOOKS
     force = TestHooks::gc_forced();
 #endif
+    // 首错后会话进入终止和清理流程，后续增长检查不再启动 GC。
+    // 即使测试启用强制回收，也须遵守这一顺序。
     if (!failure_.is_set() && (force || expected > next_gc_))
         collect();
     // 只有回收后仍不小于阈值的请求，才在增长成功后再次更新阈值。

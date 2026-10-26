@@ -1,0 +1,15 @@
+let i = 0;
+let total = 0;
+while (i < 1000) {
+    let item;
+    item = i;
+    i = i + 1;
+    {
+        let item = 2;
+        total = total + item;
+    }
+    if (i % 2 == 0) { continue; }
+    total = total + item;
+}
+print(i);
+print(total);

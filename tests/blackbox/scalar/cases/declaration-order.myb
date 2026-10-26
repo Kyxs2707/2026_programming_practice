@@ -1,0 +1,8 @@
+let x = 10;
+{
+    print(x);
+    x = x + 1;
+    let x = 20;
+    print(x);
+}
+print(x);

@@ -10,7 +10,7 @@
 
 **Spec:** [MYB 解释器设计](../specs/MYB解释器设计.md)；语言行为以 [MYB 语言规范](../specs/MYB语言规范.md) v0.2（含 2026-10-22 D63 澄清）为准；完整课程交付顺序见 [项目实施步骤](../superpowers/plans/2026-10-11-myb-implementation.md)。
 
-状态：用户于 2026-10-22 明确要求“好，你先完成M1吧”，已授权任务 01–06。**M1 已于 2026-10-23 完成实现与验收；M2–M4 未启动。** 2026-10-23 按用户要求在 M1 与 M2 之间新增 CI-01/CI-02 两项工程任务，用户已授权实施；CI-01 的本地脚本、远端两 job 正常→失败→恢复和独立仅文档 PR 触发均已验收；用户随后将仓库改为 public 并授权完成 CI-02，强制合并条件已配置并完成失败/恢复验收；整个 CI 工程阶段完成。 独立构建、源码前端与堆模块并行实施，由根代理集成并安排一次独立整体审查。实测命令、范围与调整见 [构建与测试](../guides/构建与测试.md) 和 [测试报告](../reports/测试报告_v0.1.md)。
+状态：用户于 2026-10-22 明确要求“好，你先完成M1吧”，已授权任务 01–06。**M1 已于 2026-10-23 完成实现与验收；用户同日授权完成 M2，任务 07–11 已通过本地 Debug/Release 验收与独立审查，见 [M2 测试报告](../reports/M2测试报告.md)。M3–M4 未启动。** 2026-10-23 按用户要求在 M1 与 M2 之间新增 CI-01/CI-02 两项工程任务，用户已授权实施；CI-01 的本地脚本、远端两 job 正常→失败→恢复和独立仅文档 PR 触发均已验收；用户随后将仓库改为 public 并授权完成 CI-02，强制合并条件已配置并完成失败/恢复验收；整个 CI 工程阶段完成。 独立构建、源码前端与堆模块并行实施，由根代理集成并安排一次独立整体审查。实测命令、范围与调整见 [构建与测试](../guides/构建与测试.md) 和 [测试报告](../reports/测试报告_v0.1.md)。
 
 ## Global Constraints（全局约束）
 
@@ -294,16 +294,16 @@ GitHub 的 required checks 与跳过/取消状态行为见 [状态检查](https:
 
 **Interfaces:** Consumes05/03；Completes全部29个具体节点和EBNF，`CheckedAst{borrowed AstProgram,owned DeclarationIndex,owned LiteralTable}`；Checker借静态21内置名称，不调用回调。DeclarationIndex保存函数/结构编号、参数数和字段类型/顺序，不建立运行时全局变量。
 
-- [ ] **1. 写红测试。** checker_contract：`if(false){missing(1,2);} len(); let x=x+1;` 检查通过；`-(9223372036854775808)` 前端1，`(-9223372036854775808)` 通过，`-(-9223372036854775808)`不折叠外层。黑盒 `print("before"); if(false){break;}` 应exit1且stdout空，覆盖 Review Focus 1。
+- [x] **1. 写红测试。** checker_contract：`if(false){missing(1,2);} len(); let x=x+1;` 检查通过；`-(9223372036854775808)` 前端1，`(-9223372036854775808)` 通过，`-(-9223372036854775808)`不折叠外层。黑盒 `print("before"); if(false){break;}` 应exit1且stdout空，覆盖 Review Focus 1。
 
 ```myb
 print("before");
 if (false) { break; }
 ```
-- [ ] **2. 确认红。** 重建，运行 `--case checker_contract`、`--case frontend_parse`，此时完整语法/结构断言应失败。尚未完整生成的新语法先用内部检查器验收，07的执行前错误黑盒待08接入完整生成后转绿。
-- [ ] **3. 实现。** 全部运算优先级、赋值目标、切片/构造、控制语句和顶层限制；不支持形式明确拒绝。三遍完成顶层冲突、字段类型、全部子树结构检查；参数/函数外层体同层，for source先于体绑定。只有直接UnaryMinus(IntToken幅值2^63)规范化；赋值受保护名不提前拒绝RHS，构造字段集合留运行时。
-- [ ] **4. 验证绿。** 两内部case为0；全语法fixture包含5顶层项/2参数函数，Group、短路、Unary→Index及省略切片形状正确。补同层重名/受保护声明/前向互递归结构/未知字段类型、字符串转义、坏数字/尾逗号/空语句、空块/函数/结构；Bison无未解释冲突，生成头依赖正确。
-- [ ] **5. 提交。** 提交内部验收已通过的前端/检查器和预期文件，消息 `feat: complete MYB grammar and structural checking`；未接入生成的黑盒放分组manifest，不提前加入默认全绿集，08完成后立即聚合。
+- [x] **2. 确认红。** 重建，运行 `--case checker_contract`、`--case frontend_parse`，此时完整语法/结构断言应失败。尚未完整生成的新语法先用内部检查器验收，07的执行前错误黑盒待08接入完整生成后转绿。
+- [x] **3. 实现。** 全部运算优先级、赋值目标、切片/构造、控制语句和顶层限制；不支持形式明确拒绝。三遍完成顶层冲突、字段类型、全部子树结构检查；参数/函数外层体同层，for source先于体绑定。只有直接UnaryMinus(IntToken幅值2^63)规范化；赋值受保护名不提前拒绝RHS，构造字段集合留运行时。
+- [x] **4. 验证绿。** 两内部case为0；全语法fixture包含5顶层项/2参数函数，Group、短路、Unary→Index及省略切片形状正确。补同层重名/受保护声明/前向互递归结构/未知字段类型、字符串转义、坏数字/尾逗号/空语句、空块/函数/结构；Bison无未解释冲突，生成头依赖正确。
+- [x] **5. 提交。** 提交内部验收已通过的前端/检查器和预期文件，消息 `feat: complete MYB grammar and structural checking`；未接入生成的黑盒放分组manifest，不提前加入默认全绿集，08完成后立即聚合。
 
 ### 任务 08：完整编译产物、声明点布局与字节码核验
 
@@ -311,17 +311,17 @@ if (false) { break; }
 
 **Interfaces:** Produces `BindingLayout::build(const CheckedAst&)->BindingLayout`；编译器补齐标签与指令生成；`verify(CodeUnit&)` 写回 local_count/max_operand，错误为HostFailure/Internal。副表CallSite/ConstructionPlan/IterationSite、函数单元、稳定Schema和程序名称池按设计实现。
 
-- [ ] **1. 写红测试。** bytecode_layout 编译 `let x=3; fn f(){let before=x;let x=x+1;if(false){let y=unknown;}}`，要求before读全局，自初始化先DECL_LOCAL再LOAD_LOCAL，未知名保留；参数从槽0起、局部不复用、子树区间连续。bytecode_verify 手工构造非法跳转/栈下溢/不等汇合，均Internal/3；合法动态错误不得执行。
+- [x] **1. 写红测试。** bytecode_layout 编译 `let x=3; fn f(){let before=x;let x=x+1;if(false){let y=unknown;}}`，要求before读全局，自初始化先DECL_LOCAL再LOAD_LOCAL，未知名保留；参数从槽0起、局部不复用、子树区间连续。bytecode_verify 手工构造非法跳转/栈下溢/不等汇合，均Internal/3；合法动态错误不得执行。
 
 ```cpp
 // unit 的合法路径为 CONST(1), CONST(2), BINARY(Add), DROP, HALT。
 verify(unit);
 REQUIRE(unit.max_operand == 2);
 ```
-- [ ] **2. 确认红。** 重建并运行 `--case bytecode_layout`、`--case bytecode_verify`、`--case bytecode_constant_roots`，记录缺少完整单元/布局/核验的失败。
-- [ ] **3. 实现。** 全操作码/栈效应/源码条目、绝对指令号标签回填、CALL按k→1分析、死代码结构核验；函数默认null+RETURN，顶层HALT。先编号再按声明点解析，不提前激活let；构造原始字段副表保留重复项。编译期ProgramConstants根先登记，各单元String常量经临时根交入表，生成数据不借AST。
-- [ ] **4. 验证绿。** 三内部case为0；强制每允许点GC后，释放AST再收集，未调用函数的String常量仍可读，ProgramConstants追加/登记故障无悬空根。07前端黑盒通过；额外 --check 对未知名称、错误参数数/构造字段集合、自初始化均成功无输出；将frontend组聚合默认manifest。
-- [ ] **5. 提交。** 内部及已接入黑盒全绿后提交 `feat: generate verified units and declaration-point bindings`。
+- [x] **2. 确认红。** 重建并运行 `--case bytecode_layout`、`--case bytecode_verify`、`--case bytecode_constant_roots`，记录缺少完整单元/布局/核验的失败。
+- [x] **3. 实现。** 全操作码/栈效应/源码条目、绝对指令号标签回填、CALL按k→1分析、死代码结构核验；函数默认null+RETURN，顶层HALT。先编号再按声明点解析，不提前激活let；构造原始字段副表保留重复项。编译期ProgramConstants根先登记，各单元String常量经临时根交入表，生成数据不借AST。
+- [x] **4. 验证绿。** 三内部case为0；强制每允许点GC后，释放AST再收集，未调用函数的String常量仍可读，ProgramConstants追加/登记故障无悬空根。07前端黑盒通过；额外 --check 对未知名称、错误参数数/构造字段集合、自初始化均成功无输出；将frontend组聚合默认manifest。
+- [x] **5. 提交。** 内部及已接入黑盒全绿后提交 `feat: generate verified units and declaration-point bindings`。
 
 ### 任务 09：完整动态运算与数值边界
 
@@ -329,17 +329,17 @@ REQUIRE(unit.max_operand == 2);
 
 **Interfaces:** ValueOps借Heap/根/首错上下文；`unary(UnaryOp,Value,ErrorSite)->Value`、`compare(CompareOp,Value,Value,ErrorSite)->Value` 仅返回标量；`binary(BinaryOp,Value,Value,ErrorSite,RootedValue&)` 统一输出分配结果。结构字段检查与序列方法在12接入。
 
-- [ ] **1. 写红测试。** value_ops 精确断言 -7//3=-3、-7%3=2、7%-3=-2、MIN%-1=0、MIN//-1为Arithmetic；MAX+1、MIN取负、除正负零均失败。`9007199254740993 == 9007199254740992.0` 为false，MAX < 2^63为true，Bool不充当数值。
+- [x] **1. 写红测试。** value_ops 精确断言 -7//3=-3、-7%3=2、7%-3=-2、MIN%-1=0、MIN//-1为Arithmetic；MAX+1、MIN取负、除正负零均失败。`9007199254740993 == 9007199254740992.0` 为false，MAX < 2^63为true，Bool不充当数值。
 
 ```cpp
 auto equal = ops.compare(CompareOp::Equal,
     Value{std::int64_t{9007199254740993}}, Value{9007199254740992.0}, site);
 REQUIRE(!std::get<bool>(equal.data));
 ```
-- [ ] **2. 确认红。** 重建运行 `& .\build\debug\myb_internal_tests.exe --case value_ops`，未实现运算或边界断言应失败。
-- [ ] **3. 实现。** GCC checked溢出包装、整除/余数特判后floor修正；浮点finite与下溢规则、混合比较先范围分界再安全截断；严格Bool、String码点比较/拼接、数组/结构身份相等与跨类别规则。拼接走受控Builder，输入Value在may-GC前有根。
-- [ ] **4. 验证绿。** 同case为0；补跨数值有序/相等、可空值与不可排序类别、String无规范化、Int64两端转换；核对错误位置为运算符，右操作数求值错误不能被左类型错误抢先报告。
-- [ ] **5. 提交。** 检查宿主signed UB/有损比较/根空窗后提交 `feat: complete checked dynamic value operations`。
+- [x] **2. 确认红。** 重建运行 `& .\build\debug\myb_internal_tests.exe --case value_ops`，未实现运算或边界断言应失败。
+- [x] **3. 实现。** GCC checked溢出包装、整除/余数特判后floor修正；浮点finite与下溢规则、混合比较先范围分界再安全截断；严格Bool、String码点比较/拼接、数组/结构身份相等与跨类别规则。拼接走受控Builder，输入Value在may-GC前有根。
+- [x] **4. 验证绿。** 同case为0；补跨数值有序/相等、可空值与不可排序类别、String无规范化、Int64两端转换；核对错误位置为运算符，右操作数求值错误不能被左类型错误抢先报告。
+- [x] **5. 提交。** 检查宿主signed UB/有损比较/根空窗后提交 `feat: complete checked dynamic value operations`。
 
 ### 任务 10：变量、短路、块、if/while 与值区增长
 
@@ -347,7 +347,7 @@ REQUIRE(!std::get<bool>(equal.data));
 
 **Interfaces:** Completes帧base/operand_base/region_end/sp与三态、局部/全局表、CLEAR_LOCALS与所有标量/分支指令。全局查找不插入默认条目，读/写位置由本单元编号定位；跨容器增长只保存索引。
 
-- [ ] **1. 写红测试。** scalar/bindings.myb：`let x=3;{print(x);let x;x=7;print(x);} if(false){print(missing);} print(false&&missing);` 输出 `3\n7\nfalse\n`、exit0。`let x=1;{let x=x+1;}` Uninitialized/1；`print(x);let x=1;` Name/1；`let x;x=null;print(x);` 输出null。`print(true+missing);` 先Name，`print(1&&true);` Type。
+- [x] **1. 写红测试。** scalar/bindings.myb：`let x=3;{print(x);let x;x=7;print(x);} if(false){print(missing);} print(false&&missing);` 输出 `3\n7\nfalse\n`、exit0。`let x=1;{let x=x+1;}` Uninitialized/1；`print(x);let x=1;` Name/1；`let x;x=null;print(x);` 输出null。`print(true+missing);` 先Name，`print(1&&true);` Type。
 
 ```myb
 let x = 3;
@@ -355,10 +355,10 @@ let x = 3;
 if (false) { print(missing); }
 print(false && missing);
 ```
-- [ ] **2. 确认红。** 重建运行 `--case vm_scalar` 与 `python tools/run_blackbox.py --interpreter build/debug/myb.exe --manifest tests/blackbox/scalar/manifest.json`，新变量/跳转或输出断言应失败。
-- [ ] **3. 实现。** 声明先未初始化、运行后才全局入表；按既定映射查局部/外层。短路左右分别严格检查Bool，汇合留下一个Bool；普通语句落出栈深不变。扩容遵循64/16与1.5倍策略，Value/状态准备全部成功再提交范围，GC只枚举初始化局部和有效操作数。
-- [ ] **4. 验证绿。** 两组返回0；`let x=1;x="a";print(x);` 输出a，证明可改绑不同类型；while零/多轮、break/continue最内层、块遮蔽与退出根清除均覆盖。vm_growth_failure在VmValues成功后VmStates失败、各reserve失败时，断言Resource/3、旧sp/帧可扫描、无未提交根/二次错误；满足 Review Focus 5。已有smoke/frontend回归仍绿。
-- [ ] **5. 提交。** 聚合scalar组后提交 `feat: execute dynamic bindings and scalar control flow`。
+- [x] **2. 确认红。** 重建运行 `--case vm_scalar` 与 `python tools/run_blackbox.py --interpreter build/debug/myb.exe --manifest tests/blackbox/scalar/manifest.json`，新变量/跳转或输出断言应失败。
+- [x] **3. 实现。** 声明先未初始化、运行后才全局入表；按既定映射查局部/外层。短路左右分别严格检查Bool，汇合留下一个Bool；普通语句落出栈深不变。扩容遵循64/16与1.5倍策略，Value/状态准备全部成功再提交范围，GC只枚举初始化局部和有效操作数。
+- [x] **4. 验证绿。** 两组返回0；`let x=1;x="a";print(x);` 输出a，证明可改绑不同类型；while零/多轮、break/continue最内层、块遮蔽与退出根清除均覆盖。vm_growth_failure在VmValues成功后VmStates失败、各reserve失败时，断言Resource/3、旧sp/帧可扫描、无未提交根/二次错误；满足 Review Focus 5。已有smoke/frontend回归仍绿。
+- [x] **5. 提交。** 聚合scalar组后提交 `feat: execute dynamic bindings and scalar control flow`。
 
 ### 任务 11：用户调用、native 交接与真实调用链
 
@@ -366,16 +366,16 @@ print(false && missing);
 
 **Interfaces:** Produces `VM::prepare_call(CallSiteId)`、`return_to_caller(RootedValue&)`；补齐FunctionInfo/不可变命名目标表、帧executing_ip/next_ip与caller_arg_base/caller_call_ip/iteration_base。静态BuiltinDescriptor的名称/固定数量可提前用于结构保护；回调随所属任务补齐，最终16要求21项均为实际实现，不引入运行时动态注册框架。
 
-- [ ] **1. 写红测试。** calls/nested.myb：`fn add(a,b){return a+b;} print(100+add(3,4));` 输出107；`fn tag(){return "北"+"邮";} print(tag());` 输出北邮。`fn f(x){} f(write("X"),write("Y"));` stdout空/数量错误1；`fn f(a,b){} f(write("A"),missing);` 仅A/Name1，调用链不含f。未知目标同样不执行实参，覆盖 Review Focus 2。
+- [x] **1. 写红测试。** calls/nested.myb：`fn add(a,b){return a+b;} print(100+add(3,4));` 输出107；`fn tag(){return "北"+"邮";} print(tag());` 输出北邮。`fn f(x){} f(write("X"),write("Y"));` stdout空/数量错误1；`fn f(a,b){} f(write("A"),missing);` 仅A/Name1，调用链不含f。未知目标同样不执行实参，覆盖 Review Focus 2。
 
 ```myb
 fn add(a, b) { return a + b; }
 print(100 + add(3, 4));
 ```
-- [ ] **2. 确认红。** 重建运行 `--case vm_calls` 与 `python tools/run_blackbox.py --interpreter build/debug/myb.exe --manifest tests/blackbox/calls/manifest.json`，新用户帧/返回断言应失败。
-- [ ] **3. 实现。** PRECALL预检→全部实参→准备父完整保留区之后的子区域；参数复制/初始化并完成可扫描状态后无分配提交活动帧，才撤父实参。普通MYB调用仅推进同一个VM循环；RETURN先根→统一清理→恢复父预留结果槽。native期间禁VM扩容/重入，先清旧args再写重叠结果，out根持续保护。
-- [ ] **4. 验证绿。** 两组为0；默认null/零实参、前向互递归、词法全局可见性均正确：全局x=1、caller局部x=2而被调f读x时应得1；f在全局let执行前读取x应为Name/1。4096层计数递归输出4096、不借宿主递归；强制GC下tag返回新字符串仍存活。vm_call_failures逐个准备点失败为3、子帧不入链、旧帧根完整；native无伪帧、调用位置用executing_ip，清理不覆盖首错。
-- [ ] **5. 提交。** 聚合calls组后提交 `feat: add explicit function frames and protected handoffs`。
+- [x] **2. 确认红。** 重建运行 `--case vm_calls` 与 `python tools/run_blackbox.py --interpreter build/debug/myb.exe --manifest tests/blackbox/calls/manifest.json`，新用户帧/返回断言应失败。
+- [x] **3. 实现。** PRECALL预检→全部实参→准备父完整保留区之后的子区域；参数复制/初始化并完成可扫描状态后无分配提交活动帧，才撤父实参。普通MYB调用仅推进同一个VM循环；RETURN先根→统一清理→恢复父预留结果槽。native期间禁VM扩容/重入，先清旧args再写重叠结果，out根持续保护。
+- [x] **4. 验证绿。** 两组为0；默认null/零实参、前向互递归、词法全局可见性均正确：全局x=1、caller局部x=2而被调f读x时应得1；f在全局let执行前读取x应为Name/1。4096层计数递归输出4096、不借宿主递归；强制GC下tag返回新字符串仍存活。vm_call_failures逐个准备点失败为3、子帧不入链、旧帧根完整；native无伪帧、调用位置用executing_ip，清理不覆盖首错。调用链顺序按 2026-10-26 修订的设计采用内到外。
+- [x] **5. 提交。** 聚合calls组后提交 `feat: add explicit function frames and protected handoffs`。
 
 ## M3：完整对象、遍历、内置与 Windows I/O
 
@@ -483,7 +483,7 @@ print(int(-2.9));
 
 **Interfaces:** Produces拥有存储的Diagnostic/出错时的实际调用链记录及 `report_failure(const Diagnostic&,HostIO&)`；EmergencyFailure固定记录和无分配最小报告路径保持独立。完成全部FaultPoint接缝；HostIO错误不直接成为语言异常对象，用户不获得catch/栈访问接口。
 
-- [ ] **1. 写红测试。** 设计demo的inner在第2行 `return x + 1;` 失败，首行位置精确2:14，Type/1；实际链outer→inner，print不入用户链。错误参数/入口读取无虚构位置；invalid UTF-8为Frontend1。failure_fallback先登记Runtime/Type，再注入DiagnosticSnapshot/bad_alloc/OsWrite，保持exit1，报告最多一次；没有已有首错的宿主故障为3。
+- [ ] **1. 写红测试。** 设计demo的inner在第2行 `return x + 1;` 失败，首行位置精确2:14，Type/1；实际链inner→outer，print不入用户链。错误参数/入口读取无虚构位置；invalid UTF-8为Frontend1。failure_fallback先登记Runtime/Type，再注入DiagnosticSnapshot/bad_alloc/OsWrite，保持exit1，报告最多一次；没有已有首错的宿主故障为3。
 
 ```cpp
 EmergencyFailure first;
@@ -537,9 +537,11 @@ print("after");
 
 ## 自审记录与执行交接
 
-- 已按设计逐节对照，解释器、21内置、GC/资源、Windows边界、CLI/诊断及构建/测试均有任务归属；原计划的测试值为预期；M1 与 CI 已有实测证据，见测试报告和 CI 与合并规则；M2–M4 的命令及验收仍为未来任务。
+- 已按设计逐节对照，解释器、21内置、GC/资源、Windows边界、CLI/诊断及构建/测试均有任务归属；原计划的测试值为预期；M1、M2 与 CI 已有实测证据，见阶段测试报告和 CI 与合并规则；M3–M4 的命令及验收仍为未来任务。
 - 前期以内部协议/最小黑盒验收，中期按功能滚动聚合；07解析的新语法由08完整生成接管，11返回数组的对象验证由12/13接管，14完整例依赖15的assert。这些依赖不能被当作提前完成。
 - 正式用户/Agent开发指南、>=200行应用及真实开发记录、Python同功能性能报告属于后续课程交付，继续按原路线图10–13独立安排；本计划不选择应用或新增游戏API。
 - M1、CI-01、CI-02 已实施并验收。CI 工作流、代码/仅文档 PR、错误预期失败、恢复成功及远端强制规则均有实际证据；原 CI-02 验收未修改 main 的既有保护，main 验证 PR 已关闭且未合并。用户后续取消 `Restrict updates` 的现行配置见 [CI 与合并规则](../rules/CI与合并规则.md)；原 JSON 配置记录保留为历史验收证据。
 
-后续待实施范围从 M2 的任务 07 起；M2–M4 尚未启动。启动时按用户最新授权审阅对应任务、已批准设计及已实现代码，再选择当前会话逐项执行或子代理分工；继续保留阶段验收、独立审查和可复现证据。
+M2 的任务 07–11 已于 2026-10-23 完成：Debug 46 个内部测试、10 个驱动测试、7 个 CLI 测试及 110 个黑盒通过；Release 7 个 CLI 测试及 110 个黑盒通过，31 条编译命令无测试依赖；独立审查通过。具体证据与统一提交的调整见 [M2 测试报告](../reports/M2测试报告.md)。
+
+后续范围从 M3 任务 12“数组/结构构造、访问、写入及数组内置”起；M3–M4 尚未启动，继续按用户授权推进。

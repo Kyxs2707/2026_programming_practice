@@ -1,0 +1,9 @@
+let x = 3;
+{
+    print(x);
+    let x;
+    x = 7;
+    print(x);
+}
+if (false) { print(missing); }
+print(false && missing);

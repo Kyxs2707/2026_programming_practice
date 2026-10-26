@@ -201,6 +201,694 @@
       "expect_exit": 3,
       "expect_stdout_file": "smoke/expected/ast-capacity.stdout",
       "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: resource error \\[Capacity\\]: .*\\n"
+    },
+    {
+      "id": "frontend-unreachable-break",
+      "script": "frontend/cases/unreachable-break.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "frontend/expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:2:14: structure error \\[Syntax\\]: .*\\n"
+    },
+    {
+      "id": "frontend-uncalled-return-scope",
+      "script": "frontend/cases/uncalled-return-scope.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "frontend/expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: structure error \\[Syntax\\]: .*\\n"
+    },
+    {
+      "id": "frontend-return-top",
+      "script": "frontend/cases/return-top.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "frontend/expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: structure error \\[Syntax\\]: .*\\n"
+    },
+    {
+      "id": "frontend-duplicate-local",
+      "script": "frontend/cases/duplicate-local.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "frontend/expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: structure error \\[Declaration\\]: .*\\n"
+    },
+    {
+      "id": "frontend-duplicate-parameter",
+      "script": "frontend/cases/duplicate-parameter.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "frontend/expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: structure error \\[Declaration\\]: .*\\n"
+    },
+    {
+      "id": "frontend-parameter-body-conflict",
+      "script": "frontend/cases/parameter-body-conflict.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "frontend/expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: structure error \\[Declaration\\]: .*\\n"
+    },
+    {
+      "id": "frontend-for-body-conflict",
+      "script": "frontend/cases/for-body-conflict.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "frontend/expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: structure error \\[Declaration\\]: .*\\n"
+    },
+    {
+      "id": "frontend-protected-declaration",
+      "script": "frontend/cases/protected-declaration.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "frontend/expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: structure error \\[Declaration\\]: .*\\n"
+    },
+    {
+      "id": "frontend-global-function-conflict",
+      "script": "frontend/cases/global-function-conflict.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "frontend/expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: structure error \\[Declaration\\]: .*\\n"
+    },
+    {
+      "id": "frontend-duplicate-field",
+      "script": "frontend/cases/duplicate-field.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "frontend/expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: structure error \\[Declaration\\]: .*\\n"
+    },
+    {
+      "id": "frontend-unknown-field-type",
+      "script": "frontend/cases/unknown-field-type.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "frontend/expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: structure error \\[Declaration\\]: .*\\n"
+    },
+    {
+      "id": "frontend-invalid-target",
+      "script": "frontend/cases/invalid-target.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "frontend/expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: structure error \\[Syntax\\]: .*\\n"
+    },
+    {
+      "id": "frontend-slice-target",
+      "script": "frontend/cases/slice-target.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "frontend/expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: structure error \\[Syntax\\]: .*\\n"
+    },
+    {
+      "id": "frontend-comparison-chain",
+      "script": "frontend/cases/comparison-chain.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "frontend/expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: frontend error \\[Syntax\\]: .*\\n"
+    },
+    {
+      "id": "frontend-trailing-comma",
+      "script": "frontend/cases/trailing-comma.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "frontend/expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: frontend error \\[Syntax\\]: .*\\n"
+    },
+    {
+      "id": "frontend-nested-function",
+      "script": "frontend/cases/nested-function.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "frontend/expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: frontend error \\[Syntax\\]: .*\\n"
+    },
+    {
+      "id": "frontend-unreachable-range",
+      "script": "frontend/cases/unreachable-range.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "frontend/expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: frontend error \\[Range\\]: .*\\n"
+    },
+    {
+      "id": "frontend-grouped-positive-min",
+      "script": "frontend/cases/grouped-positive-min.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "frontend/expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: frontend error \\[Range\\]: .*\\n"
+    },
+    {
+      "id": "frontend-check-dynamic",
+      "script": "frontend/cases/check-dynamic.myb",
+      "mode": "check",
+      "expect_exit": 0,
+      "expect_stdout_file": "frontend/expected/empty.bin",
+      "expect_stderr_file": "frontend/expected/empty.bin"
+    },
+    {
+      "id": "frontend-check-no-effects",
+      "script": "frontend/cases/check-no-effects.myb",
+      "mode": "check",
+      "expect_exit": 0,
+      "expect_stdout_file": "frontend/expected/empty.bin",
+      "expect_stderr_file": "frontend/expected/empty.bin",
+      "stdin_file": "frontend/expected/invalid.stdin",
+      "expect_files": [
+        {
+          "path": "unexpected.txt",
+          "absent": true
+        }
+      ]
+    },
+    {
+      "id": "frontend-check-empty",
+      "script": "frontend/cases/check-empty.myb",
+      "mode": "check",
+      "expect_exit": 0,
+      "expect_stdout_file": "frontend/expected/empty.bin",
+      "expect_stderr_file": "frontend/expected/empty.bin"
+    },
+    {
+      "id": "frontend-check-forward",
+      "script": "frontend/cases/check-forward.myb",
+      "mode": "check",
+      "expect_exit": 0,
+      "expect_stdout_file": "frontend/expected/empty.bin",
+      "expect_stderr_file": "frontend/expected/empty.bin"
+    },
+    {
+      "id": "frontend-check-all-syntax",
+      "script": "../fixtures/frontend/all_syntax.myb",
+      "mode": "check",
+      "expect_exit": 0,
+      "expect_stdout_file": "frontend/expected/empty.bin",
+      "expect_stderr_file": "frontend/expected/empty.bin"
+    },
+    {
+      "id": "scalar-bindings",
+      "script": "scalar/cases/bindings.myb",
+      "mode": "run",
+      "expect_exit": 0,
+      "expect_stdout_file": "scalar/expected/bindings.stdout",
+      "expect_stderr_file": "scalar/expected/empty.bin"
+    },
+    {
+      "id": "scalar-null-initialization",
+      "script": "scalar/cases/null-initialization.myb",
+      "mode": "run",
+      "expect_exit": 0,
+      "expect_stdout_file": "scalar/expected/null-initialization.stdout",
+      "expect_stderr_file": "scalar/expected/empty.bin"
+    },
+    {
+      "id": "scalar-dynamic-rebinding",
+      "script": "scalar/cases/dynamic-rebinding.myb",
+      "mode": "run",
+      "expect_exit": 0,
+      "expect_stdout_file": "scalar/expected/dynamic-rebinding.stdout",
+      "expect_stderr_file": "scalar/expected/empty.bin"
+    },
+    {
+      "id": "scalar-declaration-order",
+      "script": "scalar/cases/declaration-order.myb",
+      "mode": "run",
+      "expect_exit": 0,
+      "expect_stdout_file": "scalar/expected/declaration-order.stdout",
+      "expect_stderr_file": "scalar/expected/empty.bin"
+    },
+    {
+      "id": "scalar-nearest-binding",
+      "script": "scalar/cases/nearest-binding.myb",
+      "mode": "run",
+      "expect_exit": 0,
+      "expect_stdout_file": "scalar/expected/nearest-binding.stdout",
+      "expect_stderr_file": "scalar/expected/empty.bin"
+    },
+    {
+      "id": "scalar-short-circuit",
+      "script": "scalar/cases/short-circuit.myb",
+      "mode": "run",
+      "expect_exit": 0,
+      "expect_stdout_file": "scalar/expected/short-circuit.stdout",
+      "expect_stderr_file": "scalar/expected/empty.bin"
+    },
+    {
+      "id": "scalar-logical-effects",
+      "script": "scalar/cases/logical-effects.myb",
+      "mode": "run",
+      "expect_exit": 0,
+      "expect_stdout_file": "scalar/expected/logical-effects.stdout",
+      "expect_stderr_file": "scalar/expected/empty.bin"
+    },
+    {
+      "id": "scalar-conditional-branches",
+      "script": "scalar/cases/conditional-branches.myb",
+      "mode": "run",
+      "expect_exit": 0,
+      "expect_stdout_file": "scalar/expected/conditional-branches.stdout",
+      "expect_stderr_file": "scalar/expected/empty.bin"
+    },
+    {
+      "id": "scalar-while-zero",
+      "script": "scalar/cases/while-zero.myb",
+      "mode": "run",
+      "expect_exit": 0,
+      "expect_stdout_file": "scalar/expected/while-zero.stdout",
+      "expect_stderr_file": "scalar/expected/empty.bin"
+    },
+    {
+      "id": "scalar-while-controls",
+      "script": "scalar/cases/while-controls.myb",
+      "mode": "run",
+      "expect_exit": 0,
+      "expect_stdout_file": "scalar/expected/while-controls.stdout",
+      "expect_stderr_file": "scalar/expected/empty.bin"
+    },
+    {
+      "id": "scalar-while-local-reentry",
+      "script": "scalar/cases/while-local-reentry.myb",
+      "mode": "run",
+      "expect_exit": 0,
+      "expect_stdout_file": "scalar/expected/while-local-reentry.stdout",
+      "expect_stderr_file": "scalar/expected/empty.bin"
+    },
+    {
+      "id": "scalar-uninitialized-global",
+      "script": "scalar/cases/uninitialized-global.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "scalar/expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Uninitialized\\]: [^\\n]*\\n"
+    },
+    {
+      "id": "scalar-self-initialization",
+      "script": "scalar/cases/self-initialization.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "scalar/expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Uninitialized\\]: [^\\n]*\\n"
+    },
+    {
+      "id": "scalar-read-before-declaration",
+      "script": "scalar/cases/read-before-declaration.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "scalar/expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:1:7: runtime error \\[Name\\]: [^\\n]*\\n"
+    },
+    {
+      "id": "scalar-expired-block",
+      "script": "scalar/cases/expired-block.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "scalar/expected/expired-block.stdout",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Name\\]: [^\\n]*\\n"
+    },
+    {
+      "id": "scalar-assignment-creates-no-name",
+      "script": "scalar/cases/assignment-creates-no-name.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "scalar/expected/assignment-creates-no-name.stdout",
+      "expect_stderr_regex": "$SCRIPT:1:1: runtime error \\[Name\\]: [^\\n]*\\n"
+    },
+    {
+      "id": "scalar-assignment-right-error-first",
+      "script": "scalar/cases/assignment-right-error-first.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "scalar/expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:1:13: runtime error \\[Arithmetic\\]: [^\\n]*\\n"
+    },
+    {
+      "id": "scalar-binary-right-before-type-check",
+      "script": "scalar/cases/binary-right-before-type-check.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "scalar/expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Name\\]: [^\\n]*\\n"
+    },
+    {
+      "id": "scalar-binary-side-effects",
+      "script": "scalar/cases/binary-side-effects.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "scalar/expected/binary-side-effects.stdout",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Type\\]: [^\\n]*\\n"
+    },
+    {
+      "id": "scalar-binary-left-error-stops-right",
+      "script": "scalar/cases/binary-left-error-stops-right.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "scalar/expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Name\\]: [^\\n]*\\n"
+    },
+    {
+      "id": "scalar-and-left-strict",
+      "script": "scalar/cases/and-left-strict.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "scalar/expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Type\\]: [^\\n]*\\n"
+    },
+    {
+      "id": "scalar-or-left-strict",
+      "script": "scalar/cases/or-left-strict.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "scalar/expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Type\\]: [^\\n]*\\n"
+    },
+    {
+      "id": "scalar-and-right-strict",
+      "script": "scalar/cases/and-right-strict.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "scalar/expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Type\\]: [^\\n]*\\n"
+    },
+    {
+      "id": "scalar-or-right-strict",
+      "script": "scalar/cases/or-right-strict.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "scalar/expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Type\\]: [^\\n]*\\n"
+    },
+    {
+      "id": "scalar-if-strict",
+      "script": "scalar/cases/if-strict.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "scalar/expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Type\\]: [^\\n]*\\n"
+    },
+    {
+      "id": "scalar-while-strict",
+      "script": "scalar/cases/while-strict.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "scalar/expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Type\\]: [^\\n]*\\n"
+    },
+    {
+      "id": "scalar-not-strict",
+      "script": "scalar/cases/not-strict.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "scalar/expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Type\\]: [^\\n]*\\n"
+    },
+    {
+      "id": "scalar-exact-numeric-comparison",
+      "script": "scalar/cases/exact-numeric-comparison.myb",
+      "mode": "run",
+      "expect_exit": 0,
+      "expect_stdout_file": "scalar/expected/exact-numeric-comparison.stdout",
+      "expect_stderr_file": "scalar/expected/empty.bin"
+    },
+    {
+      "id": "scalar-equality-and-string-order",
+      "script": "scalar/cases/equality-and-string-order.myb",
+      "mode": "run",
+      "expect_exit": 0,
+      "expect_stdout_file": "scalar/expected/equality-and-string-order.stdout",
+      "expect_stderr_file": "scalar/expected/empty.bin"
+    },
+    {
+      "id": "scalar-ordering-rejects-bool",
+      "script": "scalar/cases/ordering-rejects-bool.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "scalar/expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Type\\]: [^\\n]*\\n"
+    },
+    {
+      "id": "scalar-uninitialized-does-not-fallback",
+      "script": "scalar/cases/uninitialized-does-not-fallback.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "scalar/expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Uninitialized\\]: [^\\n]*\\n"
+    },
+    {
+      "id": "scalar-while-rechecks-condition",
+      "script": "scalar/cases/while-rechecks-condition.myb",
+      "mode": "run",
+      "expect_exit": 0,
+      "expect_stdout_file": "scalar/expected/while-rechecks-condition.stdout",
+      "expect_stderr_file": "scalar/expected/empty.bin"
+    },
+    {
+      "id": "calls-nested",
+      "script": "calls/cases/nested.myb",
+      "mode": "run",
+      "expect_exit": 0,
+      "expect_stdout_file": "calls/expected/nested.stdout",
+      "expect_stderr_file": "calls/expected/empty.bin"
+    },
+    {
+      "id": "calls-returned-string",
+      "script": "calls/cases/returned-string.myb",
+      "mode": "run",
+      "expect_exit": 0,
+      "expect_stdout_file": "calls/expected/returned-string.stdout",
+      "expect_stderr_file": "calls/expected/empty.bin"
+    },
+    {
+      "id": "calls-default-null",
+      "script": "calls/cases/default-null.myb",
+      "mode": "run",
+      "expect_exit": 0,
+      "expect_stdout_file": "calls/expected/default-null.stdout",
+      "expect_stderr_file": "calls/expected/empty.bin"
+    },
+    {
+      "id": "calls-parameter-independent",
+      "script": "calls/cases/parameter-independent.myb",
+      "mode": "run",
+      "expect_exit": 0,
+      "expect_stdout_file": "calls/expected/parameter-independent.stdout",
+      "expect_stderr_file": "calls/expected/empty.bin"
+    },
+    {
+      "id": "calls-parameter-shadowing",
+      "script": "calls/cases/parameter-shadowing.myb",
+      "mode": "run",
+      "expect_exit": 0,
+      "expect_stdout_file": "calls/expected/parameter-shadowing.stdout",
+      "expect_stderr_file": "calls/expected/empty.bin"
+    },
+    {
+      "id": "calls-forward-mutual",
+      "script": "calls/cases/forward-mutual.myb",
+      "mode": "run",
+      "expect_exit": 0,
+      "expect_stdout_file": "calls/expected/forward-mutual.stdout",
+      "expect_stderr_file": "calls/expected/empty.bin"
+    },
+    {
+      "id": "calls-recursive-4096",
+      "script": "calls/cases/recursive-4096.myb",
+      "mode": "run",
+      "expect_exit": 0,
+      "expect_stdout_file": "calls/expected/recursive-4096.stdout",
+      "expect_stderr_file": "calls/expected/empty.bin",
+      "timeout_seconds": 20
+    },
+    {
+      "id": "calls-lexical-global",
+      "script": "calls/cases/lexical-global.myb",
+      "mode": "run",
+      "expect_exit": 0,
+      "expect_stdout_file": "calls/expected/lexical-global.stdout",
+      "expect_stderr_file": "calls/expected/empty.bin"
+    },
+    {
+      "id": "calls-write-global",
+      "script": "calls/cases/write-global.myb",
+      "mode": "run",
+      "expect_exit": 0,
+      "expect_stdout_file": "calls/expected/write-global.stdout",
+      "expect_stderr_file": "calls/expected/empty.bin"
+    },
+    {
+      "id": "calls-argument-order",
+      "script": "calls/cases/argument-order.myb",
+      "mode": "run",
+      "expect_exit": 0,
+      "expect_stdout_file": "calls/expected/argument-order.stdout",
+      "expect_stderr_file": "calls/expected/empty.bin"
+    },
+    {
+      "id": "calls-arity-before-arguments",
+      "script": "calls/cases/arity-before-arguments.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "calls/expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Type\\]: [^\\n]*\\n"
+    },
+    {
+      "id": "calls-unknown-before-arguments",
+      "script": "calls/cases/unknown-before-arguments.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "calls/expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:1:1: runtime error \\[Name\\]: [^\\n]*\\n"
+    },
+    {
+      "id": "calls-argument-error-unentered",
+      "script": "calls/cases/argument-error-unentered.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "calls/expected/argument-error-unentered.stdout",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Name\\]: [^\\n]*\\n"
+    },
+    {
+      "id": "calls-argument-error-caller",
+      "script": "calls/cases/argument-error-caller.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "calls/expected/argument-error-caller.stdout",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Name\\]: [^\\n]*\\n  at outer \\($SCRIPT:\\d+:\\d+\\)\\n"
+    },
+    {
+      "id": "calls-precheck-caller",
+      "script": "calls/cases/precheck-caller.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "calls/expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Type\\]: [^\\n]*\\n  at outer \\($SCRIPT:\\d+:\\d+\\)\\n"
+    },
+    {
+      "id": "calls-unknown-precheck-caller",
+      "script": "calls/cases/unknown-precheck-caller.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "calls/expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Name\\]: [^\\n]*\\n  at outer \\($SCRIPT:\\d+:\\d+\\)\\n"
+    },
+    {
+      "id": "calls-global-before-let",
+      "script": "calls/cases/global-before-let.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "calls/expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Name\\]: [^\\n]*\\n  at read_global \\($SCRIPT:\\d+:\\d+\\)\\n"
+    },
+    {
+      "id": "calls-global-uninitialized",
+      "script": "calls/cases/global-uninitialized.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "calls/expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Uninitialized\\]: [^\\n]*\\n  at read_global \\($SCRIPT:\\d+:\\d+\\)\\n"
+    },
+    {
+      "id": "calls-caller-local-invisible",
+      "script": "calls/cases/caller-local-invisible.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "calls/expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Name\\]: [^\\n]*\\n  at read_local \\($SCRIPT:\\d+:\\d+\\)\\n  at caller \\($SCRIPT:\\d+:\\d+\\)\\n"
+    },
+    {
+      "id": "calls-nested-call-chain",
+      "script": "calls/cases/nested-call-chain.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "calls/expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:2:14: runtime error \\[Arithmetic\\]: [^\\n]*\\n  at leaf \\($SCRIPT:2:14\\)\\n  at middle \\($SCRIPT:5:12\\)\\n  at outer \\($SCRIPT:8:12\\)\\n"
+    },
+    {
+      "id": "calls-recursive-call-chain",
+      "script": "calls/cases/recursive-call-chain.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "calls/expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Arithmetic\\]: [^\\n]*\\n  at descend \\($SCRIPT:\\d+:\\d+\\)\\n  at descend \\($SCRIPT:\\d+:\\d+\\)\\n  at descend \\($SCRIPT:\\d+:\\d+\\)\\n"
+    },
+    {
+      "id": "calls-native-precheck-no-frame",
+      "script": "calls/cases/native-precheck-no-frame.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "calls/expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Type\\]: [^\\n]*\\n  at outer \\($SCRIPT:\\d+:\\d+\\)\\n"
+    },
+    {
+      "id": "calls-native-argument-no-frame",
+      "script": "calls/cases/native-argument-no-frame.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "calls/expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Arithmetic\\]: [^\\n]*\\n  at outer \\($SCRIPT:\\d+:\\d+\\)\\n"
+    },
+    {
+      "id": "calls-argument-function-error",
+      "script": "calls/cases/argument-function-error.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "calls/expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Name\\]: [^\\n]*\\n  at bad \\($SCRIPT:\\d+:\\d+\\)\\n  at outer \\($SCRIPT:\\d+:\\d+\\)\\n"
+    },
+    {
+      "id": "calls-native-return-values",
+      "script": "calls/cases/native-return-values.myb",
+      "mode": "run",
+      "expect_exit": 0,
+      "expect_stdout_file": "calls/expected/native-return-values.stdout",
+      "expect_stderr_file": "calls/expected/empty.bin"
+    },
+    {
+      "id": "calls-return-through-loops",
+      "script": "calls/cases/return-through-loops.myb",
+      "mode": "run",
+      "expect_exit": 0,
+      "expect_stdout_file": "calls/expected/return-through-loops.stdout",
+      "expect_stderr_file": "calls/expected/empty.bin"
+    },
+    {
+      "id": "calls-repeated-local-state",
+      "script": "calls/cases/repeated-local-state.myb",
+      "mode": "run",
+      "expect_exit": 0,
+      "expect_stdout_file": "calls/expected/repeated-local-state.stdout",
+      "expect_stderr_file": "calls/expected/empty.bin"
+    },
+    {
+      "id": "calls-main-explicit-only",
+      "script": "calls/cases/main-explicit-only.myb",
+      "mode": "run",
+      "expect_exit": 0,
+      "expect_stdout_file": "calls/expected/main-explicit-only.stdout",
+      "expect_stderr_file": "calls/expected/empty.bin"
+    },
+    {
+      "id": "calls-function-is-not-value",
+      "script": "calls/cases/function-is-not-value.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "calls/expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Name\\]: [^\\n]*\\n"
+    },
+    {
+      "id": "calls-return-error-propagates",
+      "script": "calls/cases/return-error-propagates.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "calls/expected/return-error-propagates.stdout",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Arithmetic\\]: [^\\n]*\\n  at fail_value \\($SCRIPT:\\d+:\\d+\\)\\n"
     }
   ]
 }

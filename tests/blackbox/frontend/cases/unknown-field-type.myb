@@ -1,0 +1,2 @@
+print("before");
+struct P{a:Missing;}

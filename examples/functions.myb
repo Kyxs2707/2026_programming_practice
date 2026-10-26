@@ -1,0 +1,25 @@
+# 使用函数、块作用域和循环计算最大公约数与奇数之和。
+fn gcd(a, b) {
+    while (b != 0) {
+        let next = a % b;
+        a = b;
+        b = next;
+    }
+    return a;
+}
+
+fn sum_odds(limit) {
+    let n = 0;
+    let total = 0;
+    while (n < limit) {
+        n = n + 1;
+        if (n % 2 == 0) {
+            continue;
+        }
+        total = total + n;
+    }
+    return total;
+}
+
+print(gcd(84, 30));
+print(sum_odds(10));

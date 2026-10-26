@@ -1,0 +1,4 @@
+fn collect(first, second) {
+    return first == null && second == null;
+}
+print(collect(write("A"), write("B")));

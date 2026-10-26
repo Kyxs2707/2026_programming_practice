@@ -24,7 +24,14 @@ void print_value(NativeContext &context, std::span<const Value> args, RootedValu
 void write_value(NativeContext &context, std::span<const Value> args, RootedValue &result) {
     output(context, args, result, false);
 }
-constexpr BuiltinDescriptor descriptors[] = {{"print", 1, print_value}, {"write", 1, write_value}};
+constexpr BuiltinDescriptor descriptors[] = {
+    {"print", 1, print_value}, {"write", 1, write_value},  {"len", 1, nullptr},
+    {"append", 2, nullptr},    {"insert", 3, nullptr},     {"pop", 1, nullptr},
+    {"remove_at", 2, nullptr}, {"deep_copy", 1, nullptr},  {"read_line", 0, nullptr},
+    {"int", 1, nullptr},       {"float", 1, nullptr},      {"str", 1, nullptr},
+    {"try_int", 1, nullptr},   {"try_float", 1, nullptr},  {"assert", 2, nullptr},
+    {"read_text", 1, nullptr}, {"write_text", 2, nullptr}, {"split", 2, nullptr},
+    {"join", 2, nullptr},      {"trim", 1, nullptr},       {"split_lines", 1, nullptr}};
 } // namespace
 std::span<const BuiltinDescriptor> builtin_descriptors() noexcept {
     return descriptors;

@@ -1,0 +1,4 @@
+fn outer() {
+    print(1 / 0);
+}
+outer();

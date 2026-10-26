@@ -1,0 +1,13 @@
+struct Pair { left: Int64; next: Pair?; }
+fn choose(a, b) {
+    let x;
+    (x) = -a[0] + b * 2 // 1 % 3 - +4 / 2;
+    if (!(a[0] < b) || false && true) { return (x); }
+    else if (a[0] == b) { return null; }
+    else { while (false) { continue; break; } }
+    for (let item in a) { let local = item; { let item = 1; } }
+    return Pair { next: null, left: 1 };
+}
+let values = [1, 2.5, "a\n\u{1F600}", true, false, null];
+{ let slice = values[:]; values[0] = choose(values, 2).left; }
+print(values[1:][0]);

@@ -1,0 +1,6 @@
+fn fail_value() {
+    write("before");
+    return 1 / 0;
+}
+print(fail_value());
+print("after");

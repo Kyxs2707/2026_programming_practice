@@ -1,0 +1,2 @@
+print("before");
+for(let a in []){let a;}
