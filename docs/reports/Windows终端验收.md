@@ -4,7 +4,7 @@
 
 ## 当前结果
 
-文件、管道和隐藏 Win32 控制台自动检查通过。用户已完成代码页 936 的基础交互人工检查；终端类型待确认，完整终端组合继续补齐。
+文件、管道和隐藏 Win32 控制台自动检查通过。Windows Terminal 的代码页 65001 人工输入、长输出与字形显示检查通过。用户此前回传的代码页 936 基础交互通过；本次 936 长行片段不完整，完整组合继续补齐。
 
 当前宿主进程的标准句柄属于管道。验收脚本另启用 `CREATE_NEW_CONSOLE` 和 `SW_HIDE` 创建隐藏控制台；其 stdin、stdout、stderr 的 `GetConsoleMode` 均成功，因此 MYB 实际执行 `ReadConsoleW`、`WriteConsoleW` 分支。
 
@@ -46,7 +46,7 @@
 
 ## 用户人工复验
 
-2026-10-27，用户运行 `./build/release/myb.exe ./tests/console/interactive.myb` 并回传下列输出，随后确认代码页为 `936`。终端类型尚未提供，暂不归入 Windows Terminal 或传统控制台列。
+2026-10-27，用户运行 `./build/release/myb.exe ./tests/console/interactive.myb` 并回传下列输出，随后确认代码页为 `936`。该次回传未说明终端类型，基础结果按代码页单列。
 
 | 操作 | 回传结果 | 判断 |
 |---|---|---|
@@ -58,20 +58,39 @@
 
 本次输入后继续等待下一行，收到 Ctrl+Z 后结束循环。长行跨块、行中 Ctrl+Z、长输出显示及其余终端/代码页组合仍按下表补做。
 
+### 补充回传：Windows Terminal，65001
+
+用户补充了输入与长输出两份终端文本，并确认两份输出来自同一个 Windows Terminal 窗口，长输出时仍为代码页 `65001`；实际中文和 emoji 均显示正常，没有方框、问号或缺字。终端版本与具体输入模式未提供。
+
+| 检查 | 核对结果 |
+|---|---|
+| 长行输入 | 完整 `RECEIVED` 内容与 `long-line.txt` 逐字一致：4095 个 `a` 加一个 emoji，共 4096 个码点、4097 个 UTF-16 单元 |
+| 普通行与行尾 | `RECEIVED ["plain-123"]`，无残留行尾 |
+| 中文、emoji 与空行 | 分别为 `RECEIVED ["你好😀"]`、`RECEIVED [""]` |
+| 行中 Ctrl+Z | `RECEIVED ["ab\u{1a}cd"]`，随后继续等待 |
+| EOF 与重复 EOF | 单独 Ctrl+Z 后显示首次 EOF、`REPEATED EOF: null` 和 `DONE` |
+| 长输出内容 | 与 `output.txt` 逐字一致：7700 个码点、8901 个 UTF-16 单元，包含 1201 个 emoji，末尾为 ` END` |
+| 长输出退出码 | `MYB exit: 0` |
+| 可见字形 | 用户确认全部正常 |
+
+交互记录已执行至 `DONE`，未单独打印交互程序的数值退出码。原始回传及核对结果保存在 `build/manual-user-evidence/2026-10-27/` 的 `input-transcript.txt`、`output-transcript.txt`、`result.json`。
+
+输入回传的 936 段在 `RECEIVED` 行中途直接接入 `Active code page: 65001`，缺少该次完整结果；此片段保留待补状态。65001 段的完整长行与其他输入结果均已核对通过。
+
 ## 待完成的真实终端检查
 
 输入文件、逐步按键、长输出命令和回传格式见 [终端人工检查输入](../guides/终端人工检查输入.md)。
 
 分别在 Windows Terminal 和传统控制台运行。每次记录 Windows 版本、终端版本、输入模式和实际显示结果。
 
-| 操作 | Windows Terminal | 传统控制台 | 通过条件 |
-|---|---|---|---|
-| 输入、显示中文和 emoji | 未实测 | 未实测 | 返回与显示码点一致 |
-| 输入 4095 个 ASCII 字符后接 emoji，再按 Enter | 未实测 | 未实测 | UTF-16 代理对跨块仍完整 |
-| 输入普通行并按 Enter，检查 LF/CRLF | 未实测 | 未实测 | 返回内容去除行尾，其他 CR 保留 |
-| 只输入 Ctrl+Z，再按 Enter | 未实测 | 未实测 | 当前及后续 `read_line()` 均返回 null |
-| 在行中间输入 Ctrl+Z，再按 Enter | 未实测 | 未实测 | U+001A 保留为内容 |
-| 输出超过 4096 UTF-16 单元的中文与 emoji | 未实测 | 未实测 | 显示完整，分块处没有缺字 |
+| 操作 | Windows Terminal 936 | Windows Terminal 65001 | 传统控制台 936 | 传统控制台 65001 | 通过条件 |
+|---|---|---|---|---|---|
+| 输入、显示中文和 emoji | 待补该组合记录 | 通过 | 未实测 | 未实测 | 返回与显示码点一致 |
+| 输入 4095 个 ASCII 字符后接 emoji，再按 Enter | 片段不完整，待补 | 通过 | 未实测 | 未实测 | UTF-16 代理对跨块仍完整 |
+| 输入普通行并按 Enter，检查 LF/CRLF | 待补该组合记录 | 通过 | 未实测 | 未实测 | 返回内容去除 Enter 产生的行尾 |
+| 只输入 Ctrl+Z，再按 Enter | 待补该组合记录 | 通过 | 未实测 | 未实测 | 当前及后续 `read_line()` 均返回 null |
+| 在行中间输入 Ctrl+Z，再按 Enter | 待补该组合记录 | 通过 | 未实测 | 未实测 | U+001A 保留为内容 |
+| 输出超过 4096 UTF-16 单元的中文与 emoji | 待补该组合记录 | 通过 | 未实测 | 未实测 | 显示完整，分块处没有缺字 |
 
 分别在两个终端运行 [交互检查程序](../../tests/console/interactive.myb)。程序先说明输入方式，每次等待输入前显示 `WAITING FOR INPUT`；收到一行后显示 `RECEIVED` 和 `str([line])`，空行显示 `[""]`，行内 U+001A 显示 `\u{1a}`。正常 EOF 后依次显示首次 EOF、`REPEATED EOF: null` 和 `DONE` 并退出。Ctrl+Z 测试结束后重新启动程序。使用系统工具记录终端版本，并记录 `chcp` 结果；分别检查代码页 `65001` 与 `936`。
 
