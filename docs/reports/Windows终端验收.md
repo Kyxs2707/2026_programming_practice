@@ -4,7 +4,7 @@
 
 ## 当前结果
 
-文件、管道和隐藏 Win32 控制台自动检查通过。Windows Terminal、传统控制台的人工输入与字形显示检查待完成。
+文件、管道和隐藏 Win32 控制台自动检查通过。用户已完成代码页 936 的基础交互人工检查；终端类型待确认，完整终端组合继续补齐。
 
 当前宿主进程的标准句柄属于管道。验收脚本另启用 `CREATE_NEW_CONSOLE` 和 `SW_HIDE` 创建隐藏控制台；其 stdin、stdout、stderr 的 `GetConsoleMode` 均成功，因此 MYB 实际执行 `ReadConsoleW`、`WriteConsoleW` 分支。
 
@@ -43,6 +43,20 @@
 ```
 
 2026-10-27 使用本次完整构建矩阵生成的 Debug、Release 程序重跑上述命令。每条命令退出 `0`，两种代码页各输出 `PASS (4 cases)`，合计 16 项通过。结果保存在 `build/m4-console-debug/cp65001/result.json` 等四个组合目录；每个目录还包含输入结果字节文件、原生参考与 MYB 输出的 UTF-16 读屏文件。验收源码为 [控制台验收器](../../tools/verify_console.py)、[行输入程序](../../tests/console/read_lines.myb) 和 [输出程序](../../tests/console/write_unicode.myb)。
+
+## 用户人工复验
+
+2026-10-27，用户运行 `./build/release/myb.exe ./tests/console/interactive.myb` 并回传下列输出，随后确认代码页为 `936`。终端类型尚未提供，暂不归入 Windows Terminal 或传统控制台列。
+
+| 操作 | 回传结果 | 判断 |
+|---|---|---|
+| 输入 `你好😀` 后按 Enter | `RECEIVED ["你好😀"]` | 中文与 emoji 返回内容正确 |
+| 单独按 Enter | `RECEIVED [""]` | 空行返回空字符串 |
+| 单独 Ctrl+Z 后按 Enter | `EOF: read_line() returned null.` | 正常 EOF |
+| EOF 后再次读取 | `REPEATED EOF: null` | EOF 状态保持 |
+| 执行结束 | `DONE: leaving the interactive check.` | 执行至结束提示 |
+
+本次输入后继续等待下一行，收到 Ctrl+Z 后结束循环。长行跨块、行中 Ctrl+Z、长输出显示及其余终端/代码页组合仍按下表补做。
 
 ## 待完成的真实终端检查
 
