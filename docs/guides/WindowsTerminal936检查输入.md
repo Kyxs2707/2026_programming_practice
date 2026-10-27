@@ -2,18 +2,23 @@
 
 这份输入只用于 **Windows Terminal，代码页 936**。本轮从 `CASE` 开始的输出单独保存和回传，936 与 65001 分开记录。
 
-在你刚才使用的 Windows Terminal 窗口中操作。本轮单独补齐 936，已经通过的 65001 不必重复。
+在你刚才使用的 Windows Terminal 窗口中操作。本组合已经通过，以下命令保留用于复验。
 
 ## 1. 启动交互检查
 
-在目标窗口内，把下面整个代码块一起执行。它会定位项目、设置代码页、将长行放入剪贴板，再启动程序：
+在目标窗口内，把下面整个代码块一起执行。它会定位项目、设置代码页、将长行放入剪贴板，再启动程序；输入结束后自动打印退出码：
 
 ```powershell
-Set-Location -LiteralPath 'E:\ProgramData\Project\202609_BUPT_programming_practice'
-chcp 936
-Set-Clipboard -Value (Get-Content -LiteralPath ./tests/console/manual-input/long-line.txt -Raw -Encoding utf8)
-Write-Host 'CASE: Windows Terminal 936'
-./build/release/myb.exe ./tests/console/interactive.myb
+& {
+    $ErrorActionPreference = 'Stop'
+    Set-Location -LiteralPath 'E:\ProgramData\Project\202609_BUPT_programming_practice'
+    chcp 936
+    Set-Clipboard -Value (Get-Content -LiteralPath ./tests/console/manual-input/long-line.txt -Raw -Encoding utf8)
+    Write-Host 'CASE: Windows Terminal 936'
+    ./build/release/myb.exe ./tests/console/interactive.myb
+    $mybInteractiveExit = $LASTEXITCODE
+    Write-Output "INTERACTIVE exit: $mybInteractiveExit"
+}
 ```
 
 看到 `WAITING FOR INPUT` 后，先粘贴剪贴板内容，再按 Enter。剪贴板中是 4095 个 `a` 加一个 `😀`；预期收到 `RECEIVED ["aaa…😀"]`。先完成这一步，再复制本文其他文字，避免覆盖剪贴板。省略号表示其余 `a`，不是实际输入。
@@ -38,31 +43,29 @@ REPEATED EOF: null
 DONE: leaving the interactive check.
 ```
 
-回到 PowerShell 提示符后，立即执行：
-
-```powershell
-Write-Output "INTERACTIVE exit: $LASTEXITCODE"
-```
-
-预期 `INTERACTIVE exit: 0`。
+交互结束后，启动命令块会自动显示 `INTERACTIVE exit: 0`。保存这一行；它属于实际运行 MYB 的窗口。
 
 ## 3. 长输出检查
 
-仍在本窗口中执行下面整块命令。它会重新明确代码页，读取预制的 8901 UTF-16 单元文本，并保留程序退出码：
+在本窗口中执行下面整块命令。命令会自行定位项目目录，再设置代码页、读取预制的 8901 UTF-16 单元文本并保留退出码；从用户目录也能独立执行：
 
 ```powershell
-chcp 936
-Write-Host 'OUTPUT CASE: Windows Terminal 936'
-$mybManualExe = (Resolve-Path ./build/release/myb.exe).Path
-$mybManualOutputScript = (Resolve-Path ./tests/console/write_unicode.myb).Path
-Push-Location ./tests/console/manual-input
-try {
-    & $mybManualExe $mybManualOutputScript
-    $mybManualOutputExit = $LASTEXITCODE
-} finally {
-    Pop-Location
+& {
+    $ErrorActionPreference = 'Stop'
+    Set-Location -LiteralPath 'E:\ProgramData\Project\202609_BUPT_programming_practice'
+    chcp 936
+    Write-Host 'OUTPUT CASE: Windows Terminal 936'
+    $mybManualExe = (Resolve-Path ./build/release/myb.exe).Path
+    $mybManualOutputScript = (Resolve-Path ./tests/console/write_unicode.myb).Path
+    Push-Location ./tests/console/manual-input
+    try {
+        & $mybManualExe $mybManualOutputScript
+        $mybManualOutputExit = $LASTEXITCODE
+    } finally {
+        Pop-Location
+    }
+    Write-Output "MYB exit: $mybManualOutputExit"
 }
-Write-Output "MYB exit: $mybManualOutputExit"
 ```
 
 预期先显示 4095 个 `a` 和一个 `😀`，随后显示 1200 组 `中文😀`，最后为 ` END` 和 `MYB exit: 0`。检查首个 emoji、连续中文/emoji、末尾文字是否完整，记录方框、问号、缺字或粘贴截断等实际现象。
