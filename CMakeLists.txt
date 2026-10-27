@@ -56,6 +56,7 @@ add_library(myb_core STATIC
     src/source/utf8.cpp
     src/source/source.cpp
     src/diagnostic/failure.cpp
+    src/diagnostic/diagnostic.cpp
     src/platform/windows_io.cpp
     src/runtime/roots.cpp
     src/runtime/heap.cpp
@@ -131,6 +132,8 @@ if(MYB_BUILD_INTERNAL_TESTS)
         tests/internal/decimal_cases.cpp
         tests/internal/source_cases.cpp
         tests/internal/failure_cases.cpp
+        tests/internal/failure_integration_cases.cpp
+        tests/internal/diagnostic_cases.cpp
         tests/internal/heap_cases.cpp
         tests/internal/frontend_cases.cpp
         tests/internal/value_ops_cases.cpp

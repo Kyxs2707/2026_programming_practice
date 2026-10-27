@@ -164,17 +164,30 @@ void VM::capture_trace() noexcept {
 #endif
         std::vector<CallTraceEntry> entries;
         entries.reserve(frames_.empty() ? 0 : frames_.size() - 1);
-        for (auto it = frames_.rbegin(); it != frames_.rend(); ++it) {
-            if (!it->function_id)
+        for (auto index = frames_.size(); index > 1; --index) {
+            const auto &frame = frames_[index - 1];
+            if (!frame.function_id)
                 continue;
-            const auto &function = program_->functions[*it->function_id];
-            entries.push_back({program_->names[function.name],
-                               program_->units[it->unit_id].locations[it->executing_ip]});
+            const auto &function = program_->functions.at(*frame.function_id);
+            const auto &caller = frames_[index - 2];
+            entries.push_back({program_->names.at(function.name),
+                               program_->units.at(caller.unit_id).locations.at(frame.caller_call_ip)});
         }
         *trace_ = std::move(entries);
     } catch (...) {
         // 诊断分配失败只省略链，不替换已有首错。
     }
+}
+std::optional<SourceSpan> VM::current_location() const noexcept {
+    if (!program_ || frames_.empty())
+        return {};
+    const auto &frame = frames_.back();
+    if (frame.unit_id >= program_->units.size())
+        return {};
+    const auto &locations = program_->units[frame.unit_id].locations;
+    if (frame.executing_ip >= locations.size())
+        return {};
+    return locations[frame.executing_ip];
 }
 void VM::execute(const CompiledProgram &program) {
     if (!frames_.empty() || program.top_unit >= program.units.size())
@@ -474,24 +487,33 @@ void VM::execute(const CompiledProgram &program) {
         }
     } catch (const Failure &failure) {
         auto header = failure.header();
-        if (!header.span && !frames_.empty())
-            header.span =
-                program.units[frames_.back().unit_id].locations[frames_.back().executing_ip];
+        if (!header.span)
+            header.span = current_location();
         first_.record_first(header);
+        first_.complete_location(header.span);
         capture_trace();
         clear();
         if (header.domain == FailureDomain::Runtime)
             throw MybRuntimeFailure(header, failure.message());
         throw HostFailure(header, failure.message());
     } catch (const std::bad_alloc &) {
-        std::optional<SourceSpan> span;
-        if (!frames_.empty())
-            span = program.units[frames_.back().unit_id].locations[frames_.back().executing_ip];
+        const auto span = current_location();
         first_.record_first({FailureDomain::Resource, ReasonCode::Allocation, span});
+        first_.complete_location(span);
+        capture_trace();
+        clear();
+        throw;
+    } catch (const std::length_error &) {
+        const auto span = current_location();
+        first_.record_first({FailureDomain::Resource, ReasonCode::Capacity, span});
+        first_.complete_location(span);
         capture_trace();
         clear();
         throw;
     } catch (...) {
+        const auto span = current_location();
+        first_.record_first({FailureDomain::Internal, ReasonCode::Invariant, span});
+        first_.complete_location(span);
         capture_trace();
         clear();
         throw;

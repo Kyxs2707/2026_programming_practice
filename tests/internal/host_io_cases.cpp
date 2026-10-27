@@ -247,10 +247,10 @@ MYB_TEST(host_io) {
         WindowsHostIO output(state);
         bool failed = false;
         try { output.write_stdout("x", false); }
-        catch (const MybRuntimeFailure &failure) {
-            REQUIRE(failure.header().reason == ReasonCode::IO);
-            REQUIRE(failure.header().os_code == native_code);
-            REQUIRE(exit_code(failure.header()) == 1);
+        catch (const IoFailure &failure) {
+            REQUIRE(failure.reason() == ReasonCode::IO);
+            REQUIRE(failure.os_code() == native_code);
+            REQUIRE(!state.is_set());
             failed = true;
         }
         REQUIRE(failed);

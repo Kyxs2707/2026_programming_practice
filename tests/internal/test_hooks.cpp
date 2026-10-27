@@ -6,6 +6,7 @@ namespace myb::TestHooks {
 namespace {
 bool forced_gc = false;
 std::optional<FaultPoint> next_failure;
+std::size_t remaining_hits{};
 std::optional<FaultPoint> next_os_failure;
 std::uint32_t next_os_code{};
 } // namespace
@@ -16,15 +17,25 @@ bool gc_forced() noexcept {
     return forced_gc;
 }
 void fail_next(FaultPoint point) noexcept {
+    fail_next(point, 1);
+}
+void fail_next(FaultPoint point, std::size_t occurrence) noexcept {
     next_failure = point;
+    remaining_hits = occurrence ? occurrence : 1;
 }
 void clear_fault() noexcept {
     next_failure.reset();
+    remaining_hits = 0;
     next_os_failure.reset();
 }
 void hit(FaultPoint point) {
     if (next_failure == point) {
+        if (remaining_hits > 1) {
+            --remaining_hits;
+            return;
+        }
         next_failure.reset();
+        remaining_hits = 0;
         throw std::bad_alloc{};
     }
 }

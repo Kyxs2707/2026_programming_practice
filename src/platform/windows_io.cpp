@@ -304,20 +304,42 @@ EntryBytes WindowsHostIO::read_entry(std::string_view path) {
     }
 }
 void WindowsHostIO::write_stdout(std::string_view bytes, bool append_lf) {
-    try {
-        const auto handle = GetStdHandle(STD_OUTPUT_HANDLE);
-        write_handle(handle, bytes, {failure_, {}});
-        if (append_lf)
-            write_handle(handle, "\n", {failure_, {}});
-    } catch (const IoFailure &failure) {
-        fail({failure_, {}}, FailureDomain::Runtime, failure.reason(), failure.what(), failure.os_code());
-    }
+    const auto handle = GetStdHandle(STD_OUTPUT_HANDLE);
+    write_handle(handle, bytes, {failure_, {}});
+    if (append_lf)
+        write_handle(handle, "\n", {failure_, {}});
 }
 void WindowsHostIO::write_stderr(std::string_view bytes) {
     try {
         write_handle(GetStdHandle(STD_ERROR_HANDLE), bytes, {failure_, {}});
     } catch (const IoFailure &failure) {
         fail({failure_, {}}, FailureDomain::Internal, failure.reason(), failure.what(), failure.os_code());
+    }
+}
+void WindowsHostIO::write_emergency() noexcept {
+    constexpr char bytes[] = "myb: failure (diagnostic unavailable)\n";
+    constexpr wchar_t wide[] = L"myb: failure (diagnostic unavailable)\n";
+    const auto handle = GetStdHandle(STD_ERROR_HANDLE);
+    DWORD mode{};
+    const bool console = GetConsoleMode(handle, &mode) != 0;
+    constexpr auto length = static_cast<DWORD>(sizeof(bytes) - 1);
+    DWORD at = 0;
+    try {
+        while (at < length) {
+#ifdef MYB_TEST_HOOKS
+            TestHooks::hit(FaultPoint::OsWrite);
+            if (TestHooks::take_os_failure(FaultPoint::OsWrite))
+                return;
+#endif
+            DWORD written{};
+            const auto success = console
+                ? WriteConsoleW(handle, wide + at, length - at, &written, nullptr)
+                : WriteFile(handle, bytes + at, length - at, &written, nullptr);
+            if (!success || !written)
+                return;
+            at += written;
+        }
+    } catch (...) {
     }
 }
 void WindowsHostIO::read_text(std::string_view path, Utf8Sink &sink) {

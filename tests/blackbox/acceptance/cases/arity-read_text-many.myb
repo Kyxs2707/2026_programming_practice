@@ -1,0 +1,1 @@
+read_text(write("argument"), write("argument"));

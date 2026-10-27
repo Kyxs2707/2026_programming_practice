@@ -1,0 +1,5 @@
+write("before");
+write_text("已写入.txt", "北邮\n");
+let result = 10 / 0;
+write_text("after.txt", "after");
+print("after");

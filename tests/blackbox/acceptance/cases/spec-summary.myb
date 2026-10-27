@@ -1,0 +1,31 @@
+struct Summary {
+    count: Int64;
+    total: Int64;
+    invalid: Int64;
+}
+
+fn summarize(lines) {
+    let count = 0;
+    let total = 0;
+    let invalid = 0;
+
+    for (let line in lines) {
+        let text = trim(line);
+        if (text == "") {
+            continue;
+        }
+
+        let value = try_int(text);
+        if (value == null) {
+            invalid = invalid + 1;
+        } else {
+            count = count + 1;
+            total = total + value;
+        }
+    }
+
+    return Summary { count: count, total: total, invalid: invalid };
+}
+
+let result = summarize(["10", " ", "bad", "20"]);
+print(result);

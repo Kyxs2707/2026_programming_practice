@@ -1,0 +1,12 @@
+print("INPUT: type a line and press Enter; an empty line is valid.");
+print("EOF: press Ctrl+Z alone, then Enter. Ctrl+C interrupts the process.");
+print("WAITING FOR INPUT");
+let line = read_line();
+while (line != null) {
+    print("RECEIVED " + str([line]));
+    print("WAITING FOR INPUT");
+    line = read_line();
+}
+print("EOF: read_line() returned null.");
+print("REPEATED EOF: " + str(read_line()));
+print("DONE: leaving the interactive check.");

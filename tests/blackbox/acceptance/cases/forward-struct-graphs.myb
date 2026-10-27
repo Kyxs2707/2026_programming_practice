@@ -1,0 +1,10 @@
+let a = A { b: null, print: 1 };
+let b = B { a: a };
+a.b = b;
+struct A { b: B?; print: Int64; }
+struct B { a: A; }
+let c = deep_copy(a);
+print(c != a);
+print(c.b != b);
+print(c.b.a == c);
+print(c.print);

@@ -47,10 +47,20 @@ class HostIO {
     virtual void read_text(std::string_view, Utf8Sink &) = 0;
     /** @brief 创建或覆盖文本文件，按长度写尽并检查关闭；失败抛 IoFailure。 */
     virtual void write_text(std::string_view, std::string_view) = 0;
-    /** @brief 写出全部 stdout 字节，并按 append_lf 决定是否额外写一个 LF。 */
+    /** @brief 写尽 stdout 字节和可选 LF；失败抛 IoFailure，由命令或 MYB 调用方分类。 */
     virtual void write_stdout(std::string_view, bool append_lf) = 0;
     /** @brief 写出全部 stderr 字节，失败交由诊断调用方处理。 */
     virtual void write_stderr(std::string_view) = 0;
+    /**
+     * @brief 尝试输出一次固定 ASCII 故障消息，失败后停止且不改动首错。
+     * 测试宿主默认使用 stderr；正式平台实现须提供无需动态分配的写出路径。
+     */
+    virtual void write_emergency() noexcept {
+        try {
+            write_stderr("myb: failure (diagnostic unavailable)\n");
+        } catch (...) {
+        }
+    }
 };
 /**
  * @brief 严格将 UTF-8 转为 Windows UTF-16，保留内嵌 NUL，空串返回空串。
@@ -80,6 +90,8 @@ class WindowsHostIO final : public HostIO {
     void write_text(std::string_view, std::string_view) override;
     void write_stdout(std::string_view, bool append_lf) override;
     void write_stderr(std::string_view) override;
+    /** @brief 使用固定字符数组直接写 Win32 句柄，不分配、不记录二次错误或重试报告。 */
+    void write_emergency() noexcept override;
 
   private:
     EmergencyFailure &failure_;

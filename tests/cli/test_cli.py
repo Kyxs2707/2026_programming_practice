@@ -80,6 +80,20 @@ class CliTests(unittest.TestCase):
         self.assertEqual(result.returncode, 2)
         self.assertEqual(result.stdout, b"")
 
+    def test_check_preserves_stdin_position_and_working_files(self):
+        script = self.cwd / "check-effects.myb"
+        script.write_text('write_text("created.txt", read_line());'
+                          'print(read_text("missing.txt"));', encoding="utf-8")
+        data = self.cwd / "input.bin"
+        data.write_bytes(b"\xff\x00sentinel\n")
+        before = {p.name: p.read_bytes() for p in self.cwd.iterdir()}
+        with data.open("rb", buffering=0) as stream:
+            result = subprocess.run([str(INTERPRETER), "--check", str(script)],
+                                    cwd=self.cwd, stdin=stream, capture_output=True, timeout=5)
+            self.assertEqual(stream.tell(), 0)
+        self.assertEqual((result.returncode, result.stdout, result.stderr), (0, b"", b""))
+        self.assertEqual({p.name: p.read_bytes() for p in self.cwd.iterdir()}, before)
+
     def test_readonly_stdout_reports_runtime_io_at_call_site(self):
         script = self.cwd / "readonly-output.myb"
         script.write_bytes(b"\nprint(3);")

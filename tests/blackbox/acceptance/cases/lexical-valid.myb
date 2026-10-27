@@ -1,0 +1,6 @@
+# 中文😀 comment
+let A = 007; let a = 8; let _a9 = 9;
+print([A, a, _a9, 1e3, 3E-2, 1.2e+4]);
+print(['单引号', "双引号", "\u{1f600}", "\u{0}"]);
+print("e\u{301}" == "é");
+print("#//"); print(7 // 2);
