@@ -80,6 +80,7 @@ add_library(myb_core STATIC
     src/builtins/scalar_builtins.cpp
     src/builtins/text_builtins.cpp
     src/vm/vm.cpp
+    src/vm/execution_index.cpp
     src/vm/value_store.cpp
     src/vm/globals.cpp
     src/vm/call.cpp
@@ -143,6 +144,7 @@ if(MYB_BUILD_INTERNAL_TESTS)
         tests/internal/native_handoff_cases.cpp
         tests/internal/vm_scalar_cases.cpp
         tests/internal/vm_call_cases.cpp
+        tests/internal/execution_index_cases.cpp
         tests/internal/vm_failure_cases.cpp
         tests/internal/checker_cases.cpp
         tests/internal/bytecode_cases.cpp

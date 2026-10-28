@@ -1,0 +1,10 @@
+struct A { left: Int64; right: Float64; }
+struct B { right: Int64; left: Int64; }
+struct Wrap { a: A; b: B; }
+fn first() { return A { right: 2, left: 1 }; }
+fn second() { return B { left: 4, right: 3 }; }
+let a = first();
+let b = second();
+a.right = 5;
+b.left = 6;
+print(Wrap { b: b, a: a });

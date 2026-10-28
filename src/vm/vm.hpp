@@ -1,6 +1,7 @@
 #pragma once
 #include "builtins/registry.hpp"
 #include "vm/call.hpp"
+#include "vm/execution_index.hpp"
 #include "vm/frame.hpp"
 #include "vm/globals.hpp"
 #include "vm/iteration.hpp"
@@ -99,6 +100,7 @@ class VM final {
     HostIO &io_;
     EmergencyFailure &first_;
     const BuiltinRegistry &builtins_;
+    ExecutionIndex execution_index_;
     ValueStore store_;
     Globals globals_;
     std::vector<Frame> frames_;

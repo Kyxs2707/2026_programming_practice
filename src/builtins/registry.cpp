@@ -1,5 +1,8 @@
 #include "builtins/registry.hpp"
 #include "builtins/functions.hpp"
+#ifdef MYB_TEST_HOOKS
+#include "test_hooks.hpp"
+#endif
 namespace myb {
 namespace {
 constexpr BuiltinDescriptor descriptors[] = {
@@ -32,9 +35,13 @@ void invoke_builtin(const BuiltinDescriptor &descriptor, NativeContext &context,
 #endif
 }
 const BuiltinDescriptor *BuiltinRegistry::find(std::string_view name) const noexcept {
-    for (const auto &descriptor : table_)
+    for (const auto &descriptor : table_) {
+#ifdef MYB_TEST_HOOKS
+        TestHooks::record_execution_work(TestHooks::ExecutionWork::CallCandidate);
+#endif
         if (descriptor.name == name)
             return &descriptor;
+    }
     return nullptr;
 }
 const BuiltinDescriptor &BuiltinRegistry::precheck(std::string_view name, std::uint32_t count,

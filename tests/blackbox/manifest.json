@@ -3223,6 +3223,22 @@
       "expect_exit": 0,
       "expect_stdout_file": "acceptance/expected/arithmetic-normal.stdout",
       "expect_stderr_file": "acceptance/expected/empty.bin"
+    },
+    {
+      "id": "objects-prepared-multi-unit",
+      "script": "objects/cases/prepared-multi-unit.myb",
+      "mode": "run",
+      "expect_exit": 0,
+      "expect_stdout_file": "objects/expected/prepared-multi-unit.stdout",
+      "expect_stderr_file": "objects/expected/empty.bin"
+    },
+    {
+      "id": "objects-prepared-deferred",
+      "script": "objects/cases/prepared-deferred.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "objects/expected/prepared-deferred.stdout",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Type\\]: [^\\n]*\\n"
     }
   ]
 }

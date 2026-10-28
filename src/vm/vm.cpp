@@ -42,37 +42,19 @@ const StructSchema &VM::construction_schema(const CodeUnit &unit, std::uint32_t 
                                            ErrorSite site) const {
     if (id >= unit.constructions.size() || unit.constructions[id].type >= program_->names.size())
         fail(site, FailureDomain::Internal, ReasonCode::Invariant, "invalid construction plan");
-    const auto type = unit.constructions[id].type;
-    const auto &name = program_->names[type];
-    for (const auto &schema : program_->schemas)
-        if (schema->name == name)
-            return *schema;
-    bool known = name == "Bool" || name == "Int64" || name == "Float64" || name == "String" ||
-                 name == "Array" || builtins_.find(name);
-    for (const auto &function : program_->functions)
-        known = known || function.name == type;
-    fail(site, FailureDomain::Runtime, known ? ReasonCode::Type : ReasonCode::Name,
-         known ? "name is not a constructible structure" : "unknown structure name");
+    return execution_index_.schema(unit.constructions[id].type, site);
 }
 std::size_t VM::field_slot(const StructSchema &schema, NameId name, ErrorSite site) const {
-    if (name >= program_->names.size())
-        fail(site, FailureDomain::Internal, ReasonCode::Invariant, "invalid field name index");
-    for (std::size_t i = 0; i < schema.fields.size(); ++i)
-        if (schema.fields[i].name == program_->names[name])
-            return i;
-    fail(site, FailureDomain::Runtime, ReasonCode::Name, "unknown structure field");
+    return execution_index_.field_slot(schema, name, site);
 }
 void VM::precheck(const CallSite &call, ErrorSite site) const {
-    if (call.target >= program_->names.size())
-        fail(site, FailureDomain::Internal, ReasonCode::Invariant, "invalid call target index");
-    for (const auto &function : program_->functions) {
-        if (function.name != call.target)
-            continue;
-        if (function.arity != call.arity)
-            fail(site, FailureDomain::Runtime, ReasonCode::Type, "wrong number of arguments");
-        return;
-    }
-    (void)builtins_.precheck(program_->names[call.target], call.arity, site);
+    const auto &target = execution_index_.call(call.target, site);
+    if (target.kind == CallTargetKind::Missing)
+        fail(site, FailureDomain::Runtime, ReasonCode::Name, "unknown call target");
+    const auto arity = target.kind == CallTargetKind::User
+        ? program_->functions[target.function_index].arity : target.builtin->arity;
+    if (arity != call.arity)
+        fail(site, FailureDomain::Runtime, ReasonCode::Type, "wrong number of arguments");
 }
 void VM::ensure_frames(std::size_t required, ErrorSite site) {
     const auto capacity = frames_.capacity(), limit = frames_.max_size();
@@ -98,10 +80,9 @@ void VM::prepare_call(std::uint32_t id, ErrorSite site) {
     precheck(call, site);
     if (parent.sp < call.arity)
         invalid();
-    for (std::uint32_t function_id = 0; function_id < program_->functions.size(); ++function_id) {
-        const auto &function = program_->functions[function_id];
-        if (function.name != call.target)
-            continue;
+    const auto &resolved = execution_index_.call(call.target, site);
+    if (resolved.kind == CallTargetKind::User) {
+        const auto &function = program_->functions[resolved.function_index];
         if (function.unit >= program_->units.size())
             invalid();
         const auto &unit = program_->units[function.unit];
@@ -109,7 +90,7 @@ void VM::prepare_call(std::uint32_t id, ErrorSite site) {
             invalid();
         Frame child;
         child.unit_id = function.unit;
-        child.function_id = function_id;
+        child.function_id = resolved.function_index;
         child.base = parent.region_end;
         child.operand_base = checked_region_end(child.base, unit.local_count,
                                                 std::numeric_limits<std::size_t>::max(), first_);
@@ -132,7 +113,9 @@ void VM::prepare_call(std::uint32_t id, ErrorSite site) {
         store_.clear(parent.operand_base + child.caller_arg_base, parent.operand_base + parent.sp);
         return;
     }
-    const auto &target = builtins_.precheck(program_->names[call.target], call.arity, site);
+    if (resolved.kind != CallTargetKind::Builtin || !resolved.builtin)
+        invalid();
+    const auto &target = *resolved.builtin;
     if (!target.invoke)
         fail(site, FailureDomain::Internal, ReasonCode::Invariant,
              "builtin callback is not implemented");
@@ -196,6 +179,7 @@ void VM::execute(const CompiledProgram &program) {
     if (trace_)
         trace_->clear();
     try {
+        execution_index_.prepare(program, builtins_, first_);
         const auto &top = program.units[program.top_unit];
         Frame frame;
         frame.unit_id = program.top_unit;
@@ -325,20 +309,9 @@ void VM::execute(const CompiledProgram &program) {
                 break;
             }
             case Op::CHECK_STRUCT: {
-                const auto &schema = construction_schema(unit, ins.a, site);
-                const auto &plan = unit.constructions[ins.a];
-                bool valid = plan.fields.size() == schema.fields.size();
-                for (std::size_t i = 0; i < plan.fields.size(); ++i) {
-                    if (plan.fields[i] >= program.names.size())
-                        invalid();
-                    bool found = false;
-                    for (const auto &field : schema.fields)
-                        found = found || field.name == program.names[plan.fields[i]];
-                    valid = valid && found;
-                    for (std::size_t j = 0; j < i; ++j)
-                        valid = valid && plan.fields[j] != plan.fields[i];
-                }
-                if (!valid)
+                (void)construction_schema(unit, ins.a, site);
+                const auto &plan = execution_index_.construction(current.unit_id, ins.a, site);
+                if (plan.status != ConstructionStatus::Ready)
                     fail(site, FailureDomain::Runtime, ReasonCode::Type,
                          "construction fields must match structure declaration exactly");
                 break;
@@ -346,26 +319,34 @@ void VM::execute(const CompiledProgram &program) {
             case Op::CHECK_FIELD: {
                 need(1);
                 const auto &schema = construction_schema(unit, ins.a, site);
-                const auto &plan = unit.constructions[ins.a];
-                if (ins.b >= plan.fields.size())
+                const auto &plan = execution_index_.construction(current.unit_id, ins.a, site);
+                if (plan.status != ConstructionStatus::Ready || ins.b >= plan.slots.size())
                     invalid();
-                const auto slot = field_slot(schema, plan.fields[ins.b], site);
+#ifdef MYB_TEST_HOOKS
+                TestHooks::record_execution_work(TestHooks::ExecutionWork::FieldCandidate);
+#endif
+                const auto slot = plan.slots[ins.b];
                 store_.value(top_index - 1) = ValueOps::check_field_value(
                     schema.fields[slot].type, store_.value(top_index - 1), site);
                 break;
             }
             case Op::BUILD_STRUCT: {
                 const auto &schema = construction_schema(unit, ins.a, site);
-                const auto &plan = unit.constructions[ins.a];
-                need(plan.fields.size());
+                const auto &plan = execution_index_.construction(current.unit_id, ins.a, site);
+                if (plan.status != ConstructionStatus::Ready)
+                    invalid();
+                need(plan.slots.size());
                 RootedValue result(roots_);
                 heap_.make_struct(schema, result);
                 auto &fields = std::get<StructRef>(result.get().data).ptr->fields;
-                for (std::size_t i = 0; i < plan.fields.size(); ++i)
-                    fields[field_slot(schema, plan.fields[i], site)] =
-                        store_.value(top_index - plan.fields.size() + i);
-                store_.clear(top_index - plan.fields.size(), top_index);
-                current.sp -= plan.fields.size();
+                for (std::size_t i = 0; i < plan.slots.size(); ++i) {
+#ifdef MYB_TEST_HOOKS
+                    TestHooks::record_execution_work(TestHooks::ExecutionWork::FieldWrite);
+#endif
+                    fields[plan.slots[i]] = store_.value(top_index - plan.slots.size() + i);
+                }
+                store_.clear(top_index - plan.slots.size(), top_index);
+                current.sp -= plan.slots.size();
                 push(result.get());
                 break;
             }
@@ -527,6 +508,7 @@ void VM::unwind_all() noexcept {
     store_.clear(0, store_.size());
     frames_.clear();
     globals_.clear();
+    execution_index_.clear();
     program_ = nullptr;
 }
 } // namespace myb

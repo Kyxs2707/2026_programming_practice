@@ -1,0 +1,1 @@
+Wrap { a: A { left: 1, right: 5.0 }, b: B { right: 3, left: 6 } }

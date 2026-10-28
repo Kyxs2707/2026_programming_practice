@@ -1,0 +1,6 @@
+struct Pair { left: Int64; right: Float64; }
+if (false) {
+    Unknown { value: write("unreachable") };
+}
+write("before");
+Pair { left: write("field"), left: 1 };

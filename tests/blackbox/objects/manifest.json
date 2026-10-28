@@ -368,6 +368,22 @@
       "expect_exit": 1,
       "expect_stdout_file": "expected/empty.bin",
       "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Type\\]: .*\\n"
+    },
+    {
+      "id": "objects-prepared-multi-unit",
+      "script": "cases/prepared-multi-unit.myb",
+      "mode": "run",
+      "expect_exit": 0,
+      "expect_stdout_file": "expected/prepared-multi-unit.stdout",
+      "expect_stderr_file": "expected/empty.bin"
+    },
+    {
+      "id": "objects-prepared-deferred",
+      "script": "cases/prepared-deferred.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "expected/prepared-deferred.stdout",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Type\\]: [^\\n]*\\n"
     }
   ]
 }

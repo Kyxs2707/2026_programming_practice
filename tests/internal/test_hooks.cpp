@@ -9,7 +9,28 @@ std::optional<FaultPoint> next_failure;
 std::size_t remaining_hits{};
 std::optional<FaultPoint> next_os_failure;
 std::uint32_t next_os_code{};
+ExecutionWorkCounts work_counts;
+bool preparing_index{};
 } // namespace
+void reset_execution_work() noexcept {
+    work_counts = {};
+    preparing_index = false;
+}
+void preparing_execution_index(bool enabled) noexcept { preparing_index = enabled; }
+void record_execution_work(ExecutionWork kind) noexcept {
+    if (preparing_index) {
+        ++work_counts.preparation;
+        return;
+    }
+    switch (kind) {
+    case ExecutionWork::CallCandidate: ++work_counts.calls; break;
+    case ExecutionWork::SchemaCandidate: ++work_counts.schemas; break;
+    case ExecutionWork::FieldCandidate: ++work_counts.fields; break;
+    case ExecutionWork::Construction: ++work_counts.constructions; break;
+    case ExecutionWork::FieldWrite: ++work_counts.writes; break;
+    }
+}
+ExecutionWorkCounts execution_work() noexcept { return work_counts; }
 void force_gc(bool enabled) noexcept {
     forced_gc = enabled;
 }
