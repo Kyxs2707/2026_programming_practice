@@ -1,0 +1,2 @@
+print("before");
+let x = 1.;

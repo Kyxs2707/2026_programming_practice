@@ -1,0 +1,7 @@
+struct Empty {}
+let values = [0, 1.5, true, null, "北邮", [1], Empty {}];
+for (let value in values) {
+    print(str(value));
+    write(deep_copy(value));
+    write("|");
+}

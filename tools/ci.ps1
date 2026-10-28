@@ -120,6 +120,14 @@ print(f'Release isolation verified: {len(commands)} compile commands, no test ho
         $env:MYB_INTERPRETER = Join-Path $buildDirectory 'myb.exe'
         Invoke-CiCommand $python @('-c', $discoverAndRun, 'tests/cli')
         Invoke-CiCommand $python @('tools/run_blackbox.py', '--interpreter', $env:MYB_INTERPRETER)
+        if ($Configuration -eq 'Release') {
+            # 每次保存独立结果，重跑 CI 不覆盖先前的性能证据。
+            $performanceRun = [DateTime]::UtcNow.ToString('yyyyMMddTHHmmssfff') + '-' +
+                [Guid]::NewGuid().ToString('N')
+            $performanceDirectory = Join-Path $logDirectory ('performance/' + $performanceRun)
+            Invoke-CiCommand $python @('tools/check_performance.py',
+                '--interpreter', $env:MYB_INTERPRETER, '--output', $performanceDirectory)
+        }
     } finally {
         Pop-Location
     }

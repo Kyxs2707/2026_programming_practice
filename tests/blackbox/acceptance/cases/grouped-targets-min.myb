@@ -1,0 +1,11 @@
+struct Box { value: Int64; }
+let x; (((x))) = 1;
+let a = [0]; ((a[0])) = 2;
+let box = Box { value: 0 }; ((box.value)) = 3;
+{}
+fn empty() {}
+struct Marker {}
+print([x, a, box, empty(), Marker {} == Marker {}]);
+print(- # comment between sign and token
+0009223372036854775808);
+print((-9223372036854775808));

@@ -3,7 +3,7 @@
 #include <cstddef>
 #include <string>
 namespace myb {
-/** @brief 拥有一次真实活动函数的名称及错误时该帧执行位置，不持有受管对象。 */
+/** @brief 拥有一次真实活动函数的名称及调用它的源码范围，不持有受管对象。 */
 struct CallTraceEntry {
     std::string name;
     SourceSpan span;

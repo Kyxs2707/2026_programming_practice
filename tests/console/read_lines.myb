@@ -1,0 +1,9 @@
+let lines = [];
+let line = read_line();
+while (line != null) {
+    append(lines, line);
+    line = read_line();
+}
+assert(read_line() == null, "EOF remains set");
+write_text("lines.txt", join(lines, "|"));
+print("CONSOLE INPUT PASS");

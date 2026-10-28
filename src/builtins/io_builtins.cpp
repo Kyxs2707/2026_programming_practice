@@ -12,7 +12,12 @@ namespace {
 void output(NativeContext &context, std::span<const Value> args, RootedValue &result, bool newline) {
     TextBuilder text(context.heap);
     display(args[0], text, {context.failure, context.span});
-    context.io.write_stdout(text.bytes(), newline);
+    try {
+        context.io.write_stdout(text.bytes(), newline);
+    } catch (const IoFailure &failure) {
+        fail({context.failure, context.span}, FailureDomain::Runtime, failure.reason(),
+             failure.what(), failure.os_code());
+    }
     result.set(Value{NullValue{}});
 }
 /** @brief 检查并借用 VM 实参保护的 String 字节；借用持续至回调结束。 */

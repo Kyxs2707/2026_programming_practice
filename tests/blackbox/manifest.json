@@ -808,7 +808,7 @@
       "mode": "run",
       "expect_exit": 1,
       "expect_stdout_file": "calls/expected/empty.bin",
-      "expect_stderr_regex": "$SCRIPT:2:14: runtime error \\[Arithmetic\\]: [^\\n]*\\n  at leaf \\($SCRIPT:2:14\\)\\n  at middle \\($SCRIPT:5:12\\)\\n  at outer \\($SCRIPT:8:12\\)\\n"
+      "expect_stderr_regex": "$SCRIPT:2:14: runtime error \\[Arithmetic\\]: [^\\n]*\\n  at leaf \\($SCRIPT:5:12\\)\\n  at middle \\($SCRIPT:8:12\\)\\n  at outer \\($SCRIPT:10:7\\)\\n"
     },
     {
       "id": "calls-recursive-call-chain",
@@ -1942,6 +1942,1303 @@
           "content_file": "io/fixtures/empty.bin"
         }
       ]
+    },
+    {
+      "id": "errors-demo",
+      "script": "errors/cases/demo.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "errors/expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:2:14: runtime error \\[Type\\]: [^\\n]+\\n  at inner \\($SCRIPT:5:12\\)\\n  at outer \\($SCRIPT:7:7\\)\\n"
+    },
+    {
+      "id": "errors-native-no-frame",
+      "script": "errors/cases/native-no-frame.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "errors/expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:2:11: runtime error \\[Type\\]: [^\\n]*\\n  at outer \\($SCRIPT:4:1\\)\\n"
+    },
+    {
+      "id": "errors-precheck-no-frame",
+      "script": "errors/cases/precheck-no-frame.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "errors/expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:3:5: runtime error \\[Type\\]: [^\\n]*\\n  at outer \\($SCRIPT:5:1\\)\\n"
+    },
+    {
+      "id": "errors-effects-preserved",
+      "script": "errors/cases/effects-preserved.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "errors/expected/effects-preserved.stdout",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Arithmetic\\]: [^\\n]*\\n",
+      "expect_files": [
+        {
+          "path": "已写入.txt",
+          "content_file": "errors/expected/preserved.txt"
+        },
+        {
+          "path": "after.txt",
+          "absent": true
+        }
+      ]
+    },
+    {
+      "id": "errors-frontend-invalid-utf8",
+      "script": "errors/cases/frontend-invalid-utf8.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "errors/expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: frontend error \\[Encoding\\]: [^\\n]*\\n"
+    },
+    {
+      "id": "errors-frontend-truncated-utf8",
+      "script": "errors/cases/frontend-truncated-utf8.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "errors/expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: frontend error \\[Encoding\\]: [^\\n]*\\n"
+    },
+    {
+      "id": "errors-frontend-surrogate-utf8",
+      "script": "errors/cases/frontend-surrogate-utf8.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "errors/expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: frontend error \\[Encoding\\]: [^\\n]*\\n"
+    },
+    {
+      "id": "errors-frontend-overlong-utf8",
+      "script": "errors/cases/frontend-overlong-utf8.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "errors/expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: frontend error \\[Encoding\\]: [^\\n]*\\n"
+    },
+    {
+      "id": "errors-frontend-capacity",
+      "script": "errors/cases/frontend-capacity.myb",
+      "mode": "run",
+      "expect_exit": 3,
+      "expect_stdout_file": "errors/expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: resource error \\[Capacity\\]: [^\\n]*\\n"
+    },
+    {
+      "id": "acceptance-spec-summary",
+      "script": "acceptance/cases/spec-summary.myb",
+      "mode": "run",
+      "expect_exit": 0,
+      "expect_stdout_file": "acceptance/expected/spec-summary.stdout",
+      "expect_stderr_file": "acceptance/expected/empty.bin"
+    },
+    {
+      "id": "acceptance-spec-structural-error",
+      "script": "acceptance/cases/spec-structural-error.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "acceptance/expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: structure error \\[Syntax\\]: [^\\n]*\\n"
+    },
+    {
+      "id": "acceptance-spec-runtime-error",
+      "script": "acceptance/cases/spec-runtime-error.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "acceptance/expected/spec-runtime-error.stdout",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Arithmetic\\]: [^\\n]*\\n"
+    },
+    {
+      "id": "acceptance-check-all-io",
+      "script": "acceptance/cases/check-all-io.myb",
+      "mode": "check",
+      "expect_exit": 0,
+      "expect_stdout_file": "acceptance/expected/empty.bin",
+      "expect_stderr_file": "acceptance/expected/empty.bin",
+      "stdin_file": "acceptance/expected/invalid.stdin",
+      "files": [
+        {
+          "from": "acceptance/expected/original.txt",
+          "to": "changed.txt"
+        }
+      ],
+      "expect_files": [
+        {
+          "path": "changed.txt",
+          "content_file": "acceptance/expected/original.txt"
+        },
+        {
+          "path": "created.txt",
+          "absent": true
+        },
+        {
+          "path": "check-all-io.mybc",
+          "absent": true
+        },
+        {
+          "path": "check-all-io.mbc",
+          "absent": true
+        }
+      ]
+    },
+    {
+      "id": "acceptance-arity-len-few",
+      "script": "acceptance/cases/arity-len-few.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "acceptance/expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Type\\]: [^\\n]*\\n"
+    },
+    {
+      "id": "acceptance-arity-len-many",
+      "script": "acceptance/cases/arity-len-many.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "acceptance/expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Type\\]: [^\\n]*\\n"
+    },
+    {
+      "id": "acceptance-arity-append-few",
+      "script": "acceptance/cases/arity-append-few.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "acceptance/expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Type\\]: [^\\n]*\\n"
+    },
+    {
+      "id": "acceptance-arity-append-many",
+      "script": "acceptance/cases/arity-append-many.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "acceptance/expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Type\\]: [^\\n]*\\n"
+    },
+    {
+      "id": "acceptance-arity-insert-few",
+      "script": "acceptance/cases/arity-insert-few.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "acceptance/expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Type\\]: [^\\n]*\\n"
+    },
+    {
+      "id": "acceptance-arity-insert-many",
+      "script": "acceptance/cases/arity-insert-many.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "acceptance/expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Type\\]: [^\\n]*\\n"
+    },
+    {
+      "id": "acceptance-arity-pop-few",
+      "script": "acceptance/cases/arity-pop-few.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "acceptance/expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Type\\]: [^\\n]*\\n"
+    },
+    {
+      "id": "acceptance-arity-pop-many",
+      "script": "acceptance/cases/arity-pop-many.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "acceptance/expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Type\\]: [^\\n]*\\n"
+    },
+    {
+      "id": "acceptance-arity-remove_at-few",
+      "script": "acceptance/cases/arity-remove_at-few.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "acceptance/expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Type\\]: [^\\n]*\\n"
+    },
+    {
+      "id": "acceptance-arity-remove_at-many",
+      "script": "acceptance/cases/arity-remove_at-many.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "acceptance/expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Type\\]: [^\\n]*\\n"
+    },
+    {
+      "id": "acceptance-arity-deep_copy-few",
+      "script": "acceptance/cases/arity-deep_copy-few.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "acceptance/expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Type\\]: [^\\n]*\\n"
+    },
+    {
+      "id": "acceptance-arity-deep_copy-many",
+      "script": "acceptance/cases/arity-deep_copy-many.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "acceptance/expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Type\\]: [^\\n]*\\n"
+    },
+    {
+      "id": "acceptance-arity-print-few",
+      "script": "acceptance/cases/arity-print-few.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "acceptance/expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Type\\]: [^\\n]*\\n"
+    },
+    {
+      "id": "acceptance-arity-print-many",
+      "script": "acceptance/cases/arity-print-many.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "acceptance/expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Type\\]: [^\\n]*\\n"
+    },
+    {
+      "id": "acceptance-arity-write-few",
+      "script": "acceptance/cases/arity-write-few.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "acceptance/expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Type\\]: [^\\n]*\\n"
+    },
+    {
+      "id": "acceptance-arity-write-many",
+      "script": "acceptance/cases/arity-write-many.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "acceptance/expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Type\\]: [^\\n]*\\n"
+    },
+    {
+      "id": "acceptance-arity-read_line-many",
+      "script": "acceptance/cases/arity-read_line-many.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "acceptance/expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Type\\]: [^\\n]*\\n"
+    },
+    {
+      "id": "acceptance-arity-int-few",
+      "script": "acceptance/cases/arity-int-few.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "acceptance/expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Type\\]: [^\\n]*\\n"
+    },
+    {
+      "id": "acceptance-arity-int-many",
+      "script": "acceptance/cases/arity-int-many.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "acceptance/expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Type\\]: [^\\n]*\\n"
+    },
+    {
+      "id": "acceptance-arity-float-few",
+      "script": "acceptance/cases/arity-float-few.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "acceptance/expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Type\\]: [^\\n]*\\n"
+    },
+    {
+      "id": "acceptance-arity-float-many",
+      "script": "acceptance/cases/arity-float-many.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "acceptance/expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Type\\]: [^\\n]*\\n"
+    },
+    {
+      "id": "acceptance-arity-str-few",
+      "script": "acceptance/cases/arity-str-few.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "acceptance/expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Type\\]: [^\\n]*\\n"
+    },
+    {
+      "id": "acceptance-arity-str-many",
+      "script": "acceptance/cases/arity-str-many.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "acceptance/expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Type\\]: [^\\n]*\\n"
+    },
+    {
+      "id": "acceptance-arity-try_int-few",
+      "script": "acceptance/cases/arity-try_int-few.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "acceptance/expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Type\\]: [^\\n]*\\n"
+    },
+    {
+      "id": "acceptance-arity-try_int-many",
+      "script": "acceptance/cases/arity-try_int-many.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "acceptance/expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Type\\]: [^\\n]*\\n"
+    },
+    {
+      "id": "acceptance-arity-try_float-few",
+      "script": "acceptance/cases/arity-try_float-few.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "acceptance/expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Type\\]: [^\\n]*\\n"
+    },
+    {
+      "id": "acceptance-arity-try_float-many",
+      "script": "acceptance/cases/arity-try_float-many.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "acceptance/expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Type\\]: [^\\n]*\\n"
+    },
+    {
+      "id": "acceptance-arity-read_text-few",
+      "script": "acceptance/cases/arity-read_text-few.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "acceptance/expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Type\\]: [^\\n]*\\n"
+    },
+    {
+      "id": "acceptance-arity-read_text-many",
+      "script": "acceptance/cases/arity-read_text-many.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "acceptance/expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Type\\]: [^\\n]*\\n"
+    },
+    {
+      "id": "acceptance-arity-write_text-few",
+      "script": "acceptance/cases/arity-write_text-few.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "acceptance/expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Type\\]: [^\\n]*\\n"
+    },
+    {
+      "id": "acceptance-arity-write_text-many",
+      "script": "acceptance/cases/arity-write_text-many.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "acceptance/expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Type\\]: [^\\n]*\\n"
+    },
+    {
+      "id": "acceptance-arity-split-few",
+      "script": "acceptance/cases/arity-split-few.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "acceptance/expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Type\\]: [^\\n]*\\n"
+    },
+    {
+      "id": "acceptance-arity-split-many",
+      "script": "acceptance/cases/arity-split-many.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "acceptance/expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Type\\]: [^\\n]*\\n"
+    },
+    {
+      "id": "acceptance-arity-join-few",
+      "script": "acceptance/cases/arity-join-few.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "acceptance/expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Type\\]: [^\\n]*\\n"
+    },
+    {
+      "id": "acceptance-arity-join-many",
+      "script": "acceptance/cases/arity-join-many.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "acceptance/expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Type\\]: [^\\n]*\\n"
+    },
+    {
+      "id": "acceptance-arity-trim-few",
+      "script": "acceptance/cases/arity-trim-few.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "acceptance/expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Type\\]: [^\\n]*\\n"
+    },
+    {
+      "id": "acceptance-arity-trim-many",
+      "script": "acceptance/cases/arity-trim-many.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "acceptance/expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Type\\]: [^\\n]*\\n"
+    },
+    {
+      "id": "acceptance-arity-split_lines-few",
+      "script": "acceptance/cases/arity-split_lines-few.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "acceptance/expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Type\\]: [^\\n]*\\n"
+    },
+    {
+      "id": "acceptance-arity-split_lines-many",
+      "script": "acceptance/cases/arity-split_lines-many.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "acceptance/expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Type\\]: [^\\n]*\\n"
+    },
+    {
+      "id": "acceptance-arity-assert-few",
+      "script": "acceptance/cases/arity-assert-few.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "acceptance/expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Type\\]: [^\\n]*\\n"
+    },
+    {
+      "id": "acceptance-arity-assert-many",
+      "script": "acceptance/cases/arity-assert-many.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "acceptance/expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Type\\]: [^\\n]*\\n"
+    },
+    {
+      "id": "acceptance-type-len",
+      "script": "acceptance/cases/type-len.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "acceptance/expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Type\\]: [^\\n]*\\n",
+      "expect_files": [
+        {
+          "path": "created.txt",
+          "absent": true
+        }
+      ]
+    },
+    {
+      "id": "acceptance-type-append-array",
+      "script": "acceptance/cases/type-append-array.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "acceptance/expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Type\\]: [^\\n]*\\n",
+      "expect_files": [
+        {
+          "path": "created.txt",
+          "absent": true
+        }
+      ]
+    },
+    {
+      "id": "acceptance-type-insert-array",
+      "script": "acceptance/cases/type-insert-array.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "acceptance/expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Type\\]: [^\\n]*\\n",
+      "expect_files": [
+        {
+          "path": "created.txt",
+          "absent": true
+        }
+      ]
+    },
+    {
+      "id": "acceptance-type-insert-index",
+      "script": "acceptance/cases/type-insert-index.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "acceptance/expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Type\\]: [^\\n]*\\n",
+      "expect_files": [
+        {
+          "path": "created.txt",
+          "absent": true
+        }
+      ]
+    },
+    {
+      "id": "acceptance-type-pop-array",
+      "script": "acceptance/cases/type-pop-array.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "acceptance/expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Type\\]: [^\\n]*\\n",
+      "expect_files": [
+        {
+          "path": "created.txt",
+          "absent": true
+        }
+      ]
+    },
+    {
+      "id": "acceptance-type-remove-array",
+      "script": "acceptance/cases/type-remove-array.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "acceptance/expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Type\\]: [^\\n]*\\n",
+      "expect_files": [
+        {
+          "path": "created.txt",
+          "absent": true
+        }
+      ]
+    },
+    {
+      "id": "acceptance-type-remove-index",
+      "script": "acceptance/cases/type-remove-index.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "acceptance/expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Type\\]: [^\\n]*\\n",
+      "expect_files": [
+        {
+          "path": "created.txt",
+          "absent": true
+        }
+      ]
+    },
+    {
+      "id": "acceptance-type-int-null",
+      "script": "acceptance/cases/type-int-null.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "acceptance/expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Type\\]: [^\\n]*\\n",
+      "expect_files": [
+        {
+          "path": "created.txt",
+          "absent": true
+        }
+      ]
+    },
+    {
+      "id": "acceptance-type-int-array",
+      "script": "acceptance/cases/type-int-array.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "acceptance/expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Type\\]: [^\\n]*\\n",
+      "expect_files": [
+        {
+          "path": "created.txt",
+          "absent": true
+        }
+      ]
+    },
+    {
+      "id": "acceptance-type-float-bool",
+      "script": "acceptance/cases/type-float-bool.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "acceptance/expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Type\\]: [^\\n]*\\n",
+      "expect_files": [
+        {
+          "path": "created.txt",
+          "absent": true
+        }
+      ]
+    },
+    {
+      "id": "acceptance-type-float-array",
+      "script": "acceptance/cases/type-float-array.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "acceptance/expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Type\\]: [^\\n]*\\n",
+      "expect_files": [
+        {
+          "path": "created.txt",
+          "absent": true
+        }
+      ]
+    },
+    {
+      "id": "acceptance-type-try-int-null",
+      "script": "acceptance/cases/type-try-int-null.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "acceptance/expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Type\\]: [^\\n]*\\n",
+      "expect_files": [
+        {
+          "path": "created.txt",
+          "absent": true
+        }
+      ]
+    },
+    {
+      "id": "acceptance-type-try-float-bool",
+      "script": "acceptance/cases/type-try-float-bool.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "acceptance/expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Type\\]: [^\\n]*\\n",
+      "expect_files": [
+        {
+          "path": "created.txt",
+          "absent": true
+        }
+      ]
+    },
+    {
+      "id": "acceptance-type-assert-condition",
+      "script": "acceptance/cases/type-assert-condition.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "acceptance/expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Type\\]: [^\\n]*\\n",
+      "expect_files": [
+        {
+          "path": "created.txt",
+          "absent": true
+        }
+      ]
+    },
+    {
+      "id": "acceptance-type-assert-message",
+      "script": "acceptance/cases/type-assert-message.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "acceptance/expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Type\\]: [^\\n]*\\n",
+      "expect_files": [
+        {
+          "path": "created.txt",
+          "absent": true
+        }
+      ]
+    },
+    {
+      "id": "acceptance-type-read-path",
+      "script": "acceptance/cases/type-read-path.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "acceptance/expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Type\\]: [^\\n]*\\n",
+      "expect_files": [
+        {
+          "path": "created.txt",
+          "absent": true
+        }
+      ]
+    },
+    {
+      "id": "acceptance-type-write-path",
+      "script": "acceptance/cases/type-write-path.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "acceptance/expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Type\\]: [^\\n]*\\n",
+      "expect_files": [
+        {
+          "path": "created.txt",
+          "absent": true
+        }
+      ]
+    },
+    {
+      "id": "acceptance-type-write-content",
+      "script": "acceptance/cases/type-write-content.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "acceptance/expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Type\\]: [^\\n]*\\n",
+      "expect_files": [
+        {
+          "path": "created.txt",
+          "absent": true
+        }
+      ]
+    },
+    {
+      "id": "acceptance-type-split-text",
+      "script": "acceptance/cases/type-split-text.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "acceptance/expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Type\\]: [^\\n]*\\n",
+      "expect_files": [
+        {
+          "path": "created.txt",
+          "absent": true
+        }
+      ]
+    },
+    {
+      "id": "acceptance-type-split-separator",
+      "script": "acceptance/cases/type-split-separator.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "acceptance/expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Type\\]: [^\\n]*\\n",
+      "expect_files": [
+        {
+          "path": "created.txt",
+          "absent": true
+        }
+      ]
+    },
+    {
+      "id": "acceptance-type-join-parts",
+      "script": "acceptance/cases/type-join-parts.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "acceptance/expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Type\\]: [^\\n]*\\n",
+      "expect_files": [
+        {
+          "path": "created.txt",
+          "absent": true
+        }
+      ]
+    },
+    {
+      "id": "acceptance-type-join-separator",
+      "script": "acceptance/cases/type-join-separator.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "acceptance/expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Type\\]: [^\\n]*\\n",
+      "expect_files": [
+        {
+          "path": "created.txt",
+          "absent": true
+        }
+      ]
+    },
+    {
+      "id": "acceptance-type-join-element",
+      "script": "acceptance/cases/type-join-element.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "acceptance/expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Type\\]: [^\\n]*\\n",
+      "expect_files": [
+        {
+          "path": "created.txt",
+          "absent": true
+        }
+      ]
+    },
+    {
+      "id": "acceptance-type-trim",
+      "script": "acceptance/cases/type-trim.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "acceptance/expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Type\\]: [^\\n]*\\n",
+      "expect_files": [
+        {
+          "path": "created.txt",
+          "absent": true
+        }
+      ]
+    },
+    {
+      "id": "acceptance-type-split-lines",
+      "script": "acceptance/cases/type-split-lines.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "acceptance/expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Type\\]: [^\\n]*\\n",
+      "expect_files": [
+        {
+          "path": "created.txt",
+          "absent": true
+        }
+      ]
+    },
+    {
+      "id": "acceptance-any-value-builtins",
+      "script": "acceptance/cases/any-value-builtins.myb",
+      "mode": "run",
+      "expect_exit": 0,
+      "expect_stdout_file": "acceptance/expected/any-value-builtins.stdout",
+      "expect_stderr_file": "acceptance/expected/empty.bin"
+    },
+    {
+      "id": "acceptance-lexical-valid",
+      "script": "acceptance/cases/lexical-valid.myb",
+      "mode": "run",
+      "expect_exit": 0,
+      "expect_stdout_file": "acceptance/expected/lexical-valid.stdout",
+      "expect_stderr_file": "acceptance/expected/empty.bin"
+    },
+    {
+      "id": "acceptance-newline-lf",
+      "script": "acceptance/cases/newline-lf.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "acceptance/expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:4:1: frontend error \\[Syntax\\]: [^\\n]*\\n"
+    },
+    {
+      "id": "acceptance-newline-lf-valid",
+      "script": "acceptance/cases/newline-lf-valid.myb",
+      "mode": "run",
+      "expect_exit": 0,
+      "expect_stdout_file": "acceptance/expected/newline-lf-valid.stdout",
+      "expect_stderr_file": "acceptance/expected/empty.bin"
+    },
+    {
+      "id": "acceptance-newline-crlf",
+      "script": "acceptance/cases/newline-crlf.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "acceptance/expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:4:1: frontend error \\[Syntax\\]: [^\\n]*\\n"
+    },
+    {
+      "id": "acceptance-newline-crlf-valid",
+      "script": "acceptance/cases/newline-crlf-valid.myb",
+      "mode": "run",
+      "expect_exit": 0,
+      "expect_stdout_file": "acceptance/expected/newline-crlf-valid.stdout",
+      "expect_stderr_file": "acceptance/expected/empty.bin"
+    },
+    {
+      "id": "acceptance-newline-cr",
+      "script": "acceptance/cases/newline-cr.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "acceptance/expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:4:1: frontend error \\[Syntax\\]: [^\\n]*\\n"
+    },
+    {
+      "id": "acceptance-newline-cr-valid",
+      "script": "acceptance/cases/newline-cr-valid.myb",
+      "mode": "run",
+      "expect_exit": 0,
+      "expect_stdout_file": "acceptance/expected/newline-cr-valid.stdout",
+      "expect_stderr_file": "acceptance/expected/empty.bin"
+    },
+    {
+      "id": "acceptance-syntax-leading-dot",
+      "script": "acceptance/cases/syntax-leading-dot.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "acceptance/expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: frontend error \\[Syntax\\]: [^\\n]*\\n"
+    },
+    {
+      "id": "acceptance-syntax-trailing-dot",
+      "script": "acceptance/cases/syntax-trailing-dot.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "acceptance/expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: frontend error \\[Syntax\\]: [^\\n]*\\n"
+    },
+    {
+      "id": "acceptance-syntax-empty-exponent",
+      "script": "acceptance/cases/syntax-empty-exponent.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "acceptance/expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: frontend error \\[Syntax\\]: [^\\n]*\\n"
+    },
+    {
+      "id": "acceptance-syntax-sign-exponent",
+      "script": "acceptance/cases/syntax-sign-exponent.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "acceptance/expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: frontend error \\[Syntax\\]: [^\\n]*\\n"
+    },
+    {
+      "id": "acceptance-syntax-number-name",
+      "script": "acceptance/cases/syntax-number-name.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "acceptance/expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: frontend error \\[Syntax\\]: [^\\n]*\\n"
+    },
+    {
+      "id": "acceptance-syntax-hex",
+      "script": "acceptance/cases/syntax-hex.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "acceptance/expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: frontend error \\[Syntax\\]: [^\\n]*\\n"
+    },
+    {
+      "id": "acceptance-syntax-binary",
+      "script": "acceptance/cases/syntax-binary.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "acceptance/expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: frontend error \\[Syntax\\]: [^\\n]*\\n"
+    },
+    {
+      "id": "acceptance-syntax-number-separator",
+      "script": "acceptance/cases/syntax-number-separator.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "acceptance/expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: frontend error \\[Syntax\\]: [^\\n]*\\n"
+    },
+    {
+      "id": "acceptance-syntax-unicode-name",
+      "script": "acceptance/cases/syntax-unicode-name.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "acceptance/expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: frontend error \\[Syntax\\]: [^\\n]*\\n"
+    },
+    {
+      "id": "acceptance-syntax-keyword-name",
+      "script": "acceptance/cases/syntax-keyword-name.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "acceptance/expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: frontend error \\[Syntax\\]: [^\\n]*\\n"
+    },
+    {
+      "id": "acceptance-syntax-digit-name",
+      "script": "acceptance/cases/syntax-digit-name.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "acceptance/expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: frontend error \\[Syntax\\]: [^\\n]*\\n"
+    },
+    {
+      "id": "acceptance-syntax-unknown-escape",
+      "script": "acceptance/cases/syntax-unknown-escape.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "acceptance/expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: frontend error \\[Syntax\\]: [^\\n]*\\n"
+    },
+    {
+      "id": "acceptance-syntax-unicode-empty",
+      "script": "acceptance/cases/syntax-unicode-empty.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "acceptance/expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: frontend error \\[Syntax\\]: [^\\n]*\\n"
+    },
+    {
+      "id": "acceptance-syntax-unicode-long",
+      "script": "acceptance/cases/syntax-unicode-long.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "acceptance/expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: frontend error \\[Syntax\\]: [^\\n]*\\n"
+    },
+    {
+      "id": "acceptance-syntax-unicode-surrogate",
+      "script": "acceptance/cases/syntax-unicode-surrogate.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "acceptance/expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: frontend error \\[Syntax\\]: [^\\n]*\\n"
+    },
+    {
+      "id": "acceptance-syntax-unicode-too-large",
+      "script": "acceptance/cases/syntax-unicode-too-large.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "acceptance/expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: frontend error \\[Syntax\\]: [^\\n]*\\n"
+    },
+    {
+      "id": "acceptance-syntax-unclosed-string",
+      "script": "acceptance/cases/syntax-unclosed-string.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "acceptance/expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: frontend error \\[Syntax\\]: [^\\n]*\\n"
+    },
+    {
+      "id": "acceptance-syntax-multiline-string",
+      "script": "acceptance/cases/syntax-multiline-string.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "acceptance/expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: frontend error \\[Syntax\\]: [^\\n]*\\n"
+    },
+    {
+      "id": "acceptance-syntax-line-separator",
+      "script": "acceptance/cases/syntax-line-separator.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "acceptance/expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: frontend error \\[Syntax\\]: [^\\n]*\\n"
+    },
+    {
+      "id": "acceptance-syntax-paragraph-separator",
+      "script": "acceptance/cases/syntax-paragraph-separator.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "acceptance/expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: frontend error \\[Syntax\\]: [^\\n]*\\n"
+    },
+    {
+      "id": "acceptance-syntax-missing-semicolon",
+      "script": "acceptance/cases/syntax-missing-semicolon.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "acceptance/expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: frontend error \\[Syntax\\]: [^\\n]*\\n"
+    },
+    {
+      "id": "acceptance-syntax-slice-step",
+      "script": "acceptance/cases/syntax-slice-step.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "acceptance/expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: frontend error \\[Syntax\\]: [^\\n]*\\n"
+    },
+    {
+      "id": "acceptance-syntax-empty-statement",
+      "script": "acceptance/cases/syntax-empty-statement.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "acceptance/expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: frontend error \\[Syntax\\]: [^\\n]*\\n"
+    },
+    {
+      "id": "acceptance-syntax-increment",
+      "script": "acceptance/cases/syntax-increment.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "acceptance/expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: frontend error \\[Syntax\\]: [^\\n]*\\n"
+    },
+    {
+      "id": "acceptance-syntax-decrement",
+      "script": "acceptance/cases/syntax-decrement.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "acceptance/expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: frontend error \\[Syntax\\]: [^\\n]*\\n"
+    },
+    {
+      "id": "acceptance-syntax-compound-assignment",
+      "script": "acceptance/cases/syntax-compound-assignment.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "acceptance/expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: frontend error \\[Syntax\\]: [^\\n]*\\n"
+    },
+    {
+      "id": "acceptance-syntax-chain-assignment",
+      "script": "acceptance/cases/syntax-chain-assignment.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "acceptance/expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: frontend error \\[Syntax\\]: [^\\n]*\\n"
+    },
+    {
+      "id": "acceptance-syntax-condition-assignment",
+      "script": "acceptance/cases/syntax-condition-assignment.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "acceptance/expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: frontend error \\[Syntax\\]: [^\\n]*\\n"
+    },
+    {
+      "id": "acceptance-grouped-targets-min",
+      "script": "acceptance/cases/grouped-targets-min.myb",
+      "mode": "run",
+      "expect_exit": 0,
+      "expect_stdout_file": "acceptance/expected/grouped-targets-min.stdout",
+      "expect_stderr_file": "acceptance/expected/empty.bin"
+    },
+    {
+      "id": "acceptance-round-half-even",
+      "script": "acceptance/cases/round-half-even.myb",
+      "mode": "run",
+      "expect_exit": 0,
+      "expect_stdout_file": "acceptance/expected/round-half-even.stdout",
+      "expect_stderr_file": "acceptance/expected/empty.bin"
+    },
+    {
+      "id": "acceptance-add-overflow",
+      "script": "acceptance/cases/add-overflow.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "acceptance/expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Arithmetic\\]: [^\\n]*\\n"
+    },
+    {
+      "id": "acceptance-subtract-overflow",
+      "script": "acceptance/cases/subtract-overflow.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "acceptance/expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Arithmetic\\]: [^\\n]*\\n"
+    },
+    {
+      "id": "acceptance-multiply-overflow",
+      "script": "acceptance/cases/multiply-overflow.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "acceptance/expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Arithmetic\\]: [^\\n]*\\n"
+    },
+    {
+      "id": "acceptance-floor-overflow",
+      "script": "acceptance/cases/floor-overflow.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "acceptance/expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Arithmetic\\]: [^\\n]*\\n"
+    },
+    {
+      "id": "acceptance-floor-zero",
+      "script": "acceptance/cases/floor-zero.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "acceptance/expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Arithmetic\\]: [^\\n]*\\n"
+    },
+    {
+      "id": "acceptance-modulo-zero",
+      "script": "acceptance/cases/modulo-zero.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "acceptance/expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Arithmetic\\]: [^\\n]*\\n"
+    },
+    {
+      "id": "acceptance-float-result-overflow",
+      "script": "acceptance/cases/float-result-overflow.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "acceptance/expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Arithmetic\\]: [^\\n]*\\n"
+    },
+    {
+      "id": "acceptance-floor-float",
+      "script": "acceptance/cases/floor-float.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "acceptance/expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Type\\]: [^\\n]*\\n"
+    },
+    {
+      "id": "acceptance-modulo-float",
+      "script": "acceptance/cases/modulo-float.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "acceptance/expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Type\\]: [^\\n]*\\n"
+    },
+    {
+      "id": "acceptance-bool-arithmetic",
+      "script": "acceptance/cases/bool-arithmetic.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "acceptance/expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Type\\]: [^\\n]*\\n"
+    },
+    {
+      "id": "acceptance-array-concatenation",
+      "script": "acceptance/cases/array-concatenation.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "acceptance/expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Type\\]: [^\\n]*\\n"
+    },
+    {
+      "id": "acceptance-null-order",
+      "script": "acceptance/cases/null-order.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "acceptance/expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Type\\]: [^\\n]*\\n"
+    },
+    {
+      "id": "acceptance-array-order",
+      "script": "acceptance/cases/array-order.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "acceptance/expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Type\\]: [^\\n]*\\n"
+    },
+    {
+      "id": "acceptance-forward-struct-graphs",
+      "script": "acceptance/cases/forward-struct-graphs.myb",
+      "mode": "run",
+      "expect_exit": 0,
+      "expect_stdout_file": "acceptance/expected/forward-struct-graphs.stdout",
+      "expect_stderr_file": "acceptance/expected/empty.bin"
+    },
+    {
+      "id": "acceptance-min-modulo-and-float-underflow",
+      "script": "acceptance/cases/min-modulo-and-float-underflow.myb",
+      "mode": "run",
+      "expect_exit": 0,
+      "expect_stdout_file": "acceptance/expected/min-modulo-and-float-underflow.stdout",
+      "expect_stderr_file": "acceptance/expected/empty.bin"
+    },
+    {
+      "id": "acceptance-sequence-slices",
+      "script": "acceptance/cases/sequence-slices.myb",
+      "mode": "run",
+      "expect_exit": 0,
+      "expect_stdout_file": "acceptance/expected/sequence-slices.stdout",
+      "expect_stderr_file": "acceptance/expected/empty.bin"
+    },
+    {
+      "id": "acceptance-string-index-range",
+      "script": "acceptance/cases/string-index-range.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "acceptance/expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Range\\]: [^\\n]*\\n"
+    },
+    {
+      "id": "acceptance-string-empty-index",
+      "script": "acceptance/cases/string-empty-index.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "acceptance/expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Range\\]: [^\\n]*\\n"
+    },
+    {
+      "id": "acceptance-array-index-write-range",
+      "script": "acceptance/cases/array-index-write-range.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "acceptance/expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Range\\]: [^\\n]*\\n"
+    },
+    {
+      "id": "acceptance-arithmetic-normal",
+      "script": "acceptance/cases/arithmetic-normal.myb",
+      "mode": "run",
+      "expect_exit": 0,
+      "expect_stdout_file": "acceptance/expected/arithmetic-normal.stdout",
+      "expect_stderr_file": "acceptance/expected/empty.bin"
+    },
+    {
+      "id": "objects-prepared-multi-unit",
+      "script": "objects/cases/prepared-multi-unit.myb",
+      "mode": "run",
+      "expect_exit": 0,
+      "expect_stdout_file": "objects/expected/prepared-multi-unit.stdout",
+      "expect_stderr_file": "objects/expected/empty.bin"
+    },
+    {
+      "id": "objects-prepared-deferred",
+      "script": "objects/cases/prepared-deferred.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "objects/expected/prepared-deferred.stdout",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Type\\]: [^\\n]*\\n"
     }
   ]
 }

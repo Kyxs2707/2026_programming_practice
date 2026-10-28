@@ -1,0 +1,6 @@
+print("bad");
+write("bad");
+read_line();
+read_text("missing.txt");
+write_text("changed.txt", "bad");
+write_text("created.txt", "bad");

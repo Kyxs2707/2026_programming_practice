@@ -1,48 +1,13 @@
 #include "cli/session.hpp"
 #include "bytecode/compiler.hpp"
+#include "diagnostic/diagnostic.hpp"
 #include "frontend/driver.hpp"
 #include "runtime/decimal_codec.hpp"
 #include "semantic/checker.hpp"
-#include "source/utf8.hpp"
 #include "vm/vm.hpp"
-#include <charconv>
 #include <new>
 #include <stdexcept>
 namespace myb {
-namespace {
-/** @brief 按码点转义诊断中的控制字符和行分隔符，非法 UTF-8 字节逐项转义。 */
-std::string escaped(std::string_view text) {
-    std::string out;
-    for (std::size_t at = 0; at < text.size();) {
-        const auto decoded = utf8::decode_one(text, at);
-        const auto c = static_cast<unsigned char>(text[at]);
-        const auto width = decoded ? decoded->width : std::size_t{1};
-        if (c == '\n')
-            out += "\\n";
-        else if (c == '\r')
-            out += "\\r";
-        else if (c == '\t')
-            out += "\\t";
-        else if (!decoded || c < 32 || c == 127) {
-            constexpr char hex[] = "0123456789abcdef";
-            out += "\\x";
-            out += hex[c >> 4];
-            out += hex[c & 15];
-        } else if ((decoded->value >= 0x80 && decoded->value <= 0x9f) ||
-                   decoded->value == 0x2028 || decoded->value == 0x2029) {
-            char digits[8];
-            const auto converted = std::to_chars(digits, digits + sizeof digits,
-                                                  decoded->value, 16);
-            out += "\\u{";
-            out.append(digits, converted.ptr);
-            out += '}';
-        } else
-            out.append(text.substr(at, width));
-        at += width;
-    }
-    return out;
-}
-} // namespace
 Session::Session(EmergencyFailure &first, HostIO &io, const BuiltinRegistry &builtins)
     : first_(first), io_(io), builtins_(builtins), sources_(first), program_(roots_),
       heap_(roots_, first) {}
@@ -67,11 +32,11 @@ int Session::run(const Options &options) noexcept {
         if (options.mode == RunMode::Help || options.mode == RunMode::Version) {
             try {
                 io_.write_stdout(options.mode == RunMode::Help ? help_text : version_text, false);
-            } catch (...) {
+            } catch (const IoFailure &failure) {
                 // 帮助与版本属于宿主命令，其输出失败使用宿主故障退出状态。
-                FailureHeader h{FailureDomain::Internal, ReasonCode::IO};
-                report(h, "cannot write command output");
-                return 3;
+                first_.record_first({FailureDomain::Internal, failure.reason(), {}, failure.os_code()});
+                report(first_.header(), failure.what());
+                return exit_code(first_.header());
             }
             return 0;
         }
@@ -83,12 +48,10 @@ int Session::run(const Options &options) noexcept {
         return 0;
     } catch (const Failure &failure) {
         first_.record_first(failure.header());
-        auto header = first_.header();
-        // 保留首错的 domain、reason 和 OS 信息，只从同类捕获异常补齐缺失的 span。
-        if (!header.span && header.domain == failure.header().domain &&
-            header.reason == failure.header().reason)
-            header.span = failure.header().span;
-        report(header, failure.message());
+        if (first_.header().domain == failure.header().domain &&
+            first_.header().reason == failure.header().reason)
+            first_.complete_location(failure.header().span);
+        report(first_.header(), failure.message());
     } catch (const std::bad_alloc &) {
         first_.record_first({FailureDomain::Resource, ReasonCode::Allocation});
         report(first_.header(), "host allocation failed");
@@ -103,41 +66,10 @@ int Session::run(const Options &options) noexcept {
 }
 void Session::report(const FailureHeader &header, std::string_view message) noexcept {
     try {
-        std::string text;
-        if (header.span) {
-            const auto &file = sources_.get(header.span->source);
-            auto position = sources_.locate(header.span->source, header.span->begin);
-            text = escaped(file.path_utf8) + ':' + std::to_string(position.line) + ':' +
-                   std::to_string(position.column) + ": ";
-        } else
-            text = "myb: ";
-        text += domain_name(header.domain);
-        text += " [";
-        text += reason_name(header.reason);
-        text += "]: ";
-        text += escaped(message);
-        if (header.os_code) {
-            text += " (OS ";
-            text += std::to_string(*header.os_code);
-            text += ')';
-        }
-        text += '\n';
-        for (const auto &entry : call_trace_) {
-            const auto &source = sources_.get(entry.span.source);
-            const auto position = sources_.locate(entry.span.source, entry.span.begin);
-            text += "  at " + escaped(entry.name) + " (" + escaped(source.path_utf8) + ':' +
-                    std::to_string(position.line) + ':' + std::to_string(position.column) + ")\n";
-        }
-        // stderr 失败后停止报告，避免诊断通路再次调用报告器。
-        try {
-            io_.write_stderr(text);
-        } catch (...) {
-        }
+        const auto diagnostic = make_diagnostic(header, message, sources_, call_trace_);
+        report_failure(diagnostic, io_);
     } catch (...) {
-        try {
-            io_.write_stderr("myb: failure (diagnostic unavailable)\n");
-        } catch (...) {
-        }
+        report_minimal_failure(io_);
     }
 }
 } // namespace myb

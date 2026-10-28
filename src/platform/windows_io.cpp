@@ -275,16 +275,29 @@ std::string wide_to_utf8(std::wstring_view input, ErrorSite site) {
 }
 EntryBytes WindowsHostIO::read_entry(std::string_view path) {
     const ErrorSite site{failure_, {}};
+    std::string absolute_path_utf8;
     try {
         const auto wide = file_path(path, working_directory_, site);
         const auto capacity = GetFullPathNameW(wide.c_str(), 0, nullptr, nullptr);
         if (!capacity)
             io_error("cannot resolve source path", GetLastError());
+#ifdef MYB_TEST_HOOKS
+        TestHooks::hit(FaultPoint::EntryPathBuffer);
+        if (auto code = TestHooks::take_os_failure(FaultPoint::EntryPathBuffer))
+            io_error("cannot resolve source path", *code);
+#endif
         std::wstring absolute(capacity, L'\0');
         const auto used = GetFullPathNameW(wide.c_str(), capacity, absolute.data(), nullptr);
         if (!used || used >= capacity)
             io_error("cannot resolve source path", GetLastError());
         absolute.resize(used);
+#ifdef MYB_TEST_HOOKS
+        TestHooks::hit(FaultPoint::EntryPathText);
+        if (auto code = TestHooks::take_os_failure(FaultPoint::EntryPathText))
+            throw IoFailure(ReasonCode::Encoding, "cannot encode source path", *code);
+#endif
+        // 完整解析并转换后再发布文本；打开、读取和关闭失败均复用这一绝对路径。
+        absolute_path_utf8 = utf8_text(absolute, site);
         Handle file{CreateFileW(absolute.c_str(), GENERIC_READ, FILE_SHARE_READ, nullptr,
                                 OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr)};
         if (file.value == INVALID_HANDLE_VALUE)
@@ -293,31 +306,56 @@ EntryBytes WindowsHostIO::read_entry(std::string_view path) {
         while (fill_bytes(file.value, block))
             bytes.append(block);
         file.close();
-        return {utf8_text(absolute, site), std::move(bytes)};
+        return {std::move(absolute_path_utf8), std::move(bytes)};
     } catch (const IoFailure &failure) {
         // 在拼接入口路径前固定首错，消息分配再次失败时仍保留入口错误退出状态。
         failure_.record_first({FailureDomain::EntryIO, failure.reason(), {}, failure.os_code()});
+#ifdef MYB_TEST_HOOKS
+        TestHooks::hit(FaultPoint::EntryDiagnostic);
+#endif
         std::string message(failure.what());
         message += ": ";
-        message += path;
+        message += absolute_path_utf8.empty() ? path : std::string_view(absolute_path_utf8);
         fail(site, FailureDomain::EntryIO, failure.reason(), message, failure.os_code());
     }
 }
 void WindowsHostIO::write_stdout(std::string_view bytes, bool append_lf) {
-    try {
-        const auto handle = GetStdHandle(STD_OUTPUT_HANDLE);
-        write_handle(handle, bytes, {failure_, {}});
-        if (append_lf)
-            write_handle(handle, "\n", {failure_, {}});
-    } catch (const IoFailure &failure) {
-        fail({failure_, {}}, FailureDomain::Runtime, failure.reason(), failure.what(), failure.os_code());
-    }
+    const auto handle = GetStdHandle(STD_OUTPUT_HANDLE);
+    write_handle(handle, bytes, {failure_, {}});
+    if (append_lf)
+        write_handle(handle, "\n", {failure_, {}});
 }
 void WindowsHostIO::write_stderr(std::string_view bytes) {
     try {
         write_handle(GetStdHandle(STD_ERROR_HANDLE), bytes, {failure_, {}});
     } catch (const IoFailure &failure) {
         fail({failure_, {}}, FailureDomain::Internal, failure.reason(), failure.what(), failure.os_code());
+    }
+}
+void WindowsHostIO::write_emergency() noexcept {
+    constexpr char bytes[] = "myb: failure (diagnostic unavailable)\n";
+    constexpr wchar_t wide[] = L"myb: failure (diagnostic unavailable)\n";
+    const auto handle = GetStdHandle(STD_ERROR_HANDLE);
+    DWORD mode{};
+    const bool console = GetConsoleMode(handle, &mode) != 0;
+    constexpr auto length = static_cast<DWORD>(sizeof(bytes) - 1);
+    DWORD at = 0;
+    try {
+        while (at < length) {
+#ifdef MYB_TEST_HOOKS
+            TestHooks::hit(FaultPoint::OsWrite);
+            if (TestHooks::take_os_failure(FaultPoint::OsWrite))
+                return;
+#endif
+            DWORD written{};
+            const auto success = console
+                ? WriteConsoleW(handle, wide + at, length - at, &written, nullptr)
+                : WriteFile(handle, bytes + at, length - at, &written, nullptr);
+            if (!success || !written)
+                return;
+            at += written;
+        }
+    } catch (...) {
     }
 }
 void WindowsHostIO::read_text(std::string_view path, Utf8Sink &sink) {

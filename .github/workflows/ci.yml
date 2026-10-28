@@ -29,7 +29,7 @@ jobs:
             mingw-w64-ucrt-x86_64-python
             flex
             bison
-      - name: Build and test Debug
+      - name: Build and test Debug including B01/B02 work growth
         shell: pwsh
         run: ./tools/ci.ps1 -Configuration Debug -Msys2Root '${{ steps.msys2.outputs.msys2-location }}'
       - name: Upload Debug logs
@@ -60,7 +60,7 @@ jobs:
             mingw-w64-ucrt-x86_64-python
             flex
             bison
-      - name: Build and test Release
+      - name: Build and test Release including B01/B02 performance
         shell: pwsh
         run: ./tools/ci.ps1 -Configuration Release -Msys2Root '${{ steps.msys2.outputs.msys2-location }}'
       - name: Upload Release logs

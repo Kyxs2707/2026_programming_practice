@@ -160,7 +160,7 @@
       "mode": "run",
       "expect_exit": 1,
       "expect_stdout_file": "expected/empty.bin",
-      "expect_stderr_regex": "$SCRIPT:2:14: runtime error \\[Arithmetic\\]: [^\\n]*\\n  at leaf \\($SCRIPT:2:14\\)\\n  at middle \\($SCRIPT:5:12\\)\\n  at outer \\($SCRIPT:8:12\\)\\n"
+      "expect_stderr_regex": "$SCRIPT:2:14: runtime error \\[Arithmetic\\]: [^\\n]*\\n  at leaf \\($SCRIPT:5:12\\)\\n  at middle \\($SCRIPT:8:12\\)\\n  at outer \\($SCRIPT:10:7\\)\\n"
     },
     {
       "id": "calls-recursive-call-chain",

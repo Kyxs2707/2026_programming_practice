@@ -1,0 +1,5 @@
+fn never(x) { print("never"); }
+fn outer() {
+    never(write("argument"), 1);
+}
+outer();

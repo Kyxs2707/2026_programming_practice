@@ -1,0 +1,4 @@
+fn outer() {
+    print(len(1));
+}
+outer();

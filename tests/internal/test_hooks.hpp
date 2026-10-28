@@ -26,9 +26,27 @@ enum class FaultPoint {
     DiagnosticSnapshot,
     OsRead,
     OsWrite,
-    OsClose
+    OsClose,
+    ExecutionIndex,
+    EntryPathBuffer,
+    EntryPathText,
+    EntryDiagnostic
 };
 namespace TestHooks {
+/** @brief 区分执行索引准备及实际候选访问，计数只用于内部规模回归。 */
+enum class ExecutionWork { CallCandidate, SchemaCandidate, FieldCandidate, Construction, FieldWrite };
+/** @brief 保存准备期与执行期实际处理次数；不持有受管对象或借用。 */
+struct ExecutionWorkCounts {
+    std::size_t preparation{}, calls{}, schemas{}, fields{}, constructions{}, writes{};
+};
+/** @brief 清零工作量并离开准备阶段，不改变故障设置。 */
+void reset_execution_work() noexcept;
+/** @brief 切换索引准备阶段；仅影响内部工作量的归属，不分配或回收。 */
+void preparing_execution_index(bool enabled) noexcept;
+/** @brief 在候选访问、比较或槽写入的实际位置累计工作量，不分配或回收。 */
+void record_execution_work(ExecutionWork kind) noexcept;
+/** @brief 返回工作量的独立值副本，不改变计数。 */
+ExecutionWorkCounts execution_work() noexcept;
 /** @brief 堆对象与回收状态的只读计数结果，不持有或保活对象。 */
 struct HeapCounts {
     std::size_t live{};
@@ -42,9 +60,14 @@ void force_gc(bool enabled) noexcept;
 bool gc_forced() noexcept;
 /** @brief 替换待触发位置；下一次命中该位置时抛出一次 std::bad_alloc。 */
 void fail_next(FaultPoint point) noexcept;
+/**
+ * @brief 替换待触发位置，在指定次数的同位置命中时抛出一次 std::bad_alloc。
+ * @param[in] occurrence 从 1 开始计数，其他位置的命中不推进计数；0 按 1 处理。
+ */
+void fail_next(FaultPoint point, std::size_t occurrence) noexcept;
 /** @brief 清除尚未触发的故障设置，不改变强制回收开关。 */
 void clear_fault() noexcept;
-/** @brief 若命中已设置位置，先清除设置再抛 std::bad_alloc，保证只触发一次。 */
+/** @brief 推进已设置位置的命中计数，到达指定次数时先清除设置再抛 std::bad_alloc。 */
 void hit(FaultPoint point);
 /** @brief 设置下一次指定宿主 I/O 调用的 Windows 错误码，仅触发一次。 */
 void fail_os_next(FaultPoint point, std::uint32_t code) noexcept;

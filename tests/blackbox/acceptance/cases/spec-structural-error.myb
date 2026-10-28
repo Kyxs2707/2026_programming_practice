@@ -1,0 +1,4 @@
+print("开始");
+if (false) {
+    break;
+}

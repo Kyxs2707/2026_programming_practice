@@ -45,6 +45,14 @@ class EmergencyFailure {
             set_ = true;
         }
     }
+    /**
+     * @brief 在首错缺少位置时补充当前失败指令的位置，不改变分类、OS 信息或已有位置。
+     * @param[in] span 统一执行边界在帧清理前取得的实际范围；无可用位置时传空值。
+     */
+    void complete_location(std::optional<SourceSpan> span) noexcept {
+        if (set_ && !header_.span)
+            header_.span = span;
+    }
     /** @brief 查询是否已记录首错。 */
     bool is_set() const noexcept {
         return set_;

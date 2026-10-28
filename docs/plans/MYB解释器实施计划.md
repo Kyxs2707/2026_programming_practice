@@ -10,7 +10,9 @@
 
 **Spec:** [MYB 解释器设计](../specs/MYB解释器设计.md)；语言行为以 [MYB 语言规范](../specs/MYB语言规范.md) v0.2（含 2026-10-22 D63 澄清）为准；完整课程交付顺序见 [项目实施步骤](../superpowers/plans/2026-10-11-myb-implementation.md)。
 
-状态：用户于 2026-10-22 明确要求“好，你先完成M1吧”，已授权任务 01–06。**M1 已于 2026-10-23 完成实现与验收；用户同日授权完成 M2，任务 07–11 已通过本地 Debug/Release 验收与独立审查，见 [M2 测试报告](../reports/M2测试报告.md)。M3 任务 12–16 的运行时实现和自动化验收于 2026-10-26 完成，见 [M3 测试报告](../reports/M3测试报告.md)；真实控制台人工验收未完成，M4 未启动。** 2026-10-23 按用户要求在 M1 与 M2 之间新增 CI-01/CI-02 两项工程任务，用户已授权实施；CI-01 的本地脚本、远端两 job 正常→失败→恢复和独立仅文档 PR 触发均已验收；用户随后将仓库改为 public 并授权完成 CI-02，强制合并条件已配置并完成失败/恢复验收；整个 CI 工程阶段完成。 独立构建、源码前端与堆模块并行实施，由根代理集成并安排一次独立整体审查。实测命令、范围与调整见 [构建与测试](../guides/构建与测试.md) 和 [测试报告](../reports/测试报告_v0.1.md)。
+2026-10-28，用户要求修复审计确认的三项问题，见 [MYB 解释器缺陷修复计划](MYB解释器缺陷修复计划.md)，并确认 B01、B02 性能回归须在每次 PR 的 CI 中执行，任一失败阻止合并。三项修复及 CI 接入已实施，原工作区 Debug、Release 全量检查通过，远端 PR 验证待授权；实际进度见[缺陷修复验收报告](../reports/MYB缺陷修复验收报告.md)。旧版耗时对照按用户后续确认列为补充证据。M1–M4 原验收记录保持原样。
+
+状态：用户于 2026-10-22 明确要求“好，你先完成M1吧”，已授权任务 01–06。**M1 已于 2026-10-23 完成实现与验收；用户同日授权完成 M2，任务 07–11 已通过本地 Debug/Release 验收与独立审查，见 [M2 测试报告](../reports/M2测试报告.md)。M3 任务 12–16 的运行时实现和自动化验收于 2026-10-26 完成，见 [M3 测试报告](../reports/M3测试报告.md)；M4 任务 17–18 已于 2026-10-27 完成实现、自动回归、构建矩阵、独立审查和四组真实终端人工验收。** 2026-10-23 按用户要求在 M1 与 M2 之间新增 CI-01/CI-02 两项工程任务，用户已授权实施；CI-01 的本地脚本、远端两 job 正常→失败→恢复和独立仅文档 PR 触发均已验收；用户随后将仓库改为 public 并授权完成 CI-02，强制合并条件已配置并完成失败/恢复验收；整个 CI 工程阶段完成。 独立构建、源码前端与堆模块并行实施，由根代理集成并安排一次独立整体审查。实测命令、范围与调整见 [构建与测试](../guides/构建与测试.md) 和 [测试报告](../reports/测试报告_v0.1.md)。
 
 ## Global Constraints（全局约束）
 
@@ -472,10 +474,10 @@ print(int(-2.9));
 ```
 - [x] **2. 确认红。** 重建运行 `--case host_io` 与 `python tools/run_blackbox.py --interpreter build/debug/myb.exe --manifest tests/blackbox/io/manifest.json`，应在I/O/编码/EOF行为处失败。
 - [x] **3. 实现。** 分标准句柄识别，控制台Read/WriteConsoleW严格桥接，管道/文件Read/WriteFile字节；保留跨块UTF-8/代理对，不因未返回行坏字节提前报错。输入零进度/ERROR_HANDLE_EOF/读端BROKEN_PIPE为EOF，写端broken pipe为失败；部分写入循环、零进度停止、保存原错误码，write_text显式检查close，RAII失败清理不抛。
-- [ ] **4. 验证绿。** 两组为0；中文/空格相对路径按启动cwd，缺失父目录不创建、文件失败1/源入口读取失败2、路径NUL拒绝而文本NUL按长度保留，跨缓冲字符和OsRead/OsWrite/OsClose注入分类正确。分别记录 Windows Terminal/传统控制台的中文emoji、代理边界、LF/CRLF与仅Ctrl+Z整行EOF；管道测试不能充当这份控制台证据。
+- [x] **4. 验证绿。** 两组为0；中文/空格相对路径按启动cwd，缺失父目录不创建、文件失败1/源入口读取失败2、路径NUL拒绝而文本NUL按长度保留，跨缓冲字符和OsRead/OsWrite/OsClose注入分类正确。分别记录 Windows Terminal/传统控制台的中文emoji、代理边界、LF/CRLF与仅Ctrl+Z整行EOF；管道测试不能充当这份控制台证据。
 - [x] **5. 提交。** 聚合io组、逐表核对21内置后提交 `feat: 完成文本输入输出`；未实测的控制台组合在验收文档明确保留未完成，不能标成通过。
 
-任务 12–16 的实现、正式黑盒和故障检查已接入默认测试。Debug 内部 65 项、驱动 10 项、CLI 7 项和黑盒 235 项通过；Release CLI 7 项、黑盒 235 项通过。任务 16 第 4 项的文件、管道与故障注入检查已通过，真实 Windows Terminal/传统控制台组合未实测；状态见 [终端验收](../reports/Windows终端验收.md)。本轮跨模块改动统一提交可构建的 M3，逐项证据见 [M3 测试报告](../reports/M3测试报告.md)。
+任务 12–16 的实现、正式黑盒和故障检查已接入默认测试。Debug 内部 65 项、驱动 10 项、CLI 7 项和黑盒 235 项通过；Release CLI 7 项、黑盒 235 项通过。任务 16 第 4 项的文件、管道与故障注入检查已通过；真实 Windows Terminal/传统控制台的 936/65001 四组人工检查于 2026-10-27 在 M4 中补齐，状态见 [终端验收](../reports/Windows终端验收.md)。本轮跨模块改动统一提交可构建的 M3，逐项证据见 [M3 测试报告](../reports/M3测试报告.md)。
 
 ## M4：故障边界与最终验收
 
@@ -485,7 +487,7 @@ print(int(-2.9));
 
 **Interfaces:** Produces拥有存储的Diagnostic/出错时的实际调用链记录及 `report_failure(const Diagnostic&,HostIO&)`；EmergencyFailure固定记录和无分配最小报告路径保持独立。完成全部FaultPoint接缝；HostIO错误不直接成为语言异常对象，用户不获得catch/栈访问接口。
 
-- [ ] **1. 写红测试。** 设计demo的inner在第2行 `return x + 1;` 失败，首行位置精确2:14，Type/1；实际链inner→outer，print不入用户链。错误参数/入口读取无虚构位置；invalid UTF-8为Frontend1。failure_fallback先登记Runtime/Type，再注入DiagnosticSnapshot/bad_alloc/OsWrite，保持exit1，报告最多一次；没有已有首错的宿主故障为3。
+- [x] **1. 写红测试。** 设计demo的inner在第2行 `return x + 1;` 失败，首行位置精确2:14，Type/1；实际链inner→outer，print不入用户链。错误参数/入口读取无虚构位置；invalid UTF-8为Frontend1。failure_fallback先登记Runtime/Type，再注入DiagnosticSnapshot/bad_alloc/OsWrite，保持exit1，报告最多一次；没有已有首错的宿主故障为3。
 
 ```cpp
 EmergencyFailure first;
@@ -494,12 +496,14 @@ first.record_first({FailureDomain::Resource, ReasonCode::Allocation, {}, {}});
 REQUIRE(first.header().domain == FailureDomain::Runtime);
 REQUIRE(first.header().reason == ReasonCode::Type);
 ```
-- [ ] **2. 确认红。** 重建运行 `--case failure_integration` 和 `python tools/run_blackbox.py --interpreter build/debug/myb.exe --manifest tests/blackbox/errors/manifest.json`，应在排版/链/低资源路径处发现未满足断言。
-- [ ] **3. 实现。** VM顶层边界在帧/源码可用时先保存诊断和实际调用链，再unwind；详细消息失败退固定首错，不为了清理分配/GC。真实executing_ip归失败，用户文本控制字符转义、无源码摘录；stderr失败停止递归。显式注销根幂等，Builder/VM先于Heap清空，Heap先于Schema，Registry最后；未知宿主异常为Internal3，不伪装成MYB错误。
-- [ ] **4. 验证绿。** 两组为0；跨04/08/11/13/14/16枚举故障位置，要求无悬空登记/根、未提交函数不入链、标记失败不sweep、遍历计数在Heap整体清空前已归零。用额外RootedValue保留被遍历数组以证明解除确实发生，不能只因对象已销毁而得到计数零。源码含300层分组的语法合法表达式触发AST Capacity/3而非Syntax/1，补外部资源分类证据。满足Review Focus 3/5；try_*与首错共存、既有stdout/文件副作用不回滚均覆盖。
+- [x] **2. 确认红。** 重建运行 `--case failure_integration` 和 `python tools/run_blackbox.py --interpreter build/debug/myb.exe --manifest tests/blackbox/errors/manifest.json`，应在排版/链/低资源路径处发现未满足断言。
+- [x] **3. 实现。** VM顶层边界在帧/源码可用时先保存诊断和实际调用链，再unwind；详细消息失败退固定首错，不为了清理分配/GC。真实executing_ip归失败，用户文本控制字符转义、无源码摘录；stderr失败停止递归。显式注销根幂等，Builder/VM先于Heap清空，Heap先于Schema，Registry最后；未知宿主异常为Internal3，不伪装成MYB错误。
+- [x] **4. 验证绿。** 两组为0；跨04/08/11/13/14/16枚举故障位置，要求无悬空登记/根、未提交函数不入链、标记失败不sweep、遍历计数在Heap整体清空前已归零。用额外RootedValue保留被遍历数组以证明解除确实发生，不能只因对象已销毁而得到计数零。源码含300层分组的语法合法表达式触发AST Capacity/3而非Syntax/1，补外部资源分类证据。满足Review Focus 3/5；try_*与首错共存、既有stdout/文件副作用不回滚均覆盖。
 
 M3 整体审查建议：为 NativeWorkspace 安排指定命中次数，补齐映射登记后队列增长、多个副本形成后工作区增长、显示已进入多层容器后的栈与路径增长失败；核对原图和旧输出、根注销、对象数及首错。
-- [ ] **5. 提交。** 聚合errors组后提交 `fix: preserve diagnostics and cleanup across host failures`；不将OS强制终止/内存破坏写成受控可恢复测试承诺。
+- [x] **5. 提交。** 聚合errors组后提交 `fix: preserve diagnostics and cleanup across host failures`；不将OS强制终止/内存破坏写成受控可恢复测试承诺。
+
+任务 17 的真实失败与修复、指定命中故障、外部根保活下的遍历解除，以及一次报告验证见 [M4 测试报告](../reports/M4测试报告.md)。
 
 ### 任务 18：全量黑盒、干净/并行/Release 构建与复现材料
 
@@ -507,17 +511,19 @@ M3 整体审查建议：为 NativeWorkspace 安排指定命中次数，补齐映
 
 **Interfaces:** Default manifest聚合所有正式用例（非只含smoke）；一条 `python tools/run_blackbox.py --interpreter <myb.exe>` 运行全部，失败/超时继续统计。覆盖表记录语言规则/内置/设计协议→独立用例→实际结果；测试报告区分自动、内部、真实控制台及未验证平台。
 
-- [ ] **1. 写验收用例。** 补齐D01–D72及D63澄清的正常/边界/错误/组合输入，特别是21内置固定数量和类型、全部操作码正常/清理路径、--check不消费stdin/不执行I/O/不写字节码。把规范12.1–12.3、解释器设计末尾完整例纳入独立golden；应用/性能任务只记录后续入口，不冒充本阶段成果。
+- [x] **1. 写验收用例。** 补齐D01–D72及D63澄清的正常/边界/错误/组合输入，特别是21内置固定数量和类型、全部操作码正常/清理路径、--check不消费stdin/不执行I/O/不写字节码。把规范12.1–12.3、解释器设计末尾完整例纳入独立golden；应用/性能任务只记录后续入口，不冒充本阶段成果。
 
 ```myb
 print("before");
 let result = 10 / 0;
 print("after");
 ```
-- [ ] **2. 验证用例能检出缺口。** 构建后运行全内部测试和默认黑盒；只对新覆盖导致的失败建立修复目标，不破坏已通过实现来机械制造红色。驱动自身“错误golden/死循环”检出能力由01的自测保证。
-- [ ] **3. 修复与复现。** 逐一修复真实差异；新建build/verify-clean进行干净配置/并行初建，修改.l/.y及相关头验证增量重生成，再恢复无语义改动。用含空格/中文路径的检出副本重现；Release单独build/release，MYB_BUILD_INTERNAL_TESTS=OFF，不依赖Debug测试接缝/生成物。记录实际运行所需GCC DLL/PATH，核心不依赖MSYS运行时。
-- [ ] **4. 验证绿。** Debug执行 `& .\build\debug\myb_internal_tests.exe`、默认黑盒和驱动unittest；Release执行 `python tools/run_blackbox.py --interpreter build/release/myb.exe`，全部正式例通过、退出0。记录工具版本、命令、计数、失败修复、控制台证据；真实控制台未完成则本任务仍未完成。README从零指令可复现，git中只有手写源/规则/固定版本依赖源码/测试/文档。
-- [ ] **5. 提交。** 完成全分支独立审查、处理实际问题并复验后提交 `docs: record reproducible MYB interpreter acceptance`；本计划不自动授权推送/合并/main写入。验收成功才将对应checkbox标完成，保存实际证据位置。
+- [x] **2. 验证用例能检出缺口。** 构建后运行全内部测试和默认黑盒；只对新覆盖导致的失败建立修复目标，不破坏已通过实现来机械制造红色。驱动自身“错误golden/死循环”检出能力由01的自测保证。
+- [x] **3. 修复与复现。** 逐一修复真实差异；新建build/verify-clean进行干净配置/并行初建，修改.l/.y及相关头验证增量重生成，再恢复无语义改动。用含空格/中文路径的检出副本重现；Release单独build/release，MYB_BUILD_INTERNAL_TESTS=OFF，不依赖Debug测试接缝/生成物。记录实际运行所需GCC DLL/PATH，核心不依赖MSYS运行时。
+- [x] **4. 验证绿。** Debug执行 `& .\build\debug\myb_internal_tests.exe`、默认黑盒和驱动unittest；Release执行 `python tools/run_blackbox.py --interpreter build/release/myb.exe`，全部正式例通过、退出0。记录工具版本、命令、计数、失败修复、控制台证据；真实控制台未完成则本任务仍未完成。README从零指令可复现，git中只有手写源/规则/固定版本依赖源码/测试/文档。
+- [x] **5. 提交。** 完成全分支独立审查、处理实际问题并复验后提交 `docs: record reproducible MYB interpreter acceptance`；本计划不自动授权推送/合并/main写入。验收成功才将对应checkbox标完成，保存实际证据位置。
+
+默认黑盒已包含 372 项正式用例，覆盖映射见 [需求覆盖表](../reports/需求覆盖表.md)。两配置 CI、五组构建矩阵、16 项真实 Win32 控制台自动检查、独立审查，以及 Windows Terminal/传统控制台的 936/65001 四组人工验收均通过，任务 18 完成。结果分别记录于 [M4 测试报告](../reports/M4测试报告.md) 和 [Windows 终端验收](../reports/Windows终端验收.md)。
 
 ## 设计覆盖与任务归属
 
@@ -541,11 +547,11 @@ print("after");
 
 ## 自审记录与执行交接
 
-- 已按设计逐节对照，解释器、21内置、GC/资源、Windows边界、CLI/诊断及构建/测试均有任务归属；原计划的测试值为预期；M1、M2 与 CI 已有实测证据，见阶段测试报告和 CI 与合并规则；M3 已通过两配置自动化验收，真实控制台组合待人工实测，M4 尚未启动。
+- 已按设计逐节对照，解释器、21内置、GC/资源、Windows边界、CLI/诊断及构建/测试均有任务归属；原计划的测试值为预期；M1、M2 与 CI 已有实测证据，见阶段测试报告和 CI 与合并规则；M3 已通过两配置自动化验收；M4 任务 17–18 与任务 16 遗留的四组人工终端检查均已完成。
 - 前期以内部协议/最小黑盒验收，中期按功能滚动聚合；07解析的新语法由08完整生成接管，11返回数组的对象验证由12/13接管，14完整例依赖15的assert。这些依赖不能被当作提前完成。
 - 正式用户/Agent开发指南、>=200行应用及真实开发记录、Python同功能性能报告属于后续课程交付，继续按原路线图10–13独立安排；本计划不选择应用或新增游戏API。
 - M1、CI-01、CI-02 已实施并验收。CI 工作流、代码/仅文档 PR、错误预期失败、恢复成功及远端强制规则均有实际证据；原 CI-02 验收未修改 main 的既有保护，main 验证 PR 已关闭且未合并。用户后续取消 `Restrict updates` 的现行配置见 [CI 与合并规则](../rules/CI与合并规则.md)；原 JSON 配置记录保留为历史验收证据。
 
 M2 的任务 07–11 已于 2026-10-23 完成：Debug 46 个内部测试、10 个驱动测试、7 个 CLI 测试及 110 个黑盒通过；Release 7 个 CLI 测试及 110 个黑盒通过，31 条编译命令无测试依赖；独立审查通过。具体证据与统一提交的调整见 [M2 测试报告](../reports/M2测试报告.md)。
 
-M3 已完成运行时实现与自动化验收；后续为任务 16 的真实控制台验收及 M4 任务 17–18。M4 尚未启动，继续按用户授权推进。
+M4 已于 2026-10-27 通过完整 Debug/Release 自动回归：Debug 76 项内部、10 项驱动、9 项 CLI 与 372 项黑盒；Release 9 项 CLI 与 372 项黑盒，39 条编译命令无测试依赖。四组真实终端人工验收已补齐，M4 完成，详见 [M4 测试报告](../reports/M4测试报告.md)。

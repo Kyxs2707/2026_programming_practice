@@ -15,8 +15,8 @@ class CliTests(unittest.TestCase):
         self.addCleanup(self.temp.cleanup)
         self.cwd = Path(self.temp.name)
 
-    def invoke(self, *args, stdin=b""):
-        return subprocess.run([str(INTERPRETER), *args], cwd=self.cwd,
+    def invoke(self, *args, stdin=b"", cwd=None):
+        return subprocess.run([str(INTERPRETER), *args], cwd=cwd or self.cwd,
                               input=stdin, capture_output=True, timeout=5)
 
     def test_help_version_and_invalid_usage(self):
@@ -65,6 +65,68 @@ class CliTests(unittest.TestCase):
         self.assertNotRegex(result.stderr, rb":\d+:\d+:")
         self.assertNotIn(b"call chain", result.stderr)
 
+    def test_missing_source_reports_absolute_path(self):
+        cwd = self.cwd / "中文 空格目录"
+        cwd.mkdir()
+        name = "不存在 文件.myb"
+        expected = str(cwd / name).replace("/", "\\").encode("utf-8")
+        for mode in [(), ("--check",)]:
+            with self.subTest(mode=mode):
+                result = self.invoke(*mode, name, cwd=cwd)
+                self.assertEqual((result.returncode, result.stdout), (2, b""))
+                self.assertIn(expected, result.stderr.replace(b"/", b"\\"))
+                self.assertNotRegex(result.stderr, rb":\d+:\d+:")
+                self.assertNotIn(b"  at ", result.stderr)
+                self.assertEqual(result.stderr.count(b"\n"), 1)
+
+    def test_missing_source_is_resolved_per_cwd(self):
+        directories = [self.cwd / "目录 一", self.cwd / "目录 二"]
+        for directory in directories:
+            directory.mkdir()
+        name = "same name.myb"
+        for index, cwd in enumerate(directories):
+            expected = str(cwd / name).replace("/", "\\").encode("utf-8")
+            other = str(directories[1 - index] / name).replace("/", "\\").encode("utf-8")
+            for mode in [(), ("--check",)]:
+                with self.subTest(cwd=cwd, mode=mode):
+                    result = self.invoke(*mode, name, cwd=cwd)
+                    self.assertEqual((result.returncode, result.stdout), (2, b""))
+                    path_text = result.stderr.replace(b"/", b"\\")
+                    self.assertIn(expected, path_text)
+                    self.assertNotIn(other, path_text)
+                    self.assertNotRegex(result.stderr, rb":\d+:\d+:")
+                    self.assertNotIn(b"  at ", result.stderr)
+
+    def test_entry_path_controls_are_escaped(self):
+        name = "missing\n\t\u2028source.myb"
+        result = self.invoke(name)
+        self.assertEqual((result.returncode, result.stdout), (2, b""))
+        self.assertIn(b"missing\\n\\t\\u{2028}source.myb", result.stderr)
+        self.assertEqual(result.stderr.count(b"\n"), 1)
+        self.assertNotIn(b"\t", result.stderr)
+        self.assertNotIn("\u2028".encode("utf-8"), result.stderr)
+
+    def test_loaded_source_keeps_absolute_path_and_location(self):
+        script = self.cwd / "已有 中文源.myb"
+        expected_path = str(script).replace("/", "\\").encode("utf-8")
+        for source, location, category in [
+                (b"\nlet value = ;", b":2:13: ", b"frontend error"),
+                (b"\nprint(1/0);", b":2:8: ", b"runtime error [Arithmetic]")]:
+            with self.subTest(category=category):
+                script.write_bytes(source)
+                result = self.invoke(script.name)
+                self.assertEqual((result.returncode, result.stdout), (1, b""))
+                self.assertTrue(result.stderr.replace(b"/", b"\\").startswith(
+                    expected_path + location + category), result.stderr)
+
+    def test_stderr_failure_preserves_entry_exit(self):
+        readonly_file = self.cwd / "readonly.bin"
+        readonly_file.write_bytes(b"")
+        with readonly_file.open("rb") as readonly:
+            result = subprocess.run([str(INTERPRETER), "missing.myb"], cwd=self.cwd,
+                                    stdout=subprocess.PIPE, stderr=readonly, timeout=5)
+        self.assertEqual((result.returncode, result.stdout), (2, b""))
+
     def test_unicode_filename_and_terminator_need_no_suffix(self):
         name = "-北邮 文件"
         (self.cwd / name).write_text('print("北邮😀");', encoding="utf-8")
@@ -79,6 +141,20 @@ class CliTests(unittest.TestCase):
         result = self.invoke("-", stdin=b"print(3);")
         self.assertEqual(result.returncode, 2)
         self.assertEqual(result.stdout, b"")
+
+    def test_check_preserves_stdin_position_and_working_files(self):
+        script = self.cwd / "check-effects.myb"
+        script.write_text('write_text("created.txt", read_line());'
+                          'print(read_text("missing.txt"));', encoding="utf-8")
+        data = self.cwd / "input.bin"
+        data.write_bytes(b"\xff\x00sentinel\n")
+        before = {p.name: p.read_bytes() for p in self.cwd.iterdir()}
+        with data.open("rb", buffering=0) as stream:
+            result = subprocess.run([str(INTERPRETER), "--check", str(script)],
+                                    cwd=self.cwd, stdin=stream, capture_output=True, timeout=5)
+            self.assertEqual(stream.tell(), 0)
+        self.assertEqual((result.returncode, result.stdout, result.stderr), (0, b"", b""))
+        self.assertEqual({p.name: p.read_bytes() for p in self.cwd.iterdir()}, before)
 
     def test_readonly_stdout_reports_runtime_io_at_call_site(self):
         script = self.cwd / "readonly-output.myb"

@@ -1,6 +1,7 @@
 #pragma once
 #include "builtins/registry.hpp"
 #include "vm/call.hpp"
+#include "vm/execution_index.hpp"
 #include "vm/frame.hpp"
 #include "vm/globals.hpp"
 #include "vm/iteration.hpp"
@@ -91,12 +92,15 @@ class VM final {
     void unwind_iterations(std::size_t base) noexcept;
     /** @brief 清理前保存已进入的函数链，记录失败不替换首错。 */
     void capture_trace() noexcept;
+    /** @brief 无分配读取当前失败指令范围；尚未进入帧或位置无效时返回空值。 */
+    std::optional<SourceSpan> current_location() const noexcept;
     [[noreturn]] void invalid();
     Heap &heap_;
     RootRegistry &roots_;
     HostIO &io_;
     EmergencyFailure &first_;
     const BuiltinRegistry &builtins_;
+    ExecutionIndex execution_index_;
     ValueStore store_;
     Globals globals_;
     std::vector<Frame> frames_;

@@ -1,0 +1,87 @@
+{
+  "schema_version": 1,
+  "cases": [
+    {
+      "id": "errors-demo",
+      "script": "cases/demo.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:2:14: runtime error \\[Type\\]: [^\\n]+\\n  at inner \\($SCRIPT:5:12\\)\\n  at outer \\($SCRIPT:7:7\\)\\n"
+    },
+    {
+      "id": "errors-native-no-frame",
+      "script": "cases/native-no-frame.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:2:11: runtime error \\[Type\\]: [^\\n]*\\n  at outer \\($SCRIPT:4:1\\)\\n"
+    },
+    {
+      "id": "errors-precheck-no-frame",
+      "script": "cases/precheck-no-frame.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:3:5: runtime error \\[Type\\]: [^\\n]*\\n  at outer \\($SCRIPT:5:1\\)\\n"
+    },
+    {
+      "id": "errors-effects-preserved",
+      "script": "cases/effects-preserved.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "expected/effects-preserved.stdout",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: runtime error \\[Arithmetic\\]: [^\\n]*\\n",
+      "expect_files": [
+        {
+          "path": "已写入.txt",
+          "content_file": "expected/preserved.txt"
+        },
+        {
+          "path": "after.txt",
+          "absent": true
+        }
+      ]
+    },
+    {
+      "id": "errors-frontend-invalid-utf8",
+      "script": "cases/frontend-invalid-utf8.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: frontend error \\[Encoding\\]: [^\\n]*\\n"
+    },
+    {
+      "id": "errors-frontend-truncated-utf8",
+      "script": "cases/frontend-truncated-utf8.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: frontend error \\[Encoding\\]: [^\\n]*\\n"
+    },
+    {
+      "id": "errors-frontend-surrogate-utf8",
+      "script": "cases/frontend-surrogate-utf8.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: frontend error \\[Encoding\\]: [^\\n]*\\n"
+    },
+    {
+      "id": "errors-frontend-overlong-utf8",
+      "script": "cases/frontend-overlong-utf8.myb",
+      "mode": "run",
+      "expect_exit": 1,
+      "expect_stdout_file": "expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: frontend error \\[Encoding\\]: [^\\n]*\\n"
+    },
+    {
+      "id": "errors-frontend-capacity",
+      "script": "cases/frontend-capacity.myb",
+      "mode": "run",
+      "expect_exit": 3,
+      "expect_stdout_file": "expected/empty.bin",
+      "expect_stderr_regex": "$SCRIPT:\\d+:\\d+: resource error \\[Capacity\\]: [^\\n]*\\n"
+    }
+  ]
+}
