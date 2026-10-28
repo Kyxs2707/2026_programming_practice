@@ -62,8 +62,11 @@ std::string call_program(std::size_t unused, bool builtin) {
     return source + ";i=i+1;}print(total);";
 }
 /** @brief 创建字段数量可变、重复构造次数固定的程序，字段名按固定宽度填写。 */
-std::string field_program(std::size_t count) {
-    std::string source = "struct Record{";
+std::string field_program(std::size_t count, std::size_t unused_schemas = 0) {
+    std::string source;
+    for (std::size_t i = 0; i < unused_schemas; ++i)
+        source += "struct Unused_" + std::to_string(i) + "{}";
+    source += "struct Record{";
     for (std::size_t i = 0; i < count; ++i)
         source += "f" + std::to_string(i) + ":Int64;";
     source += "}let i=0;let total=0;while(i<16){let value=Record{";
@@ -73,6 +76,22 @@ std::string field_program(std::size_t count) {
         source += "f" + std::to_string(i) + ":1";
     }
     return source + "};total=total+value.f0;i=i+1;}print(total);";
+}
+/** @brief 检查非空调用规模用例的工作量；统一供实际样本和反例验证使用。 */
+bool call_work_fits(const TestHooks::ExecutionWorkCounts &work, std::size_t declarations,
+                    std::size_t calls) {
+    return calls > 0 && work.calls > 0 && work.calls < 8 * calls && work.preparation > 0 &&
+           work.preparation <= 64 * (declarations + 16);
+}
+/** @brief 检查非空构造规模用例的工作量，避免计数校验本身遗漏项目。 */
+bool field_work_fits(const TestHooks::ExecutionWorkCounts &work, std::size_t fields,
+                     std::size_t unused_schemas, std::size_t constructions) {
+    const auto resolution_bound = 4 * constructions * (fields + 2);
+    return fields > 0 && constructions > 0 && work.preparation > 0 &&
+           work.preparation <= 64 * (fields + unused_schemas + 16) && work.fields > 0 &&
+           work.fields < 16 * constructions * fields && work.schemas > 0 &&
+           work.schemas <= resolution_bound && work.constructions > 0 &&
+           work.constructions <= resolution_bound && work.writes == constructions * fields;
 }
 } // namespace
 
@@ -168,7 +187,7 @@ MYB_TEST(execution_index_invalid_metadata) {
 }
 
 MYB_TEST(execution_index_failure_cleanup) {
-    for (const auto occurrence : {1u, 5u, 10u, 13u}) {
+    for (unsigned occurrence = 1; occurrence <= 13; ++occurrence) {
         IndexFixture old, next;
         old.prepare();
         TestHooks::fail_next(FaultPoint::ExecutionIndex, occurrence);
@@ -268,19 +287,45 @@ MYB_TEST(execution_index_call_scaling) {
             const auto result = fixture.run(call_program(unused, builtin));
             const auto work = TestHooks::execution_work();
             REQUIRE(result.exit_code == 0 && result.stdout_bytes == "1000\n");
-            REQUIRE(work.calls > 0 && work.calls < 8000);
+            REQUIRE(call_work_fits(work, unused, 1000));
         }
     }
 }
 
 MYB_TEST(execution_index_field_scaling) {
     for (const auto fields : {64u, 128u, 256u}) {
-        TestHooks::reset_execution_work();
-        VmFixture fixture;
-        const auto result = fixture.run(field_program(fields));
-        const auto work = TestHooks::execution_work();
-        REQUIRE(result.exit_code == 0 && result.stdout_bytes == "16\n");
-        REQUIRE(work.fields > 0 && work.fields < 16 * 16 * fields);
-        REQUIRE(work.writes == 16 * fields);
+        for (const auto unused : {0u, 128u, 1024u}) {
+            TestHooks::reset_execution_work();
+            VmFixture fixture;
+            const auto result = fixture.run(field_program(fields, unused));
+            const auto work = TestHooks::execution_work();
+            REQUIRE(result.exit_code == 0 && result.stdout_bytes == "16\n");
+            REQUIRE(field_work_fits(work, fields, unused, 16));
+        }
     }
+}
+
+MYB_TEST(execution_index_work_bounds) {
+    TestHooks::ExecutionWorkCounts calls;
+    calls.preparation = 100;
+    calls.calls = 300;
+    REQUIRE(call_work_fits(calls, 128, 100));
+    calls.preparation = 128 * 128;
+    REQUIRE(!call_work_fits(calls, 128, 100));
+
+    TestHooks::ExecutionWorkCounts fields;
+    fields.preparation = 100;
+    fields.fields = 1024;
+    fields.schemas = 1056;
+    fields.constructions = 1056;
+    fields.writes = 1024;
+    REQUIRE(field_work_fits(fields, 64, 0, 16));
+    fields.preparation = 64 * 64 * 4;
+    REQUIRE(!field_work_fits(fields, 64, 0, 16));
+    fields.preparation = 100;
+    fields.schemas = 64 * 64 * 16;
+    REQUIRE(!field_work_fits(fields, 64, 0, 16));
+    fields.schemas = 1056;
+    fields.constructions = 0;
+    REQUIRE(!field_work_fits(fields, 64, 0, 16));
 }

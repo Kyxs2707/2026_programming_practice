@@ -31,7 +31,7 @@ struct PreparedConstruction {
  * @brief 在发布首帧前建立一次执行所需的名称、字段和构造索引。
  *
  * 拥有辅助文本和编号；借用的 Program、Schema、实际内置描述及名称须覆盖查询期，
- * 期间保持不变。索引不持有 Value，不新增 GC 根，所有查询均不分配或回收。
+ * 期间保持不变。索引不持有 Value，不新增 GC 根，有效查询均不分配或回收。
  */
 class ExecutionIndex final {
   public:
