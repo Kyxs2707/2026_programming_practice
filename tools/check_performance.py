@@ -35,6 +35,135 @@ class MeasurementFailure(Exception):
     """携带已完成轮次，避免失败后丢失原始记录。"""
 
 
+class MeasurementControlError(Exception):
+    """表示本次测量进程的亲和性或优先级控制未完成。"""
+
+
+class WindowsProcessControl:
+    """仅查询或设置当前测量进程及其子进程，不修改系统配置。"""
+
+    def __init__(self):
+        import ctypes
+        from ctypes import wintypes
+        self.ctypes, self.wintypes = ctypes, wintypes
+        self.kernel = ctypes.WinDLL("kernel32", use_last_error=True)
+        self.kernel.GetCurrentProcess.restype = wintypes.HANDLE
+        self.kernel.GetProcessAffinityMask.argtypes = [wintypes.HANDLE, ctypes.POINTER(ctypes.c_size_t), ctypes.POINTER(ctypes.c_size_t)]
+        self.kernel.GetProcessAffinityMask.restype = wintypes.BOOL
+        self.kernel.SetProcessAffinityMask.argtypes = [wintypes.HANDLE, ctypes.c_size_t]
+        self.kernel.SetProcessAffinityMask.restype = wintypes.BOOL
+        self.kernel.GetPriorityClass.argtypes = [wintypes.HANDLE]
+        self.kernel.GetPriorityClass.restype = wintypes.DWORD
+        self.parent = self.kernel.GetCurrentProcess()
+
+    def get_affinity(self, handle=None):
+        process, system = self.ctypes.c_size_t(), self.ctypes.c_size_t()
+        target = self.parent if handle is None else self.wintypes.HANDLE(int(handle))
+        if not self.kernel.GetProcessAffinityMask(target, self.ctypes.byref(process), self.ctypes.byref(system)):
+            raise self.ctypes.WinError(self.ctypes.get_last_error())
+        return process.value, system.value
+
+    def set_affinity(self, mask):
+        if not self.kernel.SetProcessAffinityMask(self.parent, mask):
+            raise self.ctypes.WinError(self.ctypes.get_last_error())
+
+    def get_priority(self, handle):
+        priority = self.kernel.GetPriorityClass(self.wintypes.HANDLE(int(handle)))
+        if not priority:
+            raise self.ctypes.WinError(self.ctypes.get_last_error())
+        return priority
+
+
+class MeasurementScope:
+    """测量前固定允许的单核，创建子进程时设置优先级，并保证退出恢复。"""
+
+    PRIORITY_CLASS = 0x8000  # Windows ABOVE_NORMAL_PRIORITY_CLASS。
+
+    def __init__(self, *, api=None, platform_name=None):
+        self.api = api
+        self.platform = platform_name if platform_name is not None else "win32" if api is not None else sys.platform
+        self.original_mask = None
+        self.original_popen = None
+        self.details = {"policy_version": 1, "platform": self.platform, "status": "not-prepared",
+                        "priority_name": "ABOVE_NORMAL_PRIORITY_CLASS", "priority_class": self.PRIORITY_CLASS,
+                        "scope": "measurement parent and its children", "children": [], "errors": []}
+
+    def __enter__(self):
+        if self.platform != "win32":
+            self.details["status"] = "not-applicable"
+            return self
+        try:
+            self.api = self.api if self.api is not None else WindowsProcessControl()
+            self.original_mask, system_mask = self.api.get_affinity()
+            allowed = self.original_mask & system_mask
+            if not allowed:
+                raise OSError("no allowed logical CPU for measurement")
+            selected_cpu = 14 if allowed & (1 << 14) else allowed.bit_length() - 1
+            selected_mask = 1 << selected_cpu
+            self.details.update(original_parent_mask=self.original_mask, allowed_mask=allowed,
+                                system_mask=system_mask, selected_cpu=selected_cpu, selected_mask=selected_mask)
+            self.api.set_affinity(selected_mask)
+            effective, _ = self.api.get_affinity()
+            if effective != selected_mask:
+                raise OSError("parent affinity does not match requested mask")
+            self.details["parent_effective_mask"] = effective
+            self.original_popen = subprocess.Popen
+            subprocess.Popen = self._popen
+            self.details["status"] = "active"
+            return self
+        except Exception as error:
+            self.details["errors"].append(f"setup: {error}")
+            self._restore()
+            self.details["status"] = "failed"
+            raise MeasurementControlError(f"measurement control setup failed: {error}") from error
+
+    def _popen(self, *args, **options):
+        # 创建时提交优先级，子进程从第一条指令起继承父进程的亲和性。
+        options["creationflags"] = options.get("creationflags", 0) | self.PRIORITY_CLASS
+        process = self.original_popen(*args, **options)
+        child = {"pid": process.pid, "command": list(map(str, args[0] if args else options["args"]))}
+        self.details["children"].append(child)
+        try:
+            mask, system_mask = self.api.get_affinity(process._handle)
+            priority = self.api.get_priority(process._handle)
+            child.update(affinity_mask=mask, system_mask=system_mask, priority_class=priority)
+            if mask != self.details["selected_mask"] or priority != self.PRIORITY_CLASS:
+                raise OSError("child affinity or priority does not match requested controls")
+            return process
+        except Exception as error:
+            child["error"] = str(error)
+            self.details["errors"].append(f"child {process.pid}: {error}")
+            try:
+                process.terminate()
+            finally:
+                process.wait()
+            raise OSError(f"measurement child control failed: {error}") from error
+
+    def _restore(self):
+        if self.original_popen is not None:
+            subprocess.Popen = self.original_popen
+            self.original_popen = None
+        if self.original_mask is not None:
+            try:
+                self.api.set_affinity(self.original_mask)
+                restored, _ = self.api.get_affinity()
+                self.details["restored_parent_mask"] = restored
+                if restored != self.original_mask:
+                    raise OSError("restored parent affinity does not match original mask")
+            except Exception as error:
+                self.details["errors"].append(f"restore: {error}")
+
+    def __exit__(self, exc_type, error, traceback):
+        if self.platform != "win32":
+            return False
+        self._restore()
+        if self.details["errors"]:
+            self.details["status"] = "failed"
+            raise MeasurementControlError("; ".join(self.details["errors"]))
+        self.details["status"] = "restored"
+        return False
+
+
 class Deadline:
     def __init__(self, seconds, clock=time.monotonic):
         self.clock = clock
@@ -316,7 +445,7 @@ def fresh_output(path):
     return path
 
 
-def main(arguments=None):
+def main(arguments=None, *, control_api=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--interpreter", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
@@ -334,8 +463,17 @@ def main(arguments=None):
         output = fresh_output(args.output)
         report = metadata({"current": exe})
         report["arguments"] = {key: str(value) if isinstance(value, Path) else value for key, value in vars(args).items()}
-        report["cases"] = run_suite(exe, output, rounds=args.rounds, calls=args.calls,
-                                    constructions=args.constructions, timeout=args.timeout)
+        controls = MeasurementScope(api=control_api)
+        report["execution_controls"] = controls.details
+        report["cases"] = []
+        try:
+            with controls:
+                report["cases"] = run_suite(exe, output, rounds=args.rounds, calls=args.calls,
+                                            constructions=args.constructions, timeout=args.timeout)
+        except MeasurementControlError as error:
+            existing = {row["case"]: row for row in report["cases"]}
+            report["cases"] = [dict(existing.get(case, {"case": case}), status="failed", control_error=str(error))
+                               for case in ("B01", "B02")]
         report["exit"] = exit_status(report["cases"])
         report["finished_at"] = datetime.now(timezone.utc).isoformat()
         write_report(output / "results.json", report)

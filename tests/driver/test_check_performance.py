@@ -87,6 +87,48 @@ class FakeRunner:
         return record(elapsed, output)
 
 
+class FakeWindowsControl:
+    def __init__(self, mask=(1 << 14) | 3, fail_set=False, fail_restore=False, wrong_child=False):
+        self.original = self.mask = mask
+        self.system = (1 << 16) - 1
+        self.fail_set, self.fail_restore, self.wrong_child = fail_set, fail_restore, wrong_child
+
+    def get_affinity(self, handle=None):
+        return (self.original if handle is not None and self.wrong_child else self.mask), self.system
+
+    def set_affinity(self, mask):
+        if self.fail_set and mask != self.original or self.fail_restore and mask == self.original:
+            raise OSError("simulated affinity failure")
+        self.mask = mask
+
+    def get_priority(self, handle):
+        return 0x8000
+
+
+class FakeChild:
+    def __init__(self, args):
+        self.args, self.returncode, self.pid, self._handle = args, 0, 12345, 19
+        self.terminated = False
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *args):
+        return False
+
+    def communicate(self, input=None, timeout=None):
+        return (b"" if "--check" in self.args else b"17\n"), b""
+
+    def poll(self):
+        return self.returncode
+
+    def terminate(self):
+        self.terminated = True
+
+    def wait(self):
+        return self.returncode
+
+
 class PerformanceTests(unittest.TestCase):
     def setUp(self):
         path = ROOT / "tools/check_performance.py"
@@ -240,7 +282,7 @@ class PerformanceTests(unittest.TestCase):
         exe.write_bytes(b"unused executable")
         cases = [{"case": "B01", "status": "failed"}, {"case": "B02", "status": "passed"}]
         destination = self.output / "evidence"
-        with mock.patch.object(self.tool, "run_suite", return_value=cases), contextlib.redirect_stdout(io.StringIO()):
+        with mock.patch.object(self.tool, "WindowsProcessControl", return_value=FakeWindowsControl(), create=True), mock.patch.object(self.tool, "run_suite", return_value=cases), contextlib.redirect_stdout(io.StringIO()):
             self.assertEqual(self.tool.main(["--interpreter", str(exe), "--output", str(destination)]), 1)
             report = json.loads((destination / "results.json").read_text(encoding="utf-8"))
             self.assertEqual(report["cases"], cases)
@@ -249,6 +291,77 @@ class PerformanceTests(unittest.TestCase):
             self.assertEqual(len(report["generator_sha256"]), 64)
             with contextlib.redirect_stderr(io.StringIO()):
                 self.assertEqual(self.tool.main(["--interpreter", str(exe), "--output", str(destination)]), 2)
+
+    def test_windows_controls_apply_before_all_measured_processes_and_restore(self):
+        self.assertTrue(hasattr(self.tool, "MeasurementScope"), "Windows 测量控制尚未实现")
+        api = FakeWindowsControl()
+        scope = self.tool.MeasurementScope(api=api)
+        created = []
+        def create(command, **options):
+            created.append((list(map(str, command)), options, api.mask))
+            return FakeChild(command)
+        with mock.patch.object(self.tool.subprocess, "Popen", side_effect=create):
+            with scope:
+                self.tool.measure_versions({"current": self.output / "myb.exe"}, self.output / "input.myb", 17)
+        self.assertEqual(len(created), 11)
+        self.assertEqual(api.mask, api.original)
+        self.assertTrue(all(options["creationflags"] & 0x8000 and mask == 1 << 14 for _, options, mask in created))
+        self.assertEqual(scope.details["status"], "restored")
+        self.assertEqual(scope.details["policy_version"], 1)
+        self.assertEqual(len(scope.details["children"]), 11)
+        self.assertTrue(all(child["affinity_mask"] == 1 << 14 and child["priority_class"] == 0x8000 for child in scope.details["children"]))
+
+    def test_controls_select_an_allowed_cpu_and_restore_on_body_failure(self):
+        self.assertTrue(hasattr(self.tool, "MeasurementScope"), "Windows 测量控制尚未实现")
+        api = FakeWindowsControl(mask=(1 << 4) | (1 << 2))
+        original_popen = self.tool.subprocess.Popen
+        with self.assertRaisesRegex(RuntimeError, "body failure"):
+            with self.tool.MeasurementScope(api=api) as scope:
+                self.assertEqual(api.mask, 1 << 4)
+                raise RuntimeError("body failure")
+        self.assertEqual(api.mask, api.original)
+        self.assertIs(self.tool.subprocess.Popen, original_popen)
+        self.assertEqual(scope.details["selected_cpu"], 4)
+
+    def test_wrong_child_control_is_not_silently_accepted(self):
+        self.assertTrue(hasattr(self.tool, "MeasurementScope"), "Windows 测量控制尚未实现")
+        api = FakeWindowsControl(wrong_child=True)
+        children = []
+        def create(command, **options):
+            child = FakeChild(command)
+            children.append(child)
+            return child
+        with mock.patch.object(self.tool.subprocess, "Popen", side_effect=create):
+            with self.assertRaises(self.tool.MeasurementControlError):
+                with self.tool.MeasurementScope(api=api) as scope:
+                    row = self.tool.run_process("myb.exe", ["input.myb"], self.output, 1)
+        self.assertIn("error", row)
+        self.assertTrue(children[0].terminated)
+        self.assertEqual(scope.details["status"], "failed")
+        self.assertIn("error", scope.details["children"][0])
+
+    def test_non_windows_does_not_load_windows_api(self):
+        self.assertTrue(hasattr(self.tool, "MeasurementScope"), "Windows 测量控制尚未实现")
+        with mock.patch.object(self.tool, "WindowsProcessControl", side_effect=AssertionError("Windows API must not load")):
+            with self.tool.MeasurementScope(platform_name="linux") as scope:
+                self.assertEqual(scope.details["status"], "not-applicable")
+
+    def test_control_failures_save_failed_cases_and_never_report_success(self):
+        self.assertTrue(hasattr(self.tool, "MeasurementScope"), "Windows 测量控制尚未实现")
+        exe = self.output / "myb.exe"
+        exe.write_bytes(b"unused executable")
+        for phase in ("setup", "restore"):
+            api = FakeWindowsControl(fail_set=phase == "setup", fail_restore=phase == "restore")
+            destination = self.output / phase
+            cases = [{"case": case, "status": "passed"} for case in ("B01", "B02")]
+            with mock.patch.object(self.tool, "run_suite", return_value=cases) as collect, contextlib.redirect_stdout(io.StringIO()):
+                status = self.tool.main(["--interpreter", str(exe), "--output", str(destination)], control_api=api)
+            self.assertEqual(status, 1)
+            if phase == "setup":
+                collect.assert_not_called()
+            report = json.loads((destination / "results.json").read_text(encoding="utf-8"))
+            self.assertEqual(report["execution_controls"]["status"], "failed")
+            self.assertTrue(all(case["status"] == "failed" for case in report["cases"]))
 
 
 class FixComparisonTests(unittest.TestCase):
