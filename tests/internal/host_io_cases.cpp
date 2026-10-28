@@ -1,5 +1,6 @@
 #include "platform/host_io.hpp"
 #include "builtins/functions.hpp"
+#include "cli/session.hpp"
 #include "runtime/text_builder.hpp"
 #include "test_hooks.hpp"
 #include "test_support.hpp"
@@ -70,7 +71,135 @@ void make_string(Heap &heap, RootedValue &out, std::string_view bytes) {
     builder.append(std::span<const char>(bytes.data(), bytes.size()));
     heap.make_string(std::move(builder), out);
 }
+/** @brief 临时接管一个标准输出句柄，独占管道并在离开作用域时恢复宿主句柄。 */
+struct CapturedEntryStream {
+    DWORD stream;
+    HANDLE reader{}, writer{}, previous;
+    explicit CapturedEntryStream(DWORD stream_id)
+        : stream(stream_id), previous(GetStdHandle(stream_id)) {
+        REQUIRE(CreatePipe(&reader, &writer, nullptr, 4096));
+        REQUIRE(SetStdHandle(stream, writer));
+    }
+    ~CapturedEntryStream() noexcept {
+        SetStdHandle(stream, previous);
+        CloseHandle(writer);
+        CloseHandle(reader);
+    }
+    /** @brief 读取当前已写入的短诊断；先查询可用字节，不等待尚未关闭的写端。 */
+    std::string read_available() {
+        DWORD available{}, read{};
+        REQUIRE(PeekNamedPipe(reader, nullptr, 0, nullptr, &available, nullptr));
+        if (!available)
+            return {};
+        std::string bytes(available, '\0');
+        REQUIRE(ReadFile(reader, bytes.data(), available, &read, nullptr));
+        REQUIRE(read == available);
+        return bytes;
+    }
+};
+/** @brief 保存一次真实入口会话的退出状态、首错头、输出和调用链长度。 */
+struct EntryObservation {
+    int exit{};
+    std::optional<FailureHeader> failure;
+    std::string output, diagnostic;
+    std::size_t calls{};
+};
+/** @brief 恢复入口测试的故障状态，断言失败时也不影响后续用例。 */
+struct EntryFaultScope {
+    ~EntryFaultScope() noexcept { TestHooks::clear_fault(); }
+};
+/**
+ * @brief 在真实 WindowsHostIO 和 Session 边界执行入口，arm 在会话建立后设置故障。
+ * @param[in] path 本次入口借用的路径，生命周期覆盖会话执行。
+ * @param[in] mode 正常执行或检查模式。
+ * @param[in] arm 故障设置动作，不替换入口读取、错误转换或诊断输出。
+ * @return 拥有全部观察文本的会话结果；标准句柄和故障设置已恢复。
+ */
+template <typename Arm>
+EntryObservation observe_entry(std::string_view path, RunMode mode, Arm arm) {
+    EntryFaultScope scope;
+    EmergencyFailure first;
+    WindowsHostIO host(first);
+    BuiltinRegistry builtins;
+    Session session(first, host, builtins);
+    CapturedEntryStream output(STD_OUTPUT_HANDLE), diagnostic(STD_ERROR_HANDLE);
+    arm();
+    EntryObservation result;
+    result.exit = session.run({mode, std::string(path)});
+    if (first.is_set())
+        result.failure = first.header();
+    result.calls = session.call_trace().size();
+    result.output = output.read_available();
+    result.diagnostic = diagnostic.read_available();
+    return result;
+}
+/** @brief 核对入口故障首错、无源码位置及无用户调用链，并保留真实 Session 返回值检查。 */
+void require_entry_failure(const EntryObservation &result, FailureDomain domain,
+                           ReasonCode reason, int exit, std::optional<std::uint32_t> code) {
+    REQUIRE(result.exit == exit);
+    REQUIRE(result.failure.has_value());
+    REQUIRE(result.failure->domain == domain);
+    REQUIRE(result.failure->reason == reason);
+    REQUIRE(result.failure->os_code == code);
+    REQUIRE(!result.failure->span);
+    REQUIRE(result.output.empty());
+    REQUIRE(result.calls == 0);
+    REQUIRE(result.diagnostic.find("  at ") == std::string::npos);
+}
 } // namespace
+
+MYB_TEST(host_io_entry_failure) {
+    const std::string relative = "build/bugfix-20261028/b03/入口 源.myb";
+    auto path = std::filesystem::absolute(
+        std::filesystem::path(L"build/bugfix-20261028/b03/入口 源.myb"));
+    std::filesystem::create_directories(path.parent_path());
+    path.make_preferred();
+    EmergencyFailure setup;
+    WindowsHostIO host(setup);
+    const auto absolute = wide_to_utf8(path.wstring(), {setup, {}});
+    host.write_text(relative, "");
+    for (const auto mode : {RunMode::Run, RunMode::Check}) {
+        const auto missing = observe_entry(relative + ".missing", mode, [] {});
+        require_entry_failure(missing, FailureDomain::EntryIO, ReasonCode::IO, 2,
+                              ERROR_FILE_NOT_FOUND);
+        REQUIRE(missing.diagnostic.find(absolute + ".missing") != std::string::npos);
+        for (const auto point : {FaultPoint::OsRead, FaultPoint::OsClose}) {
+            const auto code = point == FaultPoint::OsRead ? ERROR_READ_FAULT : ERROR_INVALID_HANDLE;
+            const auto result = observe_entry(relative, mode, [&] {
+                TestHooks::fail_os_next(point, code);
+            });
+            require_entry_failure(result, FailureDomain::EntryIO, ReasonCode::IO, 2, code);
+            REQUIRE(result.diagnostic.find(absolute) != std::string::npos);
+            // 入口错误清理释放文件句柄，独占打开不受上次读取或关闭失败影响。
+            const auto reopened = CreateFileW(path.c_str(), GENERIC_WRITE, 0, nullptr,
+                                              OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
+            REQUIRE(reopened != INVALID_HANDLE_VALUE);
+            REQUIRE(CloseHandle(reopened));
+        }
+        for (const auto point : {FaultPoint::EntryPathBuffer, FaultPoint::EntryPathText}) {
+            const auto result = observe_entry(relative, mode, [&] { TestHooks::fail_next(point); });
+            require_entry_failure(result, FailureDomain::Resource, ReasonCode::Allocation, 3, {});
+        }
+        for (const auto point : {FaultPoint::EntryPathBuffer, FaultPoint::EntryPathText}) {
+            const bool encoding = point == FaultPoint::EntryPathText;
+            const auto code = encoding ? ERROR_NO_UNICODE_TRANSLATION : ERROR_INVALID_NAME;
+            const auto result = observe_entry(relative, mode, [&] {
+                TestHooks::fail_os_next(point, code);
+            });
+            require_entry_failure(result, FailureDomain::EntryIO,
+                                  encoding ? ReasonCode::Encoding : ReasonCode::IO, 2, code);
+            REQUIRE(result.diagnostic.find(relative) != std::string::npos);
+            REQUIRE(result.diagnostic.find(absolute) == std::string::npos);
+        }
+        const auto failed_message = observe_entry(relative + ".missing", mode, [] {
+            TestHooks::fail_next(FaultPoint::EntryDiagnostic);
+        });
+        require_entry_failure(failed_message, FailureDomain::EntryIO, ReasonCode::IO, 2,
+                              ERROR_FILE_NOT_FOUND);
+        REQUIRE(failed_message.diagnostic.find("entry I/O error [IO]") != std::string::npos);
+    }
+    REQUIRE(std::filesystem::remove(path));
+}
 
 MYB_TEST(host_io) {
     EmergencyFailure first;
